@@ -3,349 +3,144 @@
 <head>
 <meta charset="UTF-8">
 <title>Mythology Creatures — Quadrant Plot</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hubballi&display=swap">
+<link rel="stylesheet" href="../css/tokens.css">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Alyamama&display=swap');
-
-  :root {
-    --bg: #FFFAF2;
-    --panel: var(--bg);
-    --grid: #D3D1CB;
-    --text: #1F2937;
-    --muted: #6B7280;
-    --tooltip-bg: #FFFFFF;
-    --tooltip-shadow: rgba(15, 23, 42, 0.16);
-  }
-
+  /* Restyled to match the article (css/tokens.css): paper background, ink
+     linework, the shared culture colours, Disney Heroic title, Hubballi labels.
+     Data, positions, sizes and hover are as before. The page is one fixed-size
+     block (980 x 880); the article scales it to fit its box. */
   * { box-sizing: border-box; }
-  html, body {
-    margin: 0;
-    min-height: 100%;
-  }
+  html, body { margin: 0; height: 100%; overflow: hidden; }
   body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
     display: flex;
-    justify-content: flex-end;
-    align-items: flex-start;
-    padding: 60px 125px 0 0;
-    min-height: 400vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
   }
 
   #graph-header {
-    position: fixed;
-    top: 24px;
-    right: 125px;
-    width: 760px;
-    padding-left: 40px;
     margin: 0;
-    font-family: 'Alyamama', sans-serif;
+    font-family: var(--font-display);
+    font-weight: 400;
     font-size: 40px;
-    text-align: left;
-    color: var(--text);
-    z-index: 3;
+    line-height: 1.1;
+    text-align: center;
+    color: var(--ink);
   }
 
-  #container {
-    width: 760px;
-    position: fixed;
-    top: 90px;
-    right: 125px;
-    z-index: 2;
-  }
-
-  #canvas {
-    width: 760px;
-    height: 760px;
-    background: var(--panel);
-    overflow: hidden;
-  }
+  #layout { display: flex; align-items: center; gap: 36px; }
+  #plot-svg { display: block; overflow: visible; }
 
   .quadrant-label {
+    font-family: var(--font-body);
     font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 1px;
+    letter-spacing: var(--caps-tracking);
     text-transform: uppercase;
-    fill: var(--muted);
-    opacity: 0.9;
+    fill: var(--ink);
   }
-
-  .axis-line {
-    stroke: var(--grid);
-    stroke-width: 1.5;
-  }
-
+  .axis-line { stroke: var(--ink); stroke-width: 1.2; }
   .axis-tick-label {
+    font-family: var(--font-body);
     font-size: 11px;
-    fill: var(--muted);
-    font-weight: 700;
+    letter-spacing: var(--caps-tracking);
+    fill: var(--ink);
   }
-
   .neutral-label {
+    font-family: var(--font-body);
     font-size: 11px;
-    fill: var(--muted);
-    font-weight: 700;
     font-style: italic;
+    fill: var(--ink-soft);
   }
 
   .dot {
     cursor: pointer;
-    transition: filter 0.12s ease;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-width: 2.2;
-    stroke-opacity: 0.92;
-    opacity: 0.86;
+    stroke: var(--ink);
+    stroke-width: 1.2;
+    fill-opacity: 0.82;
+    transition: fill-opacity 0.12s ease;
   }
-  .dot:hover {
-    filter: brightness(1.18);
-  }
+  .dot:hover { fill-opacity: 1; stroke-width: 2; }
 
-  #legend-wrapper {
-    display: none;
-  }
-
+  /* legend column to the right of the plot */
   #side-legend {
-    position: fixed;
-    top: 120px;
-    right: 32px;
-    width: 110px;
     display: flex;
     flex-direction: column;
-    gap: 28px;
-    color: var(--muted);
-    font-size: 11px;
-    z-index: 4;
+    gap: 34px;
+    width: 120px;
   }
-
-  #culture-legend {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    align-items: center;
-  }
-
-  .culture-list {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .culture-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .culture-swatch {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    display: block;
-  }
-
-  .culture-label {
-    color: var(--text);
-    font-size: 11px;
-    text-align: center;
-    line-height: 1.2;
-  }
-
+  .legend-block { display: flex; flex-direction: column; gap: 12px; }
   .side-legend-title {
-    color: var(--muted);
-    font-size: 10px;
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
-    text-align: center;
-  }
-
-  #popularity-legend {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-  }
-
-  #popularity-legend .size-legend-column {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    align-items: center;
-  }
-
-  .legend-size-swatch {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    border: 1px solid var(--muted);
-    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05);
-  }
-
-  #popularity-legend .legend-size-swatch {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    border: 1px solid var(--muted);
-    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05);
-  }
-
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .legend-swatch,
-  .legend-size-swatch {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .legend-swatch {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-  }
-
-  .legend-size-swatch {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    border: 1px solid var(--muted);
-    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05);
-  }
-
-  .size-legend-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .size-legend-title {
-    color: var(--muted);
     font-size: 12px;
-    letter-spacing: 0.8px;
+    letter-spacing: var(--caps-tracking);
     text-transform: uppercase;
+    color: var(--ink);
   }
-
-  .legend-label {
-    color: var(--text);
-    font-size: 15px;
+  .culture-item, .size-item { display: flex; align-items: center; gap: 10px; font-size: 15px; }
+  .culture-swatch {
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 1.2px solid var(--ink);
+    flex-shrink: 0;
   }
+  .size-swatch {
+    border-radius: 50%;
+    border: 1.2px solid var(--ink);
+    flex-shrink: 0;
+  }
+  #size-row { display: flex; align-items: flex-end; gap: 12px; }
 
+  /* hover card, styled like the article's script cards */
   #tooltip {
     position: fixed;
     display: none;
-    width: 360px;
-    max-width: 360px;
-    min-height: 140px;
-    background: var(--tooltip-bg);
-    color: #1A1A1A;
-    border-radius: 0;
-    padding: 20px 22px;
-    box-shadow: 0 18px 48px var(--tooltip-shadow);
-    font-size: 13px;
-    line-height: 1.55;
+    width: 340px;
+    background: var(--paper);
+    color: var(--ink);
+    border: 1px solid rgb(30 28 25 / 0.25);
+    border-radius: 8px;
+    padding: 16px 18px;
+    box-shadow: 0 10px 30px rgb(30 28 25 / 0.16);
+    font-size: 15px;
+    line-height: 1.5;
     z-index: 1000;
     pointer-events: none;
   }
-
-  #tooltip .tt-head {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 8px;
-  }
-
-  #tooltip .tt-emoji {
-    font-size: 28px;
-    line-height: 1;
-  }
-  #tooltip .tt-name {
-    font-weight: 700;
-    font-size: 14px;
-  }
-  #tooltip .tt-sub {
-    font-size: 11px;
-    color: #4B5563;
-  }
-  #tooltip .tt-desc {
-    color: #334155;
-  }
-  #tooltip .tt-source {
-    margin-top: 8px;
-    font-size: 10.5px;
-    color: #64748B;
-    font-style: italic;
-  }
-
-  #story-image {
-    position: fixed;
-    left: 125px;
-    top: 100vh;
-    width: 540px;
-    max-width: calc(100vw - 880px);
-    border-radius: 0;
-    box-shadow: 0 24px 48px rgba(15, 23, 42, 0.12);
-    object-fit: cover;
-    display: block;
-    z-index: 5;
-    transition: transform 0.2s ease-out;
-  }
-
-  #scrolly {
-    width: 100%;
-    position: relative;
-    margin-top: 100vh;
-  }
-
-  .step {
-    min-height: 300vh;
-  }
-
+  #tooltip .tt-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  #tooltip .tt-emoji { font-size: 26px; line-height: 1; }
+  #tooltip .tt-name { font-family: var(--font-display); font-size: 20px; line-height: 1.1; }
+  #tooltip .tt-sub { font-size: 12px; letter-spacing: var(--caps-tracking); text-transform: uppercase; color: var(--ink-soft); }
+  #tooltip .tt-source { margin-top: 8px; font-size: 13px; color: var(--ink-soft); font-style: italic; }
 </style>
 </head>
 <body>
 
 <h1 id="graph-header">What creatures show up, and in what?</h1>
-<div id="container">
-  <div id="canvas">
-    <svg id="plot-svg" width="760" height="760"></svg>
-  </div>
-  <div id="legend-wrapper">
-    <div id="legend-container">
-      <div id="legend"></div>
-      <div id="size-legend"></div>
+<div id="layout">
+  <svg id="plot-svg" width="760" height="760"></svg>
+  <div id="side-legend">
+    <div class="legend-block">
+      <div class="side-legend-title">Cultures</div>
+      <div id="culture-row" class="legend-block"></div>
+    </div>
+    <div class="legend-block">
+      <div class="side-legend-title">Popularity</div>
+      <div id="size-row"></div>
     </div>
   </div>
 </div>
 
-<div id="side-legend">
-  <div id="culture-legend">
-    <div class="culture-list" id="culture-row"></div>
-    <div class="side-legend-title">Cultures</div>
-  </div>
-  <div id="popularity-legend">
-    <div class="size-legend-column" id="side-size-row"></div>
-    <div class="side-legend-title">Popularity</div>
-  </div>
-</div>
-
-<div id="scrolly">
-  <div class="step" data-image="Group 67.png"></div>
-  <div class="step" data-image="Group 68.png"></div>
-  <div class="step" data-image="Group 69.png"></div>
-</div>
-
-<img id="story-image" src="Group 67.png" alt="Group 67" />
-
 <div id="tooltip"></div>
 
 <script src="creatures_data.js"></script>
-<script src="https://unpkg.com/scrollama"></script>
 <script>
+// shared culture colours from css/tokens.css
+const tokens = getComputedStyle(document.documentElement);
+const cultureColor = (m) => tokens.getPropertyValue('--c-' + String(m).toLowerCase()).trim();
+
 const svg = document.getElementById('plot-svg');
 const NS = 'http://www.w3.org/2000/svg';
 const lineLayer = document.createElementNS(NS, 'g');
@@ -369,69 +164,6 @@ function el(tag, attrs) {
   const node = document.createElementNS(NS, tag);
   for (const key in attrs) node.setAttribute(key, attrs[key]);
   return node;
-}
-
-function hexToRgb(hex) {
-  const clean = hex.replace('#', '');
-  const value = parseInt(clean.length === 3 ? clean.split('').map(c => c + c).join('') : clean, 16);
-  return { r: (value >> 16) & 255, g: (value >> 8) & 255, b: value & 255 };
-}
-
-function rgbToHex({ r, g, b }) {
-  return `#${[r, g, b].map(x => x.toString(16).padStart(2, '0')).join('')}`;
-}
-
-function rgbToHsl({ r, g, b }) {
-  r /= 255; g /= 255; b /= 255;
-  const max = Math.max(r, g, b), min = Math.min(r, g, b);
-  let h = 0, s = 0, l = (max + min) / 2;
-  if (max !== min) {
-    const d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    switch (max) {
-      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-      case g: h = (b - r) / d + 2; break;
-      case b: h = (r - g) / d + 4; break;
-    }
-    h /= 6;
-  }
-  return { h, s, l };
-}
-
-function hslToRgb({ h, s, l }) {
-  let r, g, b;
-  if (s === 0) {
-    r = g = b = l;
-  } else {
-    const hue2rgb = (p, q, t) => {
-      if (t < 0) t += 1;
-      if (t > 1) t -= 1;
-      if (t < 1/6) return p + (q - p) * 6 * t;
-      if (t < 1/2) return q;
-      if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
-      return p;
-    };
-    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-    const p = 2 * l - q;
-    r = hue2rgb(p, q, h + 1/3);
-    g = hue2rgb(p, q, h);
-    b = hue2rgb(p, q, h - 1/3);
-  }
-  return { r: Math.round(r * 255), g: Math.round(g * 255), b: Math.round(b * 255) };
-}
-
-function pastelColor(hex) {
-  const hsl = rgbToHsl(hexToRgb(hex));
-  hsl.s = Math.min(0.55, hsl.s * 0.7 + 0.15);
-  hsl.l = Math.max(0.86, hsl.l * 0.65 + 0.25);
-  return rgbToHex(hslToRgb(hsl));
-}
-
-function darkerShade(hex) {
-  const hsl = rgbToHsl(hexToRgb(hex));
-  hsl.s = Math.min(0.9, hsl.s * 1.2 + 0.08);
-  hsl.l = Math.max(0.28, hsl.l * 0.65);
-  return rgbToHex(hslToRgb(hsl));
 }
 
 function hashStr(str) {
@@ -458,21 +190,6 @@ const quadrantCorner = {
   'bottom-left': [plotX0, plotY0 + plotH],
   'bottom-right': [plotX0 + plotW, plotY0 + plotH]
 };
-
-const quadrantColor = {};
-CREATURES_DATA.forEach(c => { quadrantColor[c.quadrant] = c.color; });
-
-for (const q in quadrantSign) {
-  const { sx, sy } = quadrantSign[q];
-  const x = sx === -1 ? plotX0 : centerX;
-  const y = sy === -1 ? plotY0 : centerY;
-  const rect = el('rect', {
-    x, y, width: plotW / 2, height: plotH / 2,
-    fill: '#FFFFFF', opacity: 0,
-    'pointer-events': 'none'
-  });
-  svg.appendChild(rect);
-}
 
 const mythLabelByQuadrant = {};
 CREATURES_DATA.forEach(c => { mythLabelByQuadrant[c.quadrant] = c.mythLabel; });
@@ -527,16 +244,11 @@ CREATURES_DATA.forEach((c) => {
   const x = centerX + dx;
   const y = centerY + dy;
   const r = rMin + (c.popularity - 1) / 9 * (rMax - rMin);
-  const fillColor = pastelColor(c.color);
-  const strokeColor = darkerShade(c.color);
 
   const circle = el('circle', {
     class: 'dot',
     cx: x, cy: y, r,
-    fill: fillColor,
-    stroke: strokeColor,
-    'stroke-width': 3,
-    'fill-opacity': 1
+    fill: cultureColor(c.mythology)
   });
 
   const title = el('title', {});
@@ -575,19 +287,15 @@ function showTooltip(c) {
 }
 
 function positionTooltip(event) {
-  const pad = 16;
-  let left = event.clientX + pad;
-  let top = event.clientY + pad;
-  if (left + 280 > window.innerWidth) left = event.clientX - 280 - pad;
-  tooltip.style.left = `${left}px`;
-  tooltip.style.top = `${top}px`;
+  positionTooltipCoords(event.clientX, event.clientY);
 }
 
 function positionTooltipCoords(clientX, clientY) {
   const pad = 16;
   let left = clientX + pad;
   let top = clientY + pad;
-  if (left + 280 > window.innerWidth) left = clientX - 280 - pad;
+  if (left + tooltip.offsetWidth > window.innerWidth) left = clientX - tooltip.offsetWidth - pad;
+  if (top + tooltip.offsetHeight > window.innerHeight) top = Math.max(pad, clientY - tooltip.offsetHeight - pad);
   tooltip.style.left = `${left}px`;
   tooltip.style.top = `${top}px`;
 }
@@ -596,66 +304,28 @@ function hideTooltip() {
   tooltip.style.display = 'none';
 }
 
+// legend: one swatch per culture, in the order the data lists them
 const cultureRow = document.getElementById('culture-row');
-const sideSizeRow = document.getElementById('side-size-row');
 const seenCultures = new Set();
 CREATURES_DATA.forEach(c => {
   if (seenCultures.has(c.mythology)) return;
   seenCultures.add(c.mythology);
   const item = document.createElement('div');
   item.className = 'culture-item';
-  item.innerHTML = `
-    <span class="culture-swatch" style="background:${c.color}"></span>
-    <span class="culture-label">${c.mythLabel}</span>
-  `;
+  item.innerHTML = `<span class="culture-swatch" style="background:${cultureColor(c.mythology)}"></span><span>${c.mythLabel}</span>`;
   cultureRow.appendChild(item);
 });
 
-const sizes = [3, 6, 9].map(popularity => ({
-  popularity,
-  radius: rMin + (popularity - 1) / 9 * (rMax - rMin)
-}));
-
-sizes.forEach(({ radius }) => {
+// legend: bubble sizes for popularity 3, 6 and 9 (same scale as the plot)
+const sizeRow = document.getElementById('size-row');
+[3, 6, 9].forEach(popularity => {
+  const radius = rMin + (popularity - 1) / 9 * (rMax - rMin);
   const swatch = document.createElement('span');
-  swatch.className = 'legend-size-swatch';
+  swatch.className = 'size-swatch';
   swatch.style.width = `${radius * 2}px`;
   swatch.style.height = `${radius * 2}px`;
-  sideSizeRow.appendChild(swatch);
+  sizeRow.appendChild(swatch);
 });
-
-const storyImage = document.getElementById('story-image');
-const scroller = scrollama();
-
-function updateStoryMotion(progress) {
-  const imageHeight = storyImage.getBoundingClientRect().height || 540;
-  const canvasHeight = 760;
-  const totalTravel = canvasHeight + imageHeight;
-  const translateY = Math.round(totalTravel * progress);
-  const scale = 0.88 + progress * 0.12;
-  storyImage.style.transform = `translateY(-${translateY}px) scale(${scale})`;
-}
-
-scroller
-  .setup({
-    step: '.step',
-    offset: 1,
-    progress: true,
-    debug: false,
-  })
-  .onStepEnter(response => {
-    storyImage.style.transition = 'none';
-    storyImage.src = response.element.dataset.image;
-    updateStoryMotion(0);
-    void storyImage.offsetHeight;
-    storyImage.style.transition = 'transform 0.2s ease-out';
-  })
-  .onStepProgress(response => {
-    updateStoryMotion(response.progress);
-  });
-
-window.addEventListener('resize', scroller.resize);
-
 </script>
 
 </body>

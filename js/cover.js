@@ -245,6 +245,7 @@
     if (!c.tag) return;
     c.tag.name.textContent = shown(c).name;
     c.tag.culture.textContent = shown(c).culture;
+    c.tag.culture.style.setProperty("--dot", "var(--c-" + shown(c).culture.toLowerCase() + ")"); // shared culture colour
   }
 
   function makeTag(c) {

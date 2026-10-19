@@ -1,0 +1,32 @@
+/* =========================================================
+   Shared tokens for the whole piece: the page (index.html) and
+   all three charts (charts/*.html) load this file.
+   ========================================================= */
+@font-face {
+  font-family: "Disney Heroic";
+  src: url("../assets/fonts/DisneyHeroic.ttf") format("truetype");
+  font-display: swap;
+}
+
+:root {
+  --ink: #1e1c19;          /* text, linework, outlines (like the cover's ink lines) */
+  --ink-soft: #6b6458;     /* secondary text and faint rules */
+  --paper: #f3eee3;        /* the page; charts sit straight on it */
+  --accent: #b8462f;
+
+  /* The four cultures: flat, print-like tones taken from the cover art.
+     Checked for colour-blind readers: every pair stays clearly apart
+     under protanopia, deuteranopia and tritanopia. Used by the cover's
+     name tags and all three charts. */
+  --c-greek: #2c4f7c;      /* deep indigo (Empousa's dress) */
+  --c-hindu: #db8f30;      /* saffron (the Griffin's ochre) */
+  --c-japanese: #a3352a;   /* vermilion (the cover's accent red) */
+  --c-norse: #6aa384;      /* sage green (the hills) */
+
+  --font-display: "Disney Heroic", Georgia, serif;     /* headings and chart titles (assets/fonts/DisneyHeroic.ttf) */
+  --font-body: "Hubballi", Georgia, serif;              /* body text, chart labels, legends, notes (Google Fonts) */
+  --font-tag: "Hubballi", var(--font-ui);               /* creature name tags */
+  --font-ui: ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --caps-tracking: 0.12em; /* spaced capitals, as on the cover's name tags */
+}

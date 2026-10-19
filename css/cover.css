@@ -1,27 +1,13 @@
 /* =========================================================
-   Tokens: swap in your chosen fonts and colours here.
+   Cover settings. Shared colours and fonts are in css/tokens.css.
    ========================================================= */
 :root {
   --sky: #bad4dc;          /* fills any gap behind the sky plane; match your SKY layer */
-  --ink: #1e1c19;
-  --paper: #f3eee3;
-  --accent: #b8462f;
   --magic: #ffc93c;        /* sparkle and glow colour when a creature switches */
-
-  --font-display: "Disney Heroic", Georgia, serif;     /* headings (assets/fonts/DisneyHeroic.ttf) */
-  --font-body: "Hubballi", Georgia, serif;              /* body text (Google Fonts) */
-  --font-tag: "Hubballi", var(--font-ui);              /* creature name tags */
-  --font-ui: ui-monospace, "SFMono-Regular", Menlo, monospace;
 
   --fade: 280ms;           /* how long each creature takes to fade out, and its twin to fade in */
   --fade-gap: 120ms;       /* the twin starts fading in this long after the first one starts fading out */
   --edge: clamp(28px, 5vw, 72px); /* height of the torn bottom edge of the cover */
-}
-
-@font-face {
-  font-family: "Disney Heroic";
-  src: url("../assets/fonts/DisneyHeroic.ttf") format("truetype");
-  font-display: swap;
 }
 
 * { box-sizing: border-box; }
@@ -141,6 +127,17 @@ body { background: var(--paper); color: var(--ink); font-family: var(--font-body
 .cover-label-pill b, .cover-label-culture { position: relative; font-weight: 400; }
 .cover-label-pill b { font-size: 1.4em; letter-spacing: 0.12em; text-transform: uppercase; }
 .cover-label-culture { font-size: 1.1em; margin-top: 0.05em; opacity: 0.85; }
+.cover-label-culture::before {       /* dot in the culture's colour, the same as in the charts */
+  content: "";
+  display: inline-block;
+  width: 0.62em;
+  height: 0.62em;
+  margin-right: 0.4em;
+  border-radius: 50%;
+  background: var(--dot, transparent);
+  box-shadow: 0 0 0 1px rgb(243 238 227 / 0.7);
+  vertical-align: 0.02em;
+}
 
 /* The help line under "Switch all" now says this, so the floating hint is
    switched off. Delete this rule to bring it back. */
