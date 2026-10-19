@@ -5,6 +5,11 @@
 <title>Mythology Creatures — Quadrant Plot</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hubballi&display=swap">
 <link rel="stylesheet" href="../css/tokens.css">
+<script>
+  // In the article the title is a heading on the page, so the chart hides its own (?embed)
+  if (/[?&]embed\b/.test(location.search)) document.documentElement.classList.add('embedded');
+</script>
+<style>.embedded h1 { display: none; }</style>
 <style>
   /* Restyled to match the article (css/tokens.css): paper background, ink
      linework, the shared culture colours, Disney Heroic title, Hubballi labels.
