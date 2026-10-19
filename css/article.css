@@ -1,0 +1,125 @@
+/* =========================================================
+   The article under the cover. Colours and fonts come from the
+   tokens at the top of css/cover.css. One plain background for now;
+   the four sky colours come later (build order step 2).
+   ========================================================= */
+.article {
+  --placeholder: #d6d3cc;
+  --placeholder-line: #8e897f;
+  padding: 1rem 16px 8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+/* Reading column */
+.col { width: 100%; max-width: 40rem; margin-inline: auto; }
+.prose { display: flex; flex-direction: column; gap: 1.2rem; }
+.article p { margin: 0; font-family: var(--font-body); font-size: 1.2rem; line-height: 1.65; letter-spacing: 0.01em; }
+
+/* Section headings */
+.article h2 {
+  margin: 3rem 0 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.1;
+  text-wrap: balance;
+}
+.article h3 {
+  margin: 0 0 0.2rem;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.6rem;
+  line-height: 1.15;
+}
+.about p { font-size: 1.05rem; }
+
+/* Grey placeholder box: stands in for an interaction or chart, labelled with its bracketed name */
+.ph {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 12rem;
+  padding: 1.25rem;
+  border: 1.5px dashed var(--placeholder-line);
+  border-radius: 6px;
+  background: var(--placeholder);
+  text-align: center;
+}
+.ph-name, .ph-step {
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--ink);
+  max-width: 34rem;
+}
+.ph-step { opacity: 0.7; }
+.ph-step:empty { display: none; }
+/* =========================================================
+   The three charts: each is its original page from the old repo
+   (charts/), loaded unchanged in a full-screen frame so its own
+   hover, drag and zoom keep working.
+   ========================================================= */
+.chart-frame { position: relative; width: 100%; height: 100vh; height: 100svh; }
+.chart-frame iframe { display: block; width: 100%; height: 100%; border: 0; background: #FFFAF2; }
+.chart-frame.is-offscreen iframe { visibility: hidden; }   /* only the chart on screen is ever shown */
+.chart-frame .ph-step { display: none; }                   /* step names stay in the markup for the step states to come */
+.chart-solo, .scrolly-chart { margin-inline: -16px; }
+.scrolly-chart .sticky { padding: 0; }
+
+/* =========================================================
+   Pinned placeholders: the box stays on screen while its
+   paragraphs scroll over it as cards.
+   ========================================================= */
+.scrolly { position: relative; margin-inline: -16px; }
+.sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem 16px;
+}
+.ph-pinned { width: min(100%, 60rem); height: min(80svh, 36rem); justify-content: flex-start; } /* label at the top, clear of the cards */
+
+.steps {
+  position: relative;
+  z-index: 1;                        /* cards pass over the pinned box, not under it */
+  margin-top: -100vh;
+  margin-top: -100svh;
+  pointer-events: none;              /* the box underneath stays usable between cards */
+}
+.step {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  padding-inline: max(16px, 5vw);
+}
+.step-spacer { min-height: 70vh; min-height: 70svh; }
+.card {
+  pointer-events: auto;
+  width: min(100%, 27rem);
+  padding: 1.2rem 1.4rem;
+  background: var(--paper);
+  border: 1px solid rgb(30 28 25 / 0.18);
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgb(30 28 25 / 0.16);
+}
+.card p { font-size: 1.1rem; }
+
+/* Phones: the box pins to the top and the cards pass underneath it */
+@media (max-width: 760px) {
+  .article p { font-size: 1.1rem; }
+  .sticky { place-items: start center; padding-top: 12px; z-index: 2; pointer-events: none; }
+  .sticky .ph, .sticky .chart-frame { pointer-events: auto; }
+  .ph-pinned { height: 44svh; min-height: 0; }
+  .scrolly-chart .chart-frame { height: 60svh; }
+  .step { align-items: flex-end; padding-bottom: 6svh; min-height: 80svh; }
+  .step-spacer { min-height: 60svh; }
+  .card p { font-size: 1.02rem; }
+}

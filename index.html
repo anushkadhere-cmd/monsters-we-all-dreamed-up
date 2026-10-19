@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>The Monsters We All Dreamed Up</title>
+  <meta name="description" content="Four mythologies, ninety-six monsters, one suspiciously familiar bestiary.">
+  <!-- Add your Google Fonts <link> here, then set --font-display / --font-body in css/cover.css -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hubballi&display=swap">
+  <link rel="stylesheet" href="css/cover.css">
+  <link rel="stylesheet" href="css/article.css">
+</head>
+<body>
+
+  <!-- ================= COVER: switch the lore ================= -->
+  <header class="cover" id="cover">
+    <div class="cover-frame">
+      <div class="cover-stage" id="cover-stage">
+        <!-- js/cover.js fills this with the background planes and creatures -->
+        <div class="cover-inner" id="cover-inner"></div>
+        <div class="cover-hint" id="cover-hint" hidden></div>
+        <p class="cover-msg" id="cover-msg" hidden></p>
+      </div>
+
+      <!-- Over the corners of the scene (outside the swipeable stage, so they stay put on phones) -->
+      <div class="cover-controls">
+        <button type="button" class="cover-switch" id="cover-switch" aria-pressed="false"><span class="cover-switch-label">Switch all</span></button>
+        <p class="cover-help" id="cover-help">Hover a creature to meet its twin from another culture.</p>
+      </div>
+      <p class="cover-byline">By Anushka Dhere</p>
+
+      <!-- Scroll cue: a mouse whose dot runs down the dotted line to the arrow -->
+      <a class="cover-scroll" id="cover-scroll" href="#intro" aria-label="Scroll down">
+        <svg viewBox="0 0 28 56" aria-hidden="true">
+          <rect x="5" y="1.5" width="18" height="28" rx="9" />
+          <line class="cover-scroll-track" x1="14" y1="13" x2="14" y2="47" />
+          <circle class="cover-scroll-dot" cx="14" cy="9" r="1.8" />
+          <polyline points="9.5,44 14,49.5 18.5,44" />
+        </svg>
+      </a>
+
+      <div class="cover-edge" aria-hidden="true"></div>
+    </div>
+
+    <div class="cover-text" id="intro">
+      <h1 class="visually-hidden">The Monsters We All Dreamed Up</h1>
+      <p class="cover-dek">Same beast, different lore: four mythologies, <span class="nowrap">ninety-six</span> monsters, one suspiciously familiar bestiary.</p>
+    </div>
+    <p class="visually-hidden" id="cover-live" aria-live="polite"></p>
+  </header>
+
+  <!-- ================= ARTICLE (next steps) ================= -->
+  <main class="article" id="article">
+    <div class="col"><div class="ph"><span class="ph-name">[Which bestiary did you grow up with?]</span></div></div>
+    <div class="scrolly scrolly-ill" data-scrolly><div class="sticky"><div class="ph ph-pinned"><span class="ph-name">[Two serpents · illustration]</span><span class="ph-step" aria-hidden="true"></span></div></div><div class="steps"><div class="step step-spacer" data-step=""></div><div class="step" data-step=""><div class="card"><p>In Izumo, in western Japan, an eight-headed serpent eats one daughter a year. When the storm god Susanoo comes to stop it, he doesn't fight it head-on. He sets out eight vats of sake, waits until every head is drunk, and cuts the serpent to pieces.</p></div></div><div class="step" data-step=""><div class="card"><p>Thousands of kilometres away, on India's Yamuna river, a many-headed serpent named Kaliya is poisoning the water. A boy god, Krishna, dives in and dances on its heads until it gives up and leaves.</p></div></div><div class="step" data-step=""><div class="card"><p>Nothing in the historical record links these two stories. Yet both have a river, a serpent with too many heads, and a hero who wins by being cleverer rather than stronger.</p></div></div></div></div>
+    <div class="scrolly scrolly-ill" data-scrolly><div class="sticky"><div class="ph ph-pinned"><span class="ph-name">[Three silhouettes · illustration]</span><span class="ph-step" aria-hidden="true"></span></div></div><div class="steps"><div class="step step-spacer" data-step=""></div><div class="step" data-step=""><div class="card"><p>Once you notice it, you can't stop seeing it. A dog guards the door to the dead in Greece, in Scandinavia and in India. A serpent grows big enough to wrap around the whole world. A woman is far too beautiful, and there is always something under the hem.</p></div></div><div class="step" data-step=""><div class="card"><p>So which is it? Did these monsters travel, carried along by traders, armies and monks? Or did people who never met look at the same dark river and imagine the same thing?</p></div></div></div></div>
+    <div class="col prose"><p>To find out, I built a bestiary.</p></div>
+    <div class="col"><h2>Building a bestiary</h2></div>
+    <div class="col prose"><p>The bestiary holds 96 creatures from four traditions: 28 Greek, 28 Hindu, 24 Japanese and 16 Norse. Each was checked against its source text and described the same way: its body, its number of heads, its job in the story, the god or hero it's tied to, and how famous it still is.</p><p>The bar for entry was simple. A monster needed a real shape and a real part to play. Named horses, background hounds, nameless nature spirits and one-off cameos were turned away at the door.</p></div>
+    <div class="col"><div class="ph"><span class="ph-name">[Who made the cut · counter]</span></div></div>
+    <div class="col prose"><p>Strip away the names and the costumes, and almost every creature falls into one of six families.</p></div>
+    <div class="scrolly scrolly-ill" data-scrolly><div class="sticky"><div class="ph ph-pinned"><span class="ph-name">[Six family cards · illustrations]</span><span class="ph-step" aria-hidden="true"></span></div></div><div class="steps"><div class="step step-spacer" data-step=""></div><div class="step" data-step=""><div class="card"><p>Serpents and dragons are the oldest fear in the book. All four traditions have them, Greece most of all, with six. One is big enough to circle the world; another holds it up.</p></div></div><div class="step" data-step=""><div class="card"><p>Many-headed beasts mean more heads, more problems: the seven-headed Hydra, eight-headed Orochi, ten-headed Ravana.</p></div></div><div class="step" data-step=""><div class="card"><p>Shapeshifters teach you never to trust a helpful stranger. The fox Kitsune, the mountain hag Yamauba and the rakshasi Hidimbā all wear borrowed faces. In this bestiary they only live in Japan and India.</p></div></div><div class="step" data-step=""><div class="card"><p>Human hybrids are half person, half warning: the Minotaur, the centaurs, the crow-winged Tengu. Greece has 15 hybrids. The Norse have exactly one, Odin's eight-legged horse Sleipnir.</p></div></div><div class="step" data-step=""><div class="card"><p>Wolves and hounds are loyal to the dead and hungry for the sun. Cerberus guards a gate, Fenrir waits to swallow a god, and Sköll and Hati chase the sun and moon across the sky.</p></div></div><div class="step" data-step=""><div class="card"><p>Beautiful, lethal women ask you to look closer. There's always a tail, a second mouth or a spider underneath. Japan has seven of them, more than anyone else.</p></div></div></div></div>
+    <div class="col"><h2>Every monster has a job</h2></div>
+    <div class="col prose"><p>A monster is never in a story just to look frightening. It's there to do something: guard a gate, end the world, block a hero's path. So before asking which monsters look alike, it's worth asking what each culture puts them to work on.</p></div>
+    <div class="col"><div class="ph"><span class="ph-name">[Guess before Chart 1]</span></div></div>
+    <div class="chart-solo"><div class="chart-frame" data-chart><iframe src="charts/index.html" title="Chart 1: What creatures show up, and in what? (quadrant plot)" loading="lazy"></iframe></div></div>
+    <div class="col"><h2>Same beast, different lore</h2></div>
+    <div class="col prose"><p>Now for the resemblances. Every creature in the bestiary was matched against the others: some are near-twins, some only share a family likeness, and some have no double at all.</p></div>
+    <div class="col"><div class="ph"><span class="ph-name">[Guess before Chart 2]</span></div></div>
+    <div class="scrolly scrolly-chart" data-scrolly><div class="sticky"><div class="chart-frame" data-chart><iframe src="charts/graph2_network.html" title="Chart 2: How similar are they really? (network)" loading="lazy"></iframe><span class="ph-step" aria-hidden="true"></span></div></div><div class="steps"><div class="step step-spacer" data-step=""></div><div class="step" data-step="[CHART 2 STEP: The serpent knot]"><div class="card"><p>The tightest knot in the web is a story told in every one of these cultures: a giant serpent, and the storm god who kills it. Apollo kills Python. Zeus buries Typhon under a volcano. Indra frees the world's rivers from Vritra. Susanoo gets Orochi drunk. Thor and Jörmungandr will kill each other at the end of the world.</p></div></div><div class="step" data-step="[CHART 2 STEP: Same body, opposite job]"><div class="card"><p>But a line only measures shape, not purpose. Shesha and Jörmungandr are near-twins on this chart: both serpents so vast that their bodies are part of the world itself. Yet Shesha holds creation up, while Jörmungandr is waiting to drag it down. The quadrant plot already put them on opposite sides.</p></div></div><div class="step" data-step=""><div class="card"><p>Then comes the surprise. The most connected creatures in the whole bestiary aren't serpents at all. They're Medusa, Lamia and the yakshini, each tied to ten others.</p></div></div><div class="step" data-step="[CHART 2 STEP: The beautiful, lethal woman]"><div class="card"><p>She's beautiful, and she'll kill you. Medusa turns you to stone. Huldra hides a cow's tail under her dress. Jorōgumo, the "binding bride spider", wraps you in silk. Yuki-onna freezes you in your sleep. Every one of the four traditions has her, and each dresses her in its own landscape: snow in Japan, forest in Scandinavia, water and trees in India. She, not the serpent, is the most universal monster here.</p></div></div><div class="step" data-step="[CHART 2 STEP: The loners]"><div class="card"><p>And some monsters belong to one people only. 24 creatures have no double anywhere: the Sphinx with her riddle, the Valkyries choosing the dead, Hanuman leaping to Lanka, Amabie rising from the sea to warn of plague.</p></div></div><div class="step step-spacer" data-step="[CHART 2: Free explore]"></div></div></div>
+    <div class="col"><h2>Who shares, and who stands alone</h2></div>
+    <div class="col prose"><p>Zoom out from single monsters to whole traditions, and a map of friendships appears.</p></div>
+    <div class="col"><div class="ph"><span class="ph-name">[Guess before Chart 3]</span></div></div>
+    <div class="scrolly scrolly-chart" data-scrolly><div class="sticky"><div class="chart-frame" data-chart><iframe src="charts/chord.html" title="Chart 3: Which mythology has the most shared vs. unique creatures? (chord diagram)" loading="lazy"></iframe><span class="ph-step" aria-hidden="true"></span></div></div><div class="steps"><div class="step step-spacer" data-step=""></div><div class="step" data-step="[CHART 3 STEP: Strongest and weakest]"><div class="card"><p>Greece and India share the most: 25 parallels between them. Japan and Scandinavia barely speak, with just 9.</p></div></div><div class="step" data-step="[CHART 3 STEP: The originals]"><div class="card"><p>The bands that curl back home are the true originals, and here the two biggest bestiaries part ways. 39% of Greek monsters have no double in any other tradition, the most of the four. In the Hindu tradition, only 21% don't. Greece invented the most monsters of its own; India's echo furthest.</p></div></div><div class="step" data-step="[CHART 3 STEP: A living tradition]"><div class="card"><p>One caveat belongs here. Japan's yōkai come from a folklore that is still growing, while the other three draw on old, closed canons. Japan's arc is a snapshot of a living tradition, not a finished one.</p></div></div><div class="step step-spacer" data-step="[CHART 3: Free explore]"></div></div></div>
+    <div class="col"><div class="ph"><span class="ph-name">[Dream up a monster]</span></div></div>
+    <div class="col"><h2>Borrowed, inherited or imagined?</h2></div>
+    <div class="col prose"><p>The sharing is real. But how did it happen? There are really three ways two cultures end up with the same monster. It travelled, carried along a trade route, a conquest or a religion. It was inherited from a common ancestor, long before either culture existed. Or it was imagined twice, by people who never met but feared the same things.</p><p>Before reading on, try it yourself.</p></div>
+    <div class="col"><div class="ph"><span class="ph-name">[Guess the route · game]</span></div></div>
+    <div class="col prose"><p>Garuda and Karura are the clearest case of a monster on the move. When Buddhism carried Garuda from India to Japan, he arrived almost unchanged: the same eagle body, the same hatred of serpents. In Japan he became Karura, one of the guardians of the goddess Kannon.</p><p>The hounds of the dead are older still. Greece, Scandinavia and India all descend from the same ancient Indo-European family. A 19th-century theory traced Cerberus's name to one of Yama's dogs. Most linguists now reject it, but the idea itself may have been inherited: the hound could have been guarding the dead before any of these cultures existed. It's telling who's missing: Japan, outside that family, has no hellhound at all.</p><p>But those are the exceptions. One documented borrowing and one possible inheritance, out of 91 parallels between cultures. Almost everything else was imagined, independently, again and again. Rivers flood, snakes bite, beautiful strangers lie, and the dead need watching. People everywhere told themselves the same stories about it.</p></div>
+    <div class="col"><h2>The last page</h2></div>
+    <div class="col prose"><p>Every culture built a bestiary. Most built the same one, then gave each monster a different job.</p><p>The data can show that the parallels exist. Except for a couple of cases, it can't prove why.</p><p>The rest of the bestiary is below. Go and meet them.</p></div>
+    <div class="col"><div class="ph"><span class="ph-name">[The full bestiary]</span></div></div>
+    <div class="col prose about"><h3>About this bestiary</h3><p>This is a look at four traditions, not a survey of world mythology. Hundreds of other cultures have their own monsters, and many of them would change this picture. Within these four, the 96 creatures were chosen for having a defined form and a central role in a story, so plenty of minor beings are left out.</p><p>The matches between creatures, their roles and their fame scores are my own judgements, based on primary texts and reference sources such as Theoi.com, the Sacred Texts Archive, the Kojiki and the Poetic Edda. Japanese yōkai come from a folklore that is still growing, so that tradition can never be counted as complete.</p></div>
+  </main>
+
+  <script src="js/cover.js" defer></script>
+  <script src="js/article.js" defer></script>
+</body>
+</html>

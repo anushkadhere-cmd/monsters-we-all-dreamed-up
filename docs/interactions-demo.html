@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monsters Interactions Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+/* Layout: a reading column with full-width interactive panels between paragraphs.
+   One visual world (the cover's paper, ink and sky), so a single deliberate light theme. */
+:root {
+  --paper: #f3eee3;
+  --paper-2: #e9e2d2;
+  --ink: #1e1c19;
+  --muted: #615b51;
+  --line: #cfc6b4;
+  --sky: #bad4dc;
+  --rock: #1d1d1b;
+  --greek: #3b6e99;
+  --hindu: #b8682a;
+  --japanese: #a33549;
+  --norse: #4c7759;
+  --display: "Source Serif 4", Georgia, serif;
+  --body: "Source Serif 4", Georgia, serif;
+  --label: "Josefin Sans", "Futura", "Century Gothic", sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 1.1rem; line-height: 1.6; margin: 0; }
+.page { padding-inline: 16px; padding-block: 0 6rem; }
+.col { max-width: 40rem; margin-inline: auto; }
+.wide { max-width: 68rem; margin-inline: auto; }
+h1, h2, h3 { font-family: var(--display); font-weight: 600; line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2rem, 5vw, 3rem); }
+h2 { font-size: clamp(1.5rem, 3.4vw, 2rem); }
+h3 { font-size: 1.15rem; }
+p { margin: 0; }
+.label { font-family: var(--label); font-size: .74rem; letter-spacing: .14em; text-transform: uppercase; }
+.muted { color: var(--muted); }
+.stack { display: flex; flex-direction: column; gap: 1rem; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+
+/* top note */
+.intro { padding-block: 3rem 1rem; }
+.intro ol { margin: 0; padding-left: 1.3rem; font-size: 1rem; }
+.intro li { margin-bottom: .2rem; }
+.note { font-family: var(--label); font-size: .82rem; letter-spacing: .02em; color: var(--muted); border-left: 3px solid var(--line); padding: .2rem 0 .2rem .8rem; line-height: 1.5; }
+
+/* section frame */
+section.ix { padding-block: 3.5rem 1rem; border-top: 1px solid var(--line); margin-top: 3rem; }
+.ix-head { display: flex; flex-direction: column; gap: .5rem; margin-bottom: 1.5rem; }
+.ix-tag { font-family: var(--label); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; background: var(--ink); color: var(--paper); align-self: flex-start; padding: .3rem .6rem .2rem; }
+.prose { display: flex; flex-direction: column; gap: 1rem; }
+
+/* chips + buttons */
+.chips { display: flex; flex-wrap: wrap; gap: .5rem; }
+.chip { cursor: pointer; border: 1.5px solid var(--ink); background: transparent; padding: .5rem .85rem .4rem; font-family: var(--label); font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; border-radius: 999px; display: inline-flex; gap: .45rem; align-items: center; }
+.chip:hover { background: var(--paper-2); }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.dot { width: .6rem; height: .6rem; border-radius: 50%; background: var(--c, var(--ink)); flex: none; }
+.c-Greek { --c: var(--greek); } .c-Hindu { --c: var(--hindu); } .c-Japanese { --c: var(--japanese); } .c-Norse { --c: var(--norse); }
+
+/* 1. pick your bestiary */
+.pick { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); gap: .75rem; }
+.pick button { cursor: pointer; text-align: left; border: 1.5px solid var(--ink); background: var(--paper); padding: 1rem; display: flex; flex-direction: column; gap: .35rem; min-height: 7rem; }
+.pick button b { font-family: var(--display); font-size: 1.25rem; }
+.pick button span { font-size: .9rem; color: var(--muted); }
+.pick button[aria-pressed="true"] { background: var(--c, var(--ink)); color: #fff; border-color: var(--c, var(--ink)); }
+.pick button[aria-pressed="true"] span { color: #fff; opacity: .85; }
+.yours { position: fixed; right: 16px; bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); z-index: 20; background: var(--ink); color: var(--paper); padding: .55rem .9rem .45rem; font-family: var(--label); font-size: .76rem; letter-spacing: .1em; text-transform: uppercase; display: flex; gap: .6rem; align-items: center; border-radius: 999px; }
+.yours button { all: unset; cursor: pointer; text-decoration: underline; opacity: .8; }
+.yours button:focus-visible { outline: 2px solid var(--paper); }
+
+/* 2. family browser */
+.browser { background: var(--paper-2); border: 1.5px solid var(--ink); }
+.browser-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .75rem 1rem; border-bottom: 1.5px solid var(--ink); }
+.arrow { cursor: pointer; width: 2.6rem; height: 2.6rem; border-radius: 50%; border: 1.5px solid var(--ink); background: var(--paper); font-size: 1.1rem; display: grid; place-items: center; }
+.arrow:hover { background: var(--ink); color: var(--paper); }
+.browser-title { text-align: center; display: flex; flex-direction: column; gap: .15rem; min-width: 0; }
+.browser-body { display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr); gap: 1.5rem; padding: 1.25rem; }
+.fam-art { aspect-ratio: 1; background: repeating-linear-gradient(135deg, #ddd5c4 0 10px, #d3cab7 10px 11px); border: 1.5px dashed var(--muted); display: grid; place-items: center; text-align: center; font-family: var(--label); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 1rem; }
+.fam-stats { display: flex; flex-direction: column; gap: 1.1rem; min-width: 0; }
+.cult-rows { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr) 2rem; gap: .35rem .75rem; align-items: center; }
+.cult-rows .pips { display: flex; flex-wrap: wrap; gap: 3px; }
+.pip { width: .8rem; height: .8rem; border-radius: 50%; background: var(--c); }
+.cult-rows .none { font-size: .85rem; color: var(--muted); font-style: italic; }
+.num { font-family: var(--label); font-size: .85rem; text-align: right; font-variant-numeric: tabular-nums; }
+.jobbar { display: flex; height: 1.4rem; border: 1.5px solid var(--ink); }
+.jobbar span { display: block; height: 100%; }
+.job-key { display: flex; flex-wrap: wrap; gap: .3rem 1rem; font-size: .85rem; }
+.job-key i { display: inline-block; width: .7rem; height: .7rem; margin-right: .35rem; vertical-align: -1px; border: 1px solid var(--ink); }
+.j-guard { background: #6f9a8a; } .j-destroy { background: #8e3b2e; } .j-both { background: #c9a35b; } .j-trick { background: #d8d1c2; }
+.members { display: flex; flex-wrap: wrap; gap: .35rem; }
+.members span { font-size: .85rem; border: 1px solid var(--line); background: var(--paper); padding: .15rem .5rem; display: inline-flex; gap: .35rem; align-items: center; }
+.browser-dots { display: flex; justify-content: center; gap: .4rem; padding: 0 0 1rem; }
+.browser-dots button { all: unset; cursor: pointer; width: .55rem; height: .55rem; border-radius: 50%; background: var(--line); }
+.browser-dots button[aria-current="true"] { background: var(--ink); }
+.browser-dots button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+/* 3. guess, then reveal */
+.guess { border: 1.5px solid var(--ink); background: var(--paper); padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; }
+.guess-q { font-family: var(--display); font-size: 1.3rem; font-weight: 600; }
+.guess-opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: .5rem; }
+.guess-opts button { cursor: pointer; border: 1.5px solid var(--ink); background: var(--paper); padding: .75rem .9rem; text-align: left; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .2rem .6rem; align-items: center; position: relative; overflow: hidden; }
+.guess-opts button:hover:not(:disabled) { background: var(--paper-2); }
+.guess-opts button:disabled { cursor: default; }
+.guess-opts .opt-name { position: relative; z-index: 1; }
+.guess-opts .opt-val { position: relative; z-index: 1; font-family: var(--label); font-size: .85rem; font-variant-numeric: tabular-nums; opacity: 0; transition: opacity .3s; }
+.guess-opts .bar { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--sky); transition: width .7s cubic-bezier(.2,.7,.2,1); }
+.guess-opts .opt-tag { grid-column: 1 / -1; position: relative; z-index: 1; font-family: var(--label); font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; min-height: 1em; }
+.guess.revealed .opt-val { opacity: 1; }
+.guess.revealed button.answer .bar { background: var(--ink); }
+.guess.revealed button.answer { color: var(--paper); }
+.guess-out { font-size: 1.05rem; min-height: 1.6em; }
+
+/* chart slot + guided notes */
+.scrolly { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 2.5rem; margin-top: 1.5rem; }
+.slot-wrap { position: sticky; top: 6vh; height: 82vh; align-self: start; }
+.slot { position: relative; height: 100%; border: 1.5px solid var(--ink); background: #fbf8f1; overflow: hidden; display: flex; flex-direction: column; }
+.slot-head { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; padding: .6rem .8rem .5rem; border-bottom: 1px solid var(--line); }
+.slot-body { position: relative; flex: 1; min-height: 0; display: grid; place-items: center; text-align: center; padding: 1rem; color: var(--muted); }
+.slot-body .ghost { font-family: var(--label); font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; line-height: 1.7; max-width: 22rem; }
+.quad-ghost { position: absolute; inset: 12% 10%; border-top: 0; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+.quad-ghost::before, .quad-ghost::after { content: ""; position: absolute; background: var(--line); }
+.quad-ghost::before { left: 50%; top: 0; bottom: 0; width: 1px; }
+.quad-ghost::after { top: 50%; left: 0; right: 0; height: 1px; }
+.quad-ghost span { font-family: var(--label); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; padding: .4rem; color: var(--muted); }
+.quad-ghost span:nth-child(2), .quad-ghost span:nth-child(4) { text-align: right; }
+.quad-ghost span:nth-child(3), .quad-ghost span:nth-child(4) { align-self: end; }
+.wheel-ghost { position: absolute; width: min(60%, 18rem); aspect-ratio: 1; border-radius: 50%; border: 10px solid var(--line); left: 50%; top: 50%; transform: translate(-50%, -50%); }
+/* overlay pins sit above the unchanged chart and never block it */
+.pins { position: absolute; inset: 0; pointer-events: none; }
+.pin { position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: .3rem; opacity: 0; transition: opacity .35s, transform .35s; }
+.pin.on { opacity: 1; }
+.pin .ring { width: 3.6rem; height: 3.6rem; border-radius: 50%; border: 2.5px solid var(--ink); background: rgba(255,255,255,.25); }
+.pin .call { background: var(--ink); color: var(--paper); font-family: var(--label); font-size: .74rem; letter-spacing: .06em; padding: .35rem .6rem .25rem; white-space: nowrap; }
+.steps { display: flex; flex-direction: column; }
+.step { min-height: 75vh; display: flex; align-items: center; }
+.step:last-child { min-height: 85vh; }
+.step-card { background: var(--paper); border: 1.5px solid var(--line); padding: 1.1rem 1.25rem; transition: border-color .3s, opacity .3s; opacity: .5; }
+.step.on .step-card { opacity: 1; border-color: var(--ink); }
+
+/* 4. dream up a monster */
+.builder { border: 1.5px solid var(--ink); background: var(--paper-2); padding: 1.25rem; display: flex; flex-direction: column; gap: 1.25rem; }
+.builder-row { display: flex; flex-direction: column; gap: .5rem; }
+.verdict { display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem 1rem; }
+.verdict big { font-family: var(--display); font-weight: 600; font-size: clamp(1.6rem, 4vw, 2.4rem); line-height: 1.1; }
+.field { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+.field-col { display: flex; flex-direction: column; gap: .5rem; min-width: 0; }
+.field-col header { display: flex; justify-content: space-between; align-items: baseline; gap: .5rem; border-bottom: 2px solid var(--c); padding-bottom: .3rem; }
+.field-col header .num { font-size: 1rem; }
+.field-col.mine header { background: var(--c); color: #fff; padding: .3rem .4rem; }
+.dots { display: flex; flex-wrap: wrap; gap: 5px; }
+.cdot { width: 15px; height: 15px; border-radius: 50%; border: 1.5px solid var(--c); background: transparent; transition: background .25s, opacity .25s, transform .25s; opacity: .35; }
+.cdot.hit { background: var(--c); opacity: 1; transform: scale(1.15); }
+.personal { font-size: 1rem; border-left: 4px solid var(--c, var(--ink)); padding-left: .75rem; }
+.matches { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr)); gap: .75rem; }
+
+/* creature card (builder matches + gallery) */
+.card { background: var(--paper); border: 1.5px solid var(--ink); display: flex; flex-direction: column; min-width: 0; }
+.card-art { aspect-ratio: 4 / 3; background: repeating-linear-gradient(135deg, #ddd5c4 0 10px, #d3cab7 10px 11px); border-bottom: 1.5px solid var(--ink); display: flex; align-items: flex-end; justify-content: space-between; padding: .4rem .5rem; font-family: var(--label); font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.card-band { height: 6px; background: var(--c); }
+.card-text { padding: .7rem .8rem .9rem; display: flex; flex-direction: column; gap: .3rem; }
+.card-text h3 { font-size: 1.05rem; overflow-wrap: anywhere; }
+.card-meta { font-family: var(--label); font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.card-text p { font-size: .9rem; line-height: 1.45; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* 5. guess the route */
+.route { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr)); gap: .9rem; }
+.pair { border: 1.5px solid var(--ink); background: var(--paper); padding: 1rem; display: flex; flex-direction: column; gap: .75rem; }
+.pair-art { aspect-ratio: 16 / 9; background: repeating-linear-gradient(135deg, #ddd5c4 0 10px, #d3cab7 10px 11px); border: 1.5px dashed var(--muted); display: grid; place-items: center; font-family: var(--label); font-size: .65rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); text-align: center; padding: .4rem; }
+.pair .opts { display: flex; flex-wrap: wrap; gap: .4rem; }
+.pair .opts button { cursor: pointer; border: 1.5px solid var(--ink); background: transparent; padding: .4rem .65rem .3rem; font-family: var(--label); font-size: .74rem; letter-spacing: .08em; text-transform: uppercase; }
+.pair .opts button.right { background: var(--ink); color: var(--paper); }
+.pair .opts button.wrong { text-decoration: line-through; opacity: .5; }
+.pair .opts button:disabled { cursor: default; }
+.pair .why { font-size: .95rem; line-height: 1.45; }
+.score { font-family: var(--label); letter-spacing: .06em; min-height: 1.4em; }
+
+/* 6. gallery */
+.filters { display: flex; flex-direction: column; gap: .6rem; }
+.search { font: inherit; font-size: 1rem; padding: .55rem .8rem; border: 1.5px solid var(--ink); background: var(--paper); width: min(100%, 20rem); }
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 12.5rem), 1fr)); gap: .8rem; margin-top: 1rem; }
+.empty { font-style: italic; color: var(--muted); }
+
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+@media (max-width: 760px) {
+  .browser-body { grid-template-columns: 1fr; }
+  .fam-art { aspect-ratio: 16 / 9; }
+  .field { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .scrolly { display: block; }
+  .slot-wrap { top: 0; height: 50vh; z-index: 0; background: var(--paper); padding-block: .5rem; }
+  .steps { position: relative; z-index: 1; }
+  .step, .step:last-child { min-height: 70vh; align-items: flex-end; padding-bottom: 5vh; }
+  .step-card { opacity: .95; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<main class="page">
+
+<header class="col intro stack">
+  <p class="label muted">The Monsters We All Dreamed Up · interactions demo</p>
+  <h1>Six interactions, slotted into the script</h1>
+  <p>A working reference for Claude Code. <strong>The article script stays exactly as written</strong>: every reader-facing sentence below that sits in a step card is quoted from it, word for word. The new interactions are only added between its paragraphs. Your three charts appear as slots: they go in unchanged, and nothing here filters or redraws them. Every number comes from your 96-creature dataset.</p>
+  <ol>
+    <li><a href="#ix-pick">Which bestiary did you grow up with?</a> (after the cover)</li>
+    <li><a href="#ix-c1">A guess before each chart</a> (just before each chart slot)</li>
+    <li><a href="#ix-c1">The script’s chart paragraphs as scroll steps</a>, with pins on a transparent layer over the chart</li>
+    <li><a href="#ix-build">Dream up a monster</a> (just before “Borrowed, inherited or imagined?”)</li>
+    <li><a href="#ix-route">Guess the route</a> (already in the script)</li>
+    <li><a href="#ix-gallery">The full bestiary</a> (already in the script)</li>
+  </ol>
+  <p class="note">The six family cards, the two serpents, the silhouettes and the other script interactions are unchanged and live in docs/wireframe.html. Grey hatched boxes are illustration slots. Dashed outlines inside chart slots only sketch where things are; the real chart replaces the whole slot.</p>
+</header>
+
+<!-- 1 ============================================================ -->
+<section class="ix col" id="ix-pick">
+  <div class="ix-head"><span class="ix-tag">1 · Right after the cover</span><h2>Which bestiary did you grow up with?</h2></div>
+  <div class="prose">
+    <p>Pick one. The guesses, the monster builder and the bestiary then call out your tradition’s monsters.</p>
+    <div class="pick" id="pick" role="group" aria-label="Choose your tradition"></div>
+    <p class="note">Stored in one variable (and remembered in the browser if allowed). Only the new interactions read it: it never changes the script’s text or the charts.</p>
+  </div>
+</section>
+
+<!-- 3 + 4: chart 1 ================================================= -->
+<section class="ix wide" id="ix-c1">
+  <div class="col ix-head"><span class="ix-tag">2 + 3 · Every monster has a job</span><h2>A guess, then Chart 1 with the script’s paragraphs</h2></div>
+  <div class="col"><div class="guess" data-guess="protect"></div></div>
+  <div class="scrolly" data-scrolly>
+    <div class="slot-wrap"><div class="slot">
+      <div class="slot-head"><span class="label">Chart 1 · your quadrant plot, unchanged</span><span class="label muted">index.html</span></div>
+      <div class="slot-body">
+        <div class="quad-ghost" aria-hidden="true"><span>Hindu</span><span>Japanese</span><span>Greek</span><span>Norse</span></div>
+        <div class="pins">
+          <div class="pin" data-pin="hindu" style="left:27%;top:30%"><div class="ring"></div><div class="call">11 of 28 protect</div></div>
+          <div class="pin" data-pin="norse" style="left:73%;top:70%"><div class="ring"></div><div class="call">only 3 of 16 protect</div></div>
+          <div class="pin" data-pin="greek" style="left:42%;top:62%"><div class="ring"></div><div class="call">13 of 28 near the middle</div></div>
+          <div class="pin" data-pin="japanese" style="left:60%;top:38%"><div class="ring"></div><div class="call">11 of 24 neither friend nor foe</div></div>
+        </div>
+      </div>
+    </div></div>
+    <div class="steps">
+      <div class="step" data-pin="hindu"><div class="step-card"><p>India’s monsters mostly keep watch. 11 of its 28 creatures lean protector, and only 5 are true destroyers. Garuda carries Vishnu. Shesha holds up the world on a thousand heads. Nandi waits at Shiva’s door.</p></div></div>
+      <div class="step" data-pin="norse"><div class="step-card"><p>The Norse built theirs to end the world. Only 3 of their 16 protect. Jörmungandr, Fenrir, Sköll and Hati aren’t guarding anything. They’re waiting for Ragnarök.</p></div></div>
+      <div class="step" data-pin="greek"><div class="step-card"><p>Greece’s monsters are tests. 13 of its 28 sit near the middle: the Minotaur in his maze, Scylla on her rock, the Sirens on theirs. They don’t want to end the world. They want to stop one hero.</p></div></div>
+      <div class="step" data-pin="japanese"><div class="step-card"><p>Japan’s monsters are the ones you meet on the road. 11 of its 24 are neither friend nor foe: the kappa in the river, the snow woman at the door, the spider woman in the house. Some even help you, like the fox Kitsune and the mountain Tengu.</p></div></div>
+    </div>
+  </div>
+  <p class="col note" style="margin-top:1rem">Step cards hold the script’s own paragraphs, unchanged and in order (the rest of Chart 1’s paragraphs follow the same way). Pins are a transparent layer on top of the chart, with pointer events off, so the chart’s own hover still works. Pins are placed in percent of the chart box. Chart 1’s corners never move, so pins can point; Chart 2’s layout shifts, so its notes stay in the step cards.</p>
+</section>
+
+<!-- chart 2 -->
+<section class="ix wide" id="ix-c2">
+  <div class="col ix-head"><span class="ix-tag">2 + 3 · Same beast, different lore</span><h2>A guess, then Chart 2</h2></div>
+  <div class="col"><div class="guess" data-guess="lookalikes"></div></div>
+  <div class="scrolly" data-scrolly>
+    <div class="slot-wrap"><div class="slot">
+      <div class="slot-head"><span class="label">Chart 2 · your network, unchanged</span><span class="label muted">graph2_network.html</span></div>
+      <div class="slot-body"><p class="ghost">Network chart goes here with the same data. The script’s steps (zoom to the serpents, the Shesha–Jörmungandr line, the glowing women, the loners’ halo) are visual states Claude Code adds to it</p><div class="pins"></div></div>
+    </div></div>
+    <div class="steps">
+      <div class="step"><div class="step-card"><p>The tightest knot in the web is a story told in every one of these cultures: a giant serpent, and the storm god who kills it. Apollo kills Python. Zeus buries Typhon under a volcano. Indra frees the world’s rivers from Vritra. Susanoo gets Orochi drunk. Thor and Jörmungandr will kill each other at the end of the world.</p></div></div>
+      <div class="step" data-reveal="lookalikes"><div class="step-card"><p>Then comes the surprise. The most connected creatures in the whole bestiary aren’t serpents at all. They’re Medusa, Lamia and the yakshini, each tied to ten others.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- chart 3 -->
+<section class="ix wide" id="ix-c3">
+  <div class="col ix-head"><span class="ix-tag">2 + 3 · Who shares, and who stands alone</span><h2>A guess, then Chart 3</h2></div>
+  <div class="col"><div class="guess" data-guess="pairs"></div></div>
+  <div class="scrolly" data-scrolly>
+    <div class="slot-wrap"><div class="slot">
+      <div class="slot-head"><span class="label">Chart 3 · your chord diagram, unchanged</span><span class="label muted">chord.html</span></div>
+      <div class="slot-body"><div class="wheel-ghost" aria-hidden="true"></div>
+        <div class="pins">
+          <div class="pin" data-pin="gh" style="left:50%;top:22%"><div class="ring"></div><div class="call">Greek–Hindu: 25</div></div>
+          <div class="pin" data-pin="unique" style="left:72%;top:38%"><div class="ring"></div><div class="call">39% of Greek monsters stand alone</div></div>
+        </div></div>
+    </div></div>
+    <div class="steps">
+      <div class="step" data-pin="gh"><div class="step-card"><p>Greece and India share the most: 25 parallels between them. Japan and Scandinavia barely speak, with just 9.</p></div></div>
+      <div class="step" data-pin="unique"><div class="step-card"><p>The bands that curl back home are the true originals, and here the two biggest bestiaries part ways. 39% of Greek monsters have no double in any other tradition, the most of the four. In the Hindu tradition, only 21% don’t. Greece invented the most monsters of its own; India’s echo furthest.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 ============================================================ -->
+<section class="ix wide" id="ix-build">
+  <div class="col ix-head"><span class="ix-tag">4 · Just before “Borrowed, inherited or imagined?”</span><h2>Dream up a monster</h2>
+    <p>Choose a body and a job. Every creature in the bestiary that matches lights up, and you’ll see how many cultures dreamed up the same thing.</p></div>
+  <div class="builder">
+    <div class="builder-row"><span class="label">Body</span><div class="chips" id="b-body" role="group" aria-label="Body"></div></div>
+    <div class="builder-row"><span class="label">Job</span><div class="chips" id="b-job" role="group" aria-label="Job"></div></div>
+    <div class="verdict" aria-live="polite"><big id="b-verdict"></big><span class="muted" id="b-sub"></span></div>
+    <p class="personal" id="b-personal" hidden></p>
+    <div class="field" id="b-field"></div>
+    <div><p class="label" style="margin-bottom:.6rem" id="b-match-label"></p><div class="matches" id="b-matches"></div></div>
+  </div>
+  <p class="col note" style="margin-top:1rem">Bodies use the dataset’s <code>families</code> column (a creature can have several). Jobs use the quadrant plot’s protector and destroyer scores: protector = helper ≥ 0.5 and antagonist &lt; 0.5; destroyer = the reverse; “both” counts for either; the rest are tricksters and obstacles.</p>
+</section>
+
+<!-- 6 ============================================================ -->
+<section class="ix wide" id="ix-route">
+  <div class="col ix-head"><span class="ix-tag">5 · Borrowed, inherited or imagined? (in the script)</span><h2>Guess the route</h2></div>
+  <div class="route" id="route"></div>
+  <p class="score" id="route-score" aria-live="polite" style="margin-top:.8rem"></p>
+</section>
+
+<!-- 7 ============================================================ -->
+<section class="ix wide" id="ix-gallery">
+  <div class="col ix-head"><span class="ix-tag">6 · The last page (in the script)</span><h2>The full bestiary</h2><p>Every creature, filterable. If you picked a tradition, yours come first.</p></div>
+  <div class="filters">
+    <div class="chips" id="g-cult" role="group" aria-label="Culture"></div>
+    <div class="chips" id="g-fam" role="group" aria-label="Family"></div>
+    <label class="visually-hidden" for="g-search">Search the bestiary</label>
+    <input class="search" id="g-search" type="search" placeholder="Search by name or story">
+    <p class="label muted" id="g-count" aria-live="polite"></p>
+  </div>
+  <div class="gallery" id="gallery"></div>
+</section>
+
+</main>
+
+<div class="yours" id="yours" hidden><span id="yours-text"></span><button type="button" id="yours-change">change</button></div>
+
+<script>
+const DATA = [{"n": "Python", "m": "Greek", "f": ["serpent or dragon"], "r": "both", "p": 3, "x": 4, "s": "Killed by Apollo at Delphi, who then founded his oracle on the spot, taking the epithet Pythian"}, {"n": "Hydra of Lerna", "m": "Greek", "f": ["serpent or dragon", "many-headed beast"], "r": "guard", "p": 9, "x": 1, "s": "Grown in the swamps of Lerna, sacred to Hera; slain by Heracles with help from Iolaus who cauterized each severed neck"}, {"n": "Ladon", "m": "Greek", "f": ["serpent or dragon", "many-headed beast"], "r": "guard", "p": 3, "x": 2, "s": "Offspring of Typhon and Echidna, set by Hera to guard the golden apples of the Hesperides"}, {"n": "Typhon", "m": "Greek", "f": ["serpent or dragon", "many-headed beast"], "r": "destroy", "p": 7, "x": 4, "s": "Gaia's last child, made to avenge the Titans; battled Zeus for supremacy of the cosmos and was buried under Mount Etna"}, {"n": "Cerberus", "m": "Greek", "f": ["wolf or hound", "many-headed beast"], "r": "guard", "p": 10, "x": 2, "s": "Offspring of Typhon and Echidna; stationed at the gates of the underworld"}, {"n": "Medusa", "m": "Greek", "f": ["beautiful lethal woman", "human or animal hybrid"], "r": "destroy", "p": 10, "x": 6, "s": "A mortal Gorgon, in some versions once beautiful and cursed by Athena after being violated by Poseidon in her temple; beheaded by Perseus using a mirrored shield"}, {"n": "Sirens", "m": "Greek", "f": ["beautiful lethal woman", "human or animal hybrid"], "r": "trick", "p": 8, "x": 5, "s": "Companions of Persephone in some accounts; their song promised knowledge but lured sailors to wreck their ships on rocky shores"}, {"n": "Scylla", "m": "Greek", "f": ["many-headed beast", "human or animal hybrid"], "r": "trick", "p": 7, "x": 0, "s": "Once a beautiful nymph, transformed into a monster out of jealousy (by Circe or Amphitrite depending on the version) after Poseidon or Glaucus fell for her"}, {"n": "Chimera", "m": "Greek", "f": ["many-headed beast", "human or animal hybrid"], "r": "destroy", "p": 8, "x": 3, "s": "Offspring of Typhon and Echidna; terrorized Lycia until killed by Bellerophon"}, {"n": "Minotaur", "m": "Greek", "f": ["human or animal hybrid"], "r": "trick", "p": 9, "x": 2, "s": "Born of Pasiphaë's union with the Cretan Bull; imprisoned in the Labyrinth built by Daedalus and fed Athenian youths as tribute"}, {"n": "Sphinx", "m": "Greek", "f": ["human or animal hybrid"], "r": "guard", "p": 8, "x": 0, "s": "Sent by Hera (or Ares) to plague Thebes; posed her riddle to travelers and killed those who failed, until Oedipus solved it and she cast herself from a cliff"}, {"n": "Harpies", "m": "Greek", "f": ["human or animal hybrid"], "r": "trick", "p": 3, "x": 4, "s": "Winds personified as monstrous women; sent by Zeus to punish King Phineus by fouling all his food until driven off by the Argonauts"}, {"n": "Echidna", "m": "Greek", "f": ["beautiful lethal woman", "human or animal hybrid"], "r": "destroy", "p": 3, "x": 0, "s": "Daughter of Phorcys and Ceto (or Gaia and Tartarus); with Typhon, mothered the Hydra, Chimera, Cerberus, Sphinx, Ladon, and Nemean Lion"}, {"n": "Nemean Lion", "m": "Greek", "f": [], "r": "trick", "p": 3, "x": 0, "s": "Offspring of Typhon and Echidna (or fell from the moon in some versions); terrorized Nemea until strangled by Heracles, whose hide became his signature cloak"}, {"n": "Griffin", "m": "Greek", "f": ["human or animal hybrid"], "r": "guard", "p": 3, "x": 4, "s": "Said to nest in the mountains of Scythia and India, fiercely guarding gold deposits from the one-eyed Arimaspians"}, {"n": "Lamia", "m": "Greek", "f": ["beautiful lethal woman"], "r": "destroy", "p": 3, "x": 8, "s": "Once a queen loved by Zeus; when Hera killed her children, grief drove her to become a child-eating monster who could remove her own eyes"}, {"n": "Charybdis", "m": "Greek", "f": [], "r": "trick", "p": 6, "x": 2, "s": "Once a naiad turned into a monstrous whirlpool by Zeus as punishment for stealing cattle; lives opposite Scylla in the Strait of Messina"}, {"n": "Jörmungandr", "m": "Norse", "f": ["serpent or dragon"], "r": "destroy", "p": 9, "x": 6, "s": "Child of Loki and the giantess Angrboða; cast into the sea by Odin, grew to encircle the world; fated to kill and be killed by Thor at Ragnarök"}, {"n": "Níðhöggr (Nidhogg)", "m": "Norse", "f": ["serpent or dragon"], "r": "destroy", "p": 5, "x": 2, "s": "Lives beneath Yggdrasil's roots in Niflheim, gnawing them eternally; associated with the corpse-shore Náströnd where oathbreakers and murderers are punished"}, {"n": "Fenrir", "m": "Norse", "f": ["wolf or hound"], "r": "destroy", "p": 9, "x": 1, "s": "Son of Loki and Angrboða; the gods raised him then bound him with the unbreakable ribbon Gleipnir after prophecy warned of his role in Ragnarök; will kill Odin and be killed in turn"}, {"n": "Garmr", "m": "Norse", "f": ["wolf or hound"], "r": "guard", "p": 4, "x": 2, "s": "Bound at the entrance to Gnipahellir, the cave leading to Hel; breaks free at Ragnarök to fight Týr, and the two kill each other"}, {"n": "Fáfnir", "m": "Norse", "f": ["serpent or dragon"], "r": "both", "p": 6, "x": 3, "s": "Originally a dwarf who murdered his father for cursed gold, then transformed into a dragon to guard it; slain by the hero Sigurd, who then eats his heart and gains the power to understand birds"}, {"n": "Jötnar (Frost/Mountain Giants)", "m": "Norse", "f": [], "r": "destroy", "p": 3, "x": 3, "s": "Descended from the primordial giant Ymir; in constant, structural opposition to the Aesir gods, who are themselves partly descended from giants"}, {"n": "Huldra", "m": "Norse", "f": ["beautiful lethal woman"], "r": "guard", "p": 5, "x": 7, "s": "A forest-dwelling seductress of Scandinavian folklore, closely tied to Norse tradition; her hidden tail betrays her true nature to careful observers"}, {"n": "Draugr", "m": "Norse", "f": [], "r": "guard", "p": 6, "x": 3, "s": "The reanimated dead, often a hoard-guarding chieftain within his own burial mound; a recurring obstacle in the Icelandic sagas"}, {"n": "Valkyries", "m": "Norse", "f": [], "r": "trick", "p": 8, "x": 0, "s": "Odin's handmaidens, sent to battlefields to select the worthy dead (the 'einherjar') and bring them to Valhalla to prepare for Ragnarök"}, {"n": "Kraken", "m": "Norse", "f": [], "r": "trick", "p": 8, "x": 2, "s": "First described in later medieval Scandinavian sailors' accounts and bestiaries rather than the Eddas; said to lurk off Norway and Greenland"}, {"n": "Yamata no Orochi", "m": "Japanese", "f": ["serpent or dragon", "many-headed beast"], "r": "destroy", "p": 7, "x": 5, "s": "Terrorized Izumo province, devouring a family's daughters one by one each year; Susanoo tricks it with eight vats of sake, then slays it and finds the sword Kusanagi-no-Tsurugi in one of its tails"}, {"n": "Ryūjin (and Ryū, dragon-kind generally)", "m": "Japanese", "f": ["serpent or dragon"], "r": "guard", "p": 5, "x": 0, "s": "Sea dragon god who rules the ocean from a palace of coral and crystal (Ryūgū-jō); appears in the tale of Hoori and Toyotama-hime"}, {"n": "Mizuchi", "m": "Japanese", "f": ["serpent or dragon"], "r": "trick", "p": 3, "x": 0, "s": "A catch-all term for river-dwelling serpent spirits across many local Japanese legends, distinct from the singular, named Yamata no Orochi"}, {"n": "Kitsune", "m": "Japanese", "f": ["shapeshifter", "beautiful lethal woman", "human or animal hybrid"], "r": "guard", "p": 9, "x": 3, "s": "Sacred messengers of the rice deity Inari in benevolent tellings; in cautionary tales, they seduce or trick men while disguised as beautiful women"}, {"n": "Oni", "m": "Japanese", "f": [], "r": "destroy", "p": 8, "x": 0, "s": "Believed to originate in Onmyōdō cosmology as embodiments of misfortune and disease; famously defeated by the folk hero Momotarō with his animal companions"}, {"n": "Tengu", "m": "Japanese", "f": ["human or animal hybrid"], "r": "guard", "p": 7, "x": 1, "s": "Originally demonic harbingers of war, later reimagined as fierce but honorable protectors of mountains and martial arts, sometimes teaching skilled swordsmen in secret"}, {"n": "Nue", "m": "Japanese", "f": ["human or animal hybrid"], "r": "destroy", "p": 5, "x": 3, "s": "Blamed for a mysterious illness afflicting Emperor Konoe by appearing nightly over the palace as a black cloud; shot down by the warrior Minamoto no Yorimasa"}, {"n": "Jorōgumo", "m": "Japanese", "f": ["beautiful lethal woman", "human or animal hybrid"], "r": "trick", "p": 6, "x": 5, "s": "Said to lure a man into her home with music, then bind him in silk threads while she or her spider servants drain his life"}, {"n": "Yuki-onna", "m": "Japanese", "f": ["beautiful lethal woman"], "r": "trick", "p": 7, "x": 5, "s": "Appears to travelers lost in snowstorms; in the best-known tale (Minokichi) she spares a young man on the condition he never speak of her, then unknowingly marries him years later"}, {"n": "Rokurokubi", "m": "Japanese", "f": ["beautiful lethal woman"], "r": "trick", "p": 5, "x": 3, "s": "Often depicted as an unaware sufferer of a curse rather than a deliberate predator, distinguishing her somewhat from the more actively predatory Jorōgumo and Yuki-onna"}, {"n": "Kappa", "m": "Japanese", "f": ["human or animal hybrid"], "r": "trick", "p": 8, "x": 1, "s": "Lurks in rivers and ponds, drags in unwary children or livestock; can be defeated or bargained with by getting it to spill the water from the dish atop its head"}, {"n": "Ōnamazu", "m": "Japanese", "f": [], "r": "destroy", "p": 3, "x": 1, "s": "Believed to cause earthquakes by thrashing beneath the islands of Japan; kept still by the god Kashima's stone (the kaname-ishi) pressing it down"}, {"n": "Umibōzu", "m": "Japanese", "f": [], "r": "trick", "p": 3, "x": 2, "s": "Said to rise from calm water at night; sailors traditionally stayed silent and avoided eye contact to survive an encounter"}, {"n": "Karura", "m": "Japanese", "f": ["human or animal hybrid"], "r": "guard", "p": 3, "x": 2, "s": "Adapted from the Hindu/Buddhist Garuda as Buddhism spread to Japan; appears among the Twenty-Eight Legions guarding Kannon and in temple guardian statuary"}, {"n": "Baku", "m": "Japanese", "f": ["human or animal hybrid"], "r": "guard", "p": 3, "x": 0, "s": "Traditionally invoked by reciting its name three times after a nightmare, so it will devour the bad dream; overuse was said to leave the dreamer permanently empty of dreams"}, {"n": "Vritra", "m": "Hindu", "f": ["serpent or dragon"], "r": "destroy", "p": 6, "x": 5, "s": "Vritra dammed up all the world's waters; Indra, after drinking Soma for strength, slew him with the thunderbolt (vajra) made from the sage Dadhichi's bones, releasing the rivers"}, {"n": "Shesha (Ananta)", "m": "Hindu", "f": ["serpent or dragon", "many-headed beast"], "r": "guard", "p": 6, "x": 1, "s": "The primordial serpent upon whom Vishnu reclines in the cosmic ocean between cycles of creation; also called Ananta ('endless')"}, {"n": "Vasuki", "m": "Hindu", "f": ["serpent or dragon"], "r": "guard", "p": 5, "x": 3, "s": "King of the Nagas; wound around Mount Mandara and pulled by gods and demons in tug-of-war fashion to churn the Ocean of Milk and produce the nectar of immortality"}, {"n": "Kaliya", "m": "Hindu", "f": ["serpent or dragon", "many-headed beast"], "r": "destroy", "p": 5, "x": 2, "s": "Poisoned the Yamuna river until the child-god Krishna dove in, danced upon his many hoods to exhaust him, and banished him to the ocean rather than killing him"}, {"n": "Garuda", "m": "Hindu", "f": ["human or animal hybrid"], "r": "guard", "p": 8, "x": 3, "s": "Born to free his enslaved mother Vinata from the Nagas, sparking the eternal enmity between Garuda's kind and serpents; became Vishnu's mount and a symbol of protection across South and Southeast Asia"}, {"n": "Ravana", "m": "Hindu", "f": ["many-headed beast"], "r": "destroy", "p": 9, "x": 2, "s": "King of Lanka, granted near-invincibility by Brahma; his abduction of Sita triggers the war chronicled in the Ramayana, ending in his death at Rama's hands"}, {"n": "Yakshini", "m": "Hindu", "f": ["beautiful lethal woman"], "r": "guard", "p": 3, "x": 10, "s": "Female nature spirits associated with trees, water, and fertility, ruled by Kubera, god of wealth; capable of great generosity or, in folk tales, of preying on travelers"}, {"n": "Hidimbā (Hidimbi)", "m": "Hindu", "f": ["shapeshifter", "beautiful lethal woman"], "r": "trick", "p": 3, "x": 3, "s": "A rakshasi sent to kill the Pandava brothers during their exile; instead falls in love with Bhima, marries him, and becomes the mother of the hero Ghatotkacha"}, {"n": "Surpanakha", "m": "Hindu", "f": ["beautiful lethal woman"], "r": "destroy", "p": 3, "x": 1, "s": "Ravana's sister; her disfigurement by Lakshmana after she tries to seduce Rama and attacks Sita is the spark that leads Ravana to abduct Sita, triggering the Ramayana's war"}, {"n": "Sharabha", "m": "Hindu", "f": ["many-headed beast", "human or animal hybrid"], "r": "both", "p": 3, "x": 2, "s": "A fearsome composite avatar of Shiva invoked in some Puranic traditions to pacify Vishnu's Narasimha avatar after it remained enraged following the defeat of the demon Hiranyakashipu"}, {"n": "Makara", "m": "Hindu", "f": ["human or animal hybrid"], "r": "guard", "p": 3, "x": 2, "s": "A composite aquatic creature and the vahana of the river goddess Ganga; widely carved as a threshold guardian on temple doorways across South and Southeast Asia"}, {"n": "Kumbhakarna", "m": "Hindu", "f": [], "r": "trick", "p": 3, "x": 3, "s": "Cursed by Brahma (via a trick by Saraswati) to sleep for six months at a time; wakes to fight in the war against Rama and is slain in battle"}, {"n": "Pishacha", "m": "Hindu", "f": [], "r": "trick", "p": 3, "x": 1, "s": "Flesh-eating demons said to haunt cremation grounds and possess the unwary; warded off through mantra and protective ritual rather than fought directly"}, {"n": "Navagunjara", "m": "Hindu", "f": ["human or animal hybrid"], "r": "trick", "p": 3, "x": 2, "s": "Considered a form of Krishna that appeared before Arjuna, made of nine animals fused together, testing whether Arjuna would shoot at an unrecognizable creature or show restraint"}, {"n": "Empousa", "m": "Greek", "f": ["beautiful lethal woman", "human or animal hybrid"], "r": "trick", "p": 3, "x": 3, "s": "A servant-demon of Hecate who prowled roads at night, taking the form of a beautiful woman to seduce travelers, especially young men, before feeding on their blood and flesh"}, {"n": "Euryale", "m": "Greek", "f": ["human or animal hybrid"], "r": "guard", "p": 3, "x": 0, "s": "One of the three Gorgon sisters, daughters of the sea deities Phorcys and Ceto; pursued Perseus after he beheaded Medusa but could not catch him"}, {"n": "Stheno", "m": "Greek", "f": ["human or animal hybrid"], "r": "guard", "p": 3, "x": 0, "s": "One of the three Gorgon sisters, daughters of Phorcys and Ceto; immortal, unlike Medusa, and survives past the central myth"}, {"n": "Manticore", "m": "Greek", "f": ["human or animal hybrid"], "r": "trick", "p": 3, "x": 0, "s": "Described by the Greek physician Ctesias as a beast native to Persia/India, likely based on garbled travelers' reports of a tiger"}, {"n": "Basilisk", "m": "Greek", "f": ["serpent or dragon"], "r": "trick", "p": 3, "x": 0, "s": "Described in Greek natural-history writing (not primarily myth-narrative) as the 'king of serpents,' born from a rooster's egg according to later medieval elaboration"}, {"n": "Amphisbaena", "m": "Greek", "f": ["serpent or dragon", "many-headed beast"], "r": "trick", "p": 3, "x": 1, "s": "Said by Greek sources to have sprung from the blood dripping from the Gorgon Medusa's severed head as Perseus flew over Libya"}, {"n": "Geryon", "m": "Greek", "f": ["many-headed beast"], "r": "guard", "p": 3, "x": 0, "s": "Lived on the red island of Erytheia in the far west; Heracles killed him and stole his cattle as the Tenth Labour, with help against Geryon's herdsman and his two-headed dog Orthrus"}, {"n": "Sköll and Hati", "m": "Norse", "f": ["wolf or hound"], "r": "destroy", "p": 5, "x": 0, "s": "Chase the sun and moon across the sky every day; their eventual success in catching their prey is one of the fixed prophesied events of Ragnarök, plunging the world into darkness"}, {"n": "Lindworm", "m": "Norse", "f": ["serpent or dragon"], "r": "both", "p": 3, "x": 0, "s": "A recurring dragon-type across later Scandinavian and broader Germanic folk legend, often guarding a hoard or cursing a bloodline; less textually fixed than the Eddic dragons"}, {"n": "Vetala", "m": "Hindu", "f": [], "r": "guard", "p": 3, "x": 2, "s": "Best known from the Vetala Panchavimshati (Twenty-Five Tales of the Vetala), in which King Vikramaditya must carry a Vetala-possessed corpse while it tells riddling stories, testing his wit and resolve"}, {"n": "Apsara", "m": "Hindu", "f": [], "r": "trick", "p": 5, "x": 0, "s": "Sent by Indra, most famously to disrupt the meditative austerities (tapas) of powerful ascetics whose growing spiritual strength threatened to rival the gods"}, {"n": "Gandharva", "m": "Hindu", "f": [], "r": "trick", "p": 3, "x": 0, "s": "Divine musicians and entertainers in Indra's court, also invoked in the Gandharva marriage tradition, a consensual union considered valid without formal ceremony"}, {"n": "Kimpurusha", "m": "Hindu", "f": ["human or animal hybrid"], "r": "trick", "p": 3, "x": 0, "s": "Attendants of Kubera, god of wealth, described dwelling on Mount Gandhamadana alongside Kinnaras, Gandharvas, and Vidyadharas in the Mahabharata"}, {"n": "Vidyadhara", "m": "Hindu", "f": [], "r": "trick", "p": 3, "x": 0, "s": "Wisdom-bearing demigods who attend Shiva in the Himalayas and appear across the Mahabharata and Ramayana in courtly, non-combative roles"}, {"n": "Kamadhenu", "m": "Hindu", "f": ["human or animal hybrid"], "r": "trick", "p": 5, "x": 0, "s": "Called the 'mother of all cows,' produced during the Samudra Manthan (Churning of the Ocean) in some Puranic tellings, granting any wish to those who possess her"}, {"n": "Airavata", "m": "Hindu", "f": ["human or animal hybrid"], "r": "trick", "p": 5, "x": 2, "s": "Produced during the Samudra Manthan (Churning of the Ocean of Milk) and given to Indra as his mount; also said to represent the eastern cardinal direction"}, {"n": "Gandaberunda", "m": "Hindu", "f": ["many-headed beast", "human or animal hybrid"], "r": "trick", "p": 3, "x": 1, "s": "A ferocious two-headed avatar taken by Vishnu-as-Narasimha to defeat Sharabha, a lion-bird form taken by Shiva; the two fought for eighteen days before Gandaberunda prevailed"}, {"n": "Yamauba", "m": "Japanese", "f": ["shapeshifter"], "r": "trick", "p": 3, "x": 2, "s": "Lives alone in a mountain hut, offering food and shelter to lost travelers, only to reveal her monstrous true form and attack once they are asleep"}, {"n": "Tsuchigumo", "m": "Japanese", "f": ["shapeshifter", "beautiful lethal woman", "human or animal hybrid"], "r": "trick", "p": 3, "x": 2, "s": "Named after both a giant spider yokai and a historical derogatory term for clans that resisted the Yamato imperial court; in the best-known legend, Minamoto no Yorimitsu battles an illusion-casting spider-woman general before killing the giant spider she truly is"}, {"n": "Bakeneko / Nekomata", "m": "Japanese", "f": ["shapeshifter", "beautiful lethal woman"], "r": "trick", "p": 5, "x": 2, "s": "A cat that has lived long enough (traditions vary: ten, twelve, or eighty years) becomes a Bakeneko; if it lives longer still, its tail splits and it becomes the more powerful and uniformly malicious Nekomata"}, {"n": "Futakuchi-onna", "m": "Japanese", "f": ["beautiful lethal woman", "human or animal hybrid"], "r": "trick", "p": 3, "x": 1, "s": "A woman develops a second mouth on the back of her head, most often in folklore tied to a stepmother who starved a stepchild, or a miserly wife who ate secretly — the second mouth then appears as supernatural retribution and must be constantly fed"}, {"n": "Sharvara and Shyama", "m": "Hindu", "f": ["wolf or hound"], "r": "guard", "p": 3, "x": 2, "s": "Described in the Rigveda (Book 10, Hymn 14) as 'four-eyed, road-guarding, man-beholding' dogs who watch the path souls travel to Yama's kingdom"}, {"n": "Yomotsu-shikome", "m": "Japanese", "f": [], "r": "trick", "p": 3, "x": 0, "s": "Sent by the dead Izanami to pursue her husband Izanagi after he sees her decayed corpse and flees Yomi; he escapes by throwing objects they stop to eat, then seals the entrance with a boulder"}, {"n": "Ōkami", "m": "Japanese", "f": ["wolf or hound"], "r": "guard", "p": 3, "x": 1, "s": "Revered across rural Japan as a protector of farmland and travelers; farmers left food offerings at wolf shrines in gratitude"}, {"n": "Lycaon", "m": "Greek", "f": ["wolf or hound"], "r": "guard", "p": 3, "x": 0, "s": "Served Zeus the flesh of his own murdered son (or a captive, in some versions) to test the god's omniscience; Zeus destroyed his sons with lightning and transformed Lycaon into a wolf"}, {"n": "Nandi", "m": "Hindu", "f": ["human or animal hybrid"], "r": "guard", "p": 6, "x": 1, "s": "Shiva's mount and devoted gatekeeper; stone Nandi statues traditionally face the inner sanctum at Shiva temples, and worshippers pass their prayers to Shiva through him"}, {"n": "Mahishasura", "m": "Hindu", "f": ["shapeshifter", "human or animal hybrid"], "r": "destroy", "p": 6, "x": 1, "s": "Waged war on the gods after his boon made him nearly unkillable; the goddess Durga was created specifically to destroy him, and the battle is a central myth of the Devi Mahatmya"}, {"n": "Cyclopes", "m": "Greek", "f": [], "r": "trick", "p": 7, "x": 3, "s": "Three elder Cyclopes (Brontes, Steropes, Arges) forged the gods' signature weapons; a separate, wilder race appears in Homer's Odyssey, including Polyphemus, blinded by Odysseus"}, {"n": "Daidarabocchi", "m": "Japanese", "f": [], "r": "both", "p": 3, "x": 3, "s": "A folkloric giant blamed for shaping the physical landscape across Japan — certain lakes, hills, and depressions are locally said to be its footprints or the result of it resting"}, {"n": "Sleipnir", "m": "Norse", "f": ["human or animal hybrid"], "r": "trick", "p": 7, "x": 3, "s": "Born when Loki, in mare form, was impregnated by a builder's stallion; becomes Odin's personal steed, the fastest of all horses, ridden even into Hel"}, {"n": "Hræsvelgr", "m": "Norse", "f": [], "r": "both", "p": 3, "x": 0, "s": "Sits at the northern edge of the sky in giant form; his wingbeats are said to be the literal origin of wind"}, {"n": "Huginn and Muninn", "m": "Norse", "f": [], "r": "trick", "p": 3, "x": 0, "s": "Fly out each morning across the world and return each evening to report everything they've seen and heard directly into Odin's ears"}, {"n": "Yaksha", "m": "Hindu", "f": [], "r": "guard", "p": 3, "x": 1, "s": "Nature spirits ruled by Kubera, god of wealth; guard forests, mountains, and buried treasure across Vedic, epic, and later Buddhist/Jain texts"}, {"n": "Pegasus", "m": "Greek", "f": ["human or animal hybrid"], "r": "trick", "p": 9, "x": 2, "s": "Born from Medusa's blood when Perseus beheaded her; later tamed by the hero Bellerophon with Athena's golden bridle to help him defeat the Chimera"}, {"n": "Centaurs (Chiron & Nessus)", "m": "Greek", "f": ["human or animal hybrid"], "r": "trick", "p": 7, "x": 0, "s": "Most centaurs descend from Ixion's union with a cloud-phantom of Hera; Chiron is a separate, older lineage, born of Cronus and the nymph Philyra, which the myths use to explain his unusual wisdom and gentleness"}, {"n": "Ymir", "m": "Norse", "f": [], "r": "trick", "p": 6, "x": 0, "s": "The first being to emerge from the primordial void Ginnungagap as ice met fire; killed by Odin and his brothers, who built the entire world from his flesh, blood, bones, and skull"}, {"n": "Hanuman", "m": "Hindu", "f": ["human or animal hybrid"], "r": "guard", "p": 9, "x": 0, "s": "Son of the wind god Vayu; helps Rama rescue Sita from Ravana, most famously leaping to Lanka and setting the city ablaze with his burning tail"}, {"n": "Kirtimukha", "m": "Hindu", "f": ["human or animal hybrid"], "r": "guard", "p": 3, "x": 1, "s": "Created when Shiva's uncontrolled fury took monstrous form; finding nothing else to consume, it devoured its own body down to the face, and Shiva — pleased — decreed it be placed at temple thresholds ever after"}, {"n": "Amabie", "m": "Japanese", "f": [], "r": "guard", "p": 6, "x": 0, "s": "A single documented sighting in Higo Province (present-day Kumamoto) in April 1846: a glowing creature rose from the sea, prophesied good harvests followed by an epidemic, and instructed witnesses to draw and circulate its image to ward off the coming disease"}, {"n": "Shuten-dōji", "m": "Japanese", "f": [], "r": "destroy", "p": 5, "x": 1, "s": "Ruled a band of demons from a lair on Mount Ōe; lured into drinking poisoned sake by the warrior Minamoto no Yorimitsu and his companions, then beheaded — his severed head still bit at his killer even after decapitation"}];
+const CULTURES = ["Greek", "Hindu", "Japanese", "Norse"];
+const FAMILIES = [
+  { key: "serpent or dragon", name: "Serpents and dragons", tag: "The oldest fear in the book." },
+  { key: "many-headed beast", name: "Many-headed beasts", tag: "More heads, more problems." },
+  { key: "shapeshifter", name: "Shapeshifters", tag: "Never trust a helpful stranger." },
+  { key: "human or animal hybrid", name: "Hybrids", tag: "Half person, half warning." },
+  { key: "wolf or hound", name: "Wolves and hounds", tag: "Loyal to the dead, hungry for the sun." },
+  { key: "beautiful lethal woman", name: "Beautiful, lethal women", tag: "Look closer." },
+];
+const JOB_NAME = { guard: "Protector", destroy: "Destroyer", both: "Protector and destroyer", trick: "Neither (trickster or obstacle)" };
+const short = (n) => n.replace(/\s*\(.*\)$/, "");
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+
+/* ---------- shared state: your tradition ---------- */
+let yours = null;
+try { yours = localStorage.getItem("yours") || null; } catch (e) {}
+const listeners = [];
+function setYours(v) {
+  yours = v;
+  try { v ? localStorage.setItem("yours", v) : localStorage.removeItem("yours"); } catch (e) {}
+  listeners.forEach((f) => f());
+}
+
+/* ---------- 1. pick ---------- */
+(function () {
+  const box = document.getElementById("pick");
+  const blurbs = { Greek: "Hydra, Medusa, Cerberus", Hindu: "Garuda, Shesha, Ravana", Japanese: "Kitsune, Oni, Orochi", Norse: "Fenrir, Jörmungandr, Valkyries", none: "Show me everything" };
+  [...CULTURES, "none"].forEach((c) => {
+    const b = el("button");
+    b.type = "button"; b.id = "pick-" + c.toLowerCase();
+    if (c !== "none") b.classList.add("c-" + c);
+    b.append(el("b", null, c === "none" ? "Just curious" : c), el("span", null, blurbs[c]));
+    b.addEventListener("click", () => setYours(c === "none" ? null : c));
+    box.appendChild(b);
+  });
+  const chip = document.getElementById("yours"), chipText = document.getElementById("yours-text");
+  document.getElementById("yours-change").addEventListener("click", () => document.getElementById("ix-pick").scrollIntoView({ behavior: "smooth" }));
+  function sync() {
+    [...box.children].forEach((b) => b.setAttribute("aria-pressed", String(b.id === "pick-" + (yours || "").toLowerCase())));
+    chip.hidden = !yours;
+    chipText.textContent = yours ? "Your bestiary: " + yours : "";
+  }
+  listeners.push(sync); sync();
+})();
+
+/* ---------- 3. guess, then reveal ---------- */
+const pendingReveals = {};
+const GUESSES = {
+  protect: {
+    q: "Which culture’s monsters are most likely to protect you?",
+    unit: "%", opts: CULTURES.map((c) => {
+      const rows = DATA.filter((d) => d.m === c);
+      return { k: c, label: c, v: Math.round(100 * rows.filter((d) => d.r === "guard").length / rows.length) };
+    }),
+    say: (best) => best.label + ": " + best.v + "% of its monsters are protectors.",
+    mine: (o) => "Yours, " + o.k + ": " + o.v + "%.",
+  },
+  lookalikes: {
+    q: "Which of these has the most look-alikes?",
+    // links per creature in data/creature_links.csv (all 109), the same count the script uses ("each tied to ten others")
+    unit: "", defer: true, opts: [["Jörmungandr", 7], ["Cerberus", 2], ["Medusa", 10], ["Garuda", 3]].map(([k, v]) => ({ k, label: k, v })),
+    say: (best) => "Medusa, with 10, tied with Lamia and the yakshini.",
+  },
+  pairs: {
+    q: "Which two cultures share the most monsters?",
+    // cross-culture links per pair, as counted in the chord chart (data/creature_links.csv)
+    unit: "", opts: [["Greek–Hindu", 25], ["Greek–Japanese", 21], ["Hindu–Japanese", 13], ["Hindu–Norse", 13], ["Greek–Norse", 10], ["Japanese–Norse", 9]].map(([k, v]) => ({ k, label: k, v })),
+    say: (best) => "Greece and India: " + best.v + " shared monsters.",
+    mine: (o) => null,
+  },
+};
+document.querySelectorAll("[data-guess]").forEach((box) => {
+  const g = GUESSES[box.dataset.guess];
+  const max = Math.max(...g.opts.map((o) => o.v));
+  const best = g.opts.find((o) => o.v === max);
+  box.append(el("p", "label muted", "Your guess"), el("p", "guess-q", g.q));
+  const opts = el("div", "guess-opts"); box.appendChild(opts);
+  const out = el("p", "guess-out"); out.setAttribute("aria-live", "polite"); box.appendChild(out);
+  g.opts.forEach((o, k) => {
+    const b = el("button"); b.type = "button"; b.id = "guess-" + box.dataset.guess + "-" + k;
+    const bar = el("span", "bar"); const tag = el("span", "opt-tag");
+    b.append(bar, el("span", "opt-name", o.label), el("span", "opt-val", o.v + g.unit), tag);
+    if (o === best) b.classList.add("answer");
+    const reveal = () => {
+      box.classList.add("revealed");
+      [...opts.children].forEach((x, j) => { x.disabled = true; x.querySelector(".bar").style.width = (100 * g.opts[j].v / max) + "%"; });
+      tag.textContent = o === best ? "Your guess · right" : "Your guess";
+      best !== o && (opts.children[g.opts.indexOf(best)].querySelector(".opt-tag").textContent = "Answer");
+      out.textContent = (o === best ? "Right. " : "Not quite. ") + g.say(best);
+      if (g.mine && yours && yours !== best.k) { const mo = g.opts.find((x) => x.k === yours); const line = mo && g.mine(mo); if (line) out.textContent += " " + line; }
+    };
+    b.addEventListener("click", () => {
+      if (!g.defer) return reveal();
+      // held back: lock the guess now, reveal when the script's paragraph arrives
+      [...opts.children].forEach((x) => (x.disabled = true));
+      tag.textContent = "Your guess";
+      out.textContent = "Locked in. Keep reading: the chart answers it.";
+      pendingReveals[box.dataset.guess] = reveal;
+    });
+    opts.appendChild(b);
+  });
+});
+
+/* ---------- 4. guided notes (scrolly over an unchanged chart) ---------- */
+document.querySelectorAll("[data-scrolly]").forEach((sc) => {
+  const steps = [...sc.querySelectorAll(".step")];
+  const pins = [...sc.querySelectorAll(".pin")];
+  const io = new IntersectionObserver((es) => es.forEach((e) => {
+    if (!e.isIntersecting) return;
+    steps.forEach((s) => s.classList.toggle("on", s === e.target));
+    const p = e.target.dataset.pin || "";
+    const rv = e.target.dataset.reveal;
+    if (rv && pendingReveals[rv]) { pendingReveals[rv](); delete pendingReveals[rv]; }
+    pins.forEach((x) => x.classList.toggle("on", x.dataset.pin === p));
+  }), { rootMargin: "-50% 0px -49% 0px" });
+  steps.forEach((s) => io.observe(s));
+});
+
+/* ---------- 5. dream up a monster ---------- */
+(function () {
+  const BODIES = FAMILIES.map((f) => ({ k: f.key, label: f.name }));
+  const JOBS = [{ k: "guard", label: "Protector" }, { k: "destroy", label: "Destroyer" }, { k: "trick", label: "Trickster or obstacle" }, { k: "any", label: "Any job" }];
+  let body = "wolf or hound", job = "guard";
+  const bodyBox = document.getElementById("b-body"), jobBox = document.getElementById("b-job"), field = document.getElementById("b-field");
+  function chips(box, list, get, set, prefix) {
+    list.forEach((o) => {
+      const b = el("button", "chip", o.label); b.type = "button"; b.id = prefix + o.k.replace(/\W+/g, "-");
+      b.addEventListener("click", () => { set(o.k); render(); }); box.appendChild(b);
+    });
+    return () => [...box.children].forEach((b, i) => b.setAttribute("aria-pressed", String(list[i].k === get())));
+  }
+  const syncBody = chips(bodyBox, BODIES, () => body, (v) => (body = v), "body-");
+  const syncJob = chips(jobBox, JOBS, () => job, (v) => (job = v), "job-");
+  const jobOk = (d) => job === "any" || d.r === job || (d.r === "both" && (job === "guard" || job === "destroy"));
+  const cols = {};
+  CULTURES.forEach((c) => {
+    const col = el("div", "field-col c-" + c); const h = el("header"); const n = el("span", "num");
+    h.append(el("span", "label", c), n); const dots = el("div", "dots");
+    DATA.filter((d) => d.m === c).forEach((d) => { const s = el("span", "cdot"); s.title = short(d.n); d._dot = s; dots.appendChild(s); });
+    col.append(h, dots); field.appendChild(col); cols[c] = { col, n };
+  });
+  function render() {
+    syncBody(); syncJob();
+    const hit = DATA.filter((d) => d.f.includes(body) && jobOk(d));
+    DATA.forEach((d) => d._dot.classList.toggle("hit", hit.includes(d)));
+    const by = Object.fromEntries(CULTURES.map((c) => [c, hit.filter((d) => d.m === c)]));
+    const nC = CULTURES.filter((c) => by[c].length).length;
+    CULTURES.forEach((c) => { cols[c].n.textContent = by[c].length; cols[c].col.classList.toggle("mine", c === yours); });
+    const fam = FAMILIES.find((f) => f.key === body).name.toLowerCase();
+    const jobTxt = job === "any" ? "" : " that " + ({ guard: "protect", destroy: "destroy", trick: "trick or block" })[job];
+    document.getElementById("b-verdict").textContent = nC === 0 ? "Nobody dreamed this one up." : nC + " of 4 cultures dreamed this up.";
+    document.getElementById("b-sub").textContent = hit.length + " " + fam + jobTxt;
+    const pe = document.getElementById("b-personal");
+    if (yours) {
+      pe.hidden = false; pe.className = "personal c-" + yours;
+      pe.textContent = by[yours].length ? "Your tradition, " + yours + ": " + by[yours].map((d) => short(d.n)).join(", ") + "." : "Your tradition, " + yours + ", never dreamed this one up.";
+    } else pe.hidden = true;
+    document.getElementById("b-match-label").textContent = hit.length ? "The matches" : "";
+    const m = document.getElementById("b-matches"); m.replaceChildren();
+    hit.slice().sort((a, b) => (b.m === yours) - (a.m === yours) || b.p - a.p).forEach((d) => m.appendChild(card(d)));
+  }
+  listeners.push(render); render();
+})();
+
+function card(d) {
+  const c = el("article", "card c-" + d.m);
+  const art = el("div", "card-art"); art.append(el("span", null, "illustration"), el("span", null, d.f[0] ? d.f[0] : "other"));
+  const t = el("div", "card-text");
+  t.append(el("span", "card-meta", d.m + " · " + JOB_NAME[d.r].split(" (")[0]), el("h3", null, short(d.n)), el("p", null, d.s));
+  c.append(art, el("div", "card-band"), t);
+  return c;
+}
+
+/* ---------- 6. guess the route ---------- */
+(function () {
+  const PAIRS = [
+    { t: "Garuda (India) and Karura (Japan)", a: "Travelled", why: "Buddhism carried Garuda to Japan, where he became Karura." },
+    { t: "Cerberus (Greece), Garmr (Norse) and Yama’s two hounds (India)", a: "Inherited", why: "Possibly. The names probably aren’t related, but the idea of a hound at the gate of the dead may be older than all three cultures." },
+    { t: "Orochi (Japan) and Kaliya (India)", a: "Imagined", why: "No known contact links these two stories." },
+    { t: "Medusa (Greece) and Jorōgumo (Japan)", a: "Imagined", why: "No route connects them. Just the same fear in a different costume." },
+  ];
+  const box = document.getElementById("route"), score = document.getElementById("route-score");
+  let done = 0, right = 0;
+  PAIRS.forEach((p, i) => {
+    const c = el("div", "pair");
+    const opts = el("div", "opts"); const why = el("p", "why"); why.hidden = true;
+    c.append(el("div", "pair-art", "pair illustration"), el("h3", null, p.t), opts, why);
+    ["Travelled", "Inherited", "Imagined"].forEach((o) => {
+      const b = el("button", null, o); b.type = "button"; b.id = "route-" + i + "-" + o.toLowerCase();
+      b.addEventListener("click", () => {
+        [...opts.children].forEach((x) => { x.disabled = true; if (x.textContent === p.a) x.classList.add("right"); else if (x === b) x.classList.add("wrong"); });
+        why.textContent = p.why; why.hidden = false; done++; if (o === p.a) right++;
+        score.textContent = done === PAIRS.length ? "You got " + right + " of 4." : done + " of 4 answered";
+      });
+      opts.appendChild(b);
+    });
+    box.appendChild(c);
+  });
+})();
+
+/* ---------- 7. gallery ---------- */
+(function () {
+  let cult = "All", fam = "All", q = "";
+  const gal = document.getElementById("gallery"), count = document.getElementById("g-count");
+  function chipRow(box, items, get, set) {
+    items.forEach((it) => {
+      const b = el("button", "chip" + (it.c ? " c-" + it.c : "")); b.type = "button";
+      if (it.c) b.appendChild(el("span", "dot")); b.append(it.label);
+      b.addEventListener("click", () => { set(it.k); render(); }); box.appendChild(b);
+    });
+    return () => [...box.children].forEach((b, i) => b.setAttribute("aria-pressed", String(items[i].k === get())));
+  }
+  const syncC = chipRow(document.getElementById("g-cult"), [{ k: "All", label: "All cultures" }, ...CULTURES.map((c) => ({ k: c, label: c, c }))], () => cult, (v) => (cult = v));
+  const syncF = chipRow(document.getElementById("g-fam"), [{ k: "All", label: "All families" }, ...FAMILIES.map((f) => ({ k: f.key, label: f.name }))], () => fam, (v) => (fam = v));
+  document.getElementById("g-search").addEventListener("input", (e) => { q = e.target.value.trim().toLowerCase(); render(); });
+  function render() {
+    syncC(); syncF();
+    const list = DATA.filter((d) => (cult === "All" || d.m === cult) && (fam === "All" || d.f.includes(fam)) && (!q || (d.n + " " + d.s).toLowerCase().includes(q)))
+      .sort((a, b) => (b.m === yours) - (a.m === yours) || b.p - a.p);
+    gal.replaceChildren(...(list.length ? list.map(card) : [el("p", "empty", "No creature matches. Try another filter.")]));
+    count.textContent = list.length + " of " + DATA.length + " creatures";
+  }
+  listeners.push(render); render();
+})();
+</script>
+
+</body>
+</html>

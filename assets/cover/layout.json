@@ -1,0 +1,113 @@
+{
+  "canvas": {
+    "w": 2400,
+    "h": 1519
+  },
+  "layers": {
+    "cerberus": {
+      "file": "cerberus.webp",
+      "x": 255,
+      "y": 880,
+      "w": 262,
+      "h": 379
+    },
+    "clouds": {
+      "file": "clouds.webp",
+      "x": 0,
+      "y": 121,
+      "w": 2400,
+      "h": 1196
+    },
+    "empousa": {
+      "file": "empousa.webp",
+      "x": 460,
+      "y": 711,
+      "w": 548,
+      "h": 705
+    },
+    "fafnir": {
+      "file": "fafnir.webp",
+      "x": 937,
+      "y": 897,
+      "w": 774,
+      "h": 614
+    },
+    "far": {
+      "file": "far.webp",
+      "x": 0,
+      "y": 335,
+      "w": 1514,
+      "h": 726
+    },
+    "foreground": {
+      "file": "foreground.webp",
+      "x": 0,
+      "y": 813,
+      "w": 2400,
+      "h": 706
+    },
+    "futakuchi-onna": {
+      "file": "futakuchi-onna.webp",
+      "x": 503,
+      "y": 630,
+      "w": 664,
+      "h": 798
+    },
+    "garuda": {
+      "file": "garuda.webp",
+      "x": 1693,
+      "y": 663,
+      "w": 396,
+      "h": 511
+    },
+    "griffin": {
+      "file": "griffin.webp",
+      "x": 1643,
+      "y": 736,
+      "w": 399,
+      "h": 448
+    },
+    "ground": {
+      "file": "ground.webp",
+      "x": 0,
+      "y": 572,
+      "w": 2400,
+      "h": 760
+    },
+    "hydra": {
+      "file": "hydra.webp",
+      "x": 883,
+      "y": 150,
+      "w": 617,
+      "h": 622
+    },
+    "ladon": {
+      "file": "ladon.webp",
+      "x": 949,
+      "y": 1003,
+      "w": 700,
+      "h": 502
+    },
+    "orochi": {
+      "file": "orochi.webp",
+      "x": 668,
+      "y": 27,
+      "w": 1155,
+      "h": 998
+    },
+    "sharvara-shyama": {
+      "file": "sharvara-shyama.webp",
+      "x": 134,
+      "y": 961,
+      "w": 338,
+      "h": 299
+    },
+    "sky": {
+      "file": "sky.webp",
+      "x": 0,
+      "y": 0,
+      "w": 2400,
+      "h": 1519
+    }
+  }
+}

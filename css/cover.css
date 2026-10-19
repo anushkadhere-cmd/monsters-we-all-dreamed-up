@@ -1,0 +1,367 @@
+/* =========================================================
+   Tokens: swap in your chosen fonts and colours here.
+   ========================================================= */
+:root {
+  --sky: #bad4dc;          /* fills any gap behind the sky plane; match your SKY layer */
+  --ink: #1e1c19;
+  --paper: #f3eee3;
+  --accent: #b8462f;
+  --magic: #ffc93c;        /* sparkle and glow colour when a creature switches */
+
+  --font-display: "Disney Heroic", Georgia, serif;     /* headings (assets/fonts/DisneyHeroic.ttf) */
+  --font-body: "Hubballi", Georgia, serif;              /* body text (Google Fonts) */
+  --font-tag: "Hubballi", var(--font-ui);              /* creature name tags */
+  --font-ui: ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --fade: 280ms;           /* how long each creature takes to fade out, and its twin to fade in */
+  --fade-gap: 120ms;       /* the twin starts fading in this long after the first one starts fading out */
+  --edge: clamp(28px, 5vw, 72px); /* height of the torn bottom edge of the cover */
+}
+
+@font-face {
+  font-family: "Disney Heroic";
+  src: url("../assets/fonts/DisneyHeroic.ttf") format("truetype");
+  font-display: swap;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 1.125rem; line-height: 1.6; }
+
+/* =========================================================
+   Cover stage
+   ========================================================= */
+.cover-stage {
+  --ratio: 1.58;                     /* set from the images by cover.js */
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  /* Show the whole scene; on short, wide windows crop up to 12% off the top (sky), never the ground. */
+  height: clamp(calc(100vw / var(--ratio) * 0.88), 100svh, calc(100vw / var(--ratio)));
+  background: var(--sky);
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Torn bottom edge: a strip of page paper, cut along the ragged line in
+   assets/cover/edge.svg, laid over the bottom of the scene. (Masking the
+   scene itself stops Chrome painting it on phones, where the scene scrolls.) */
+.cover-edge {
+  position: relative;
+  z-index: 2;
+  height: var(--edge);
+  margin-top: calc(-1 * var(--edge));
+  background: var(--paper);
+  -webkit-mask: url("../assets/cover/edge.svg") center / 100% 100% no-repeat;
+          mask: url("../assets/cover/edge.svg") center / 100% 100% no-repeat;
+  pointer-events: none;
+}
+
+/* The artboard. Every plane and creature sits inside it at artboard proportions. */
+.cover-inner {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  aspect-ratio: var(--ratio);
+  transform-origin: 50% 55%;
+}
+
+.layer { position: absolute; inset: 0; }
+.part  { position: absolute; display: block; max-width: none; pointer-events: none; }
+
+/* Creature swap: the visible picture has .on. The old one fades out,
+   then the new one fades in a moment later. */
+.creature-part { opacity: 0; transition: opacity var(--fade) ease-in-out, filter 300ms ease; }
+.creature-part.on { opacity: 1; transition-delay: var(--fade-gap), 0s; }
+
+/* The switch: the creature that appears glows for a moment... */
+.creature-part.glow { animation: cover-glow 700ms ease-out var(--fade-gap); }
+@keyframes cover-glow {
+  from { filter: brightness(1.5) drop-shadow(0 0 12px var(--magic)); }
+  to   { filter: brightness(1) drop-shadow(0 0 0 transparent); }
+}
+
+/* ...while sparkles twinkle over it and drift up. */
+.cover-sparkles { position: absolute; z-index: 4; pointer-events: none; }
+.cover-sparkles span {
+  position: absolute;
+  width: var(--size);
+  height: var(--size);
+  margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
+  background: radial-gradient(circle, #fff 15%, var(--magic) 55%);
+  clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+  opacity: 0;
+  animation: cover-twinkle 900ms ease-out var(--delay) both;
+}
+@keyframes cover-twinkle {
+  0%   { opacity: 0; transform: scale(0) rotate(0deg); }
+  30%  { opacity: 1; transform: scale(1) rotate(calc(var(--spin) / 2)); }
+  100% { opacity: 0; transform: translateY(var(--rise)) scale(0.2) rotate(var(--spin)); }
+}
+
+/* While one creature is in focus, the others step back a little. */
+.cover-stage.has-focus .creature-part:not(.is-focus) { filter: saturate(0.7) brightness(0.9); }
+.cover-stage.is-pointing { cursor: pointer; }
+
+/* Name tag under each creature. Its centre-top sits on the point cover.js gives it
+   (artboard %), and it scales with the artboard (--art-w is set by cover.js). */
+.cover-label {
+  position: absolute;
+  width: 0;                          /* zero-width anchor; the pill centres on it */
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  font-size: clamp(7px, calc(var(--art-w, 1000px) * 0.0078), 12px);
+}
+.cover-label-pill {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.4em 1.3em 0.35em;
+  border-radius: 999px;
+  color: var(--paper);               /* warm white, like the highlights in the art */
+  font-family: var(--font-tag);
+  line-height: 1;
+  white-space: nowrap;
+}
+/* The box: black, multiply, 56% opacity. Kept separate from the text so the
+   white lettering isn't multiplied away. Nothing above it may create a
+   stacking context, or the multiply would blend with nothing. */
+.cover-label-bg {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: #000;
+  opacity: 0.56;
+  mix-blend-mode: multiply;
+}
+.cover-label-pill b, .cover-label-culture { position: relative; font-weight: 400; }
+.cover-label-pill b { font-size: 1.4em; letter-spacing: 0.12em; text-transform: uppercase; }
+.cover-label-culture { font-size: 1.1em; margin-top: 0.05em; opacity: 0.85; }
+
+/* The help line under "Switch all" now says this, so the floating hint is
+   switched off. Delete this rule to bring it back. */
+.cover-hint { display: none !important; }
+
+/* "Hover over the creatures" hint, until the first interaction: floating text, no box.
+   A soft paper-coloured halo keeps it readable over sky and cloud. */
+.cover-hint {
+  position: absolute;
+  z-index: 4;
+  transform: translate(-50%, calc(-100% - 10px));
+  color: var(--ink);
+  font-family: var(--font-tag);
+  font-size: 1.3rem;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 6px var(--paper), 0 0 14px var(--paper);
+  white-space: nowrap;
+  pointer-events: none;
+  animation: cover-bob 1.8s ease-in-out infinite;
+}
+@keyframes cover-bob { 50% { transform: translate(-50%, calc(-100% - 18px)); } }
+
+/* Invisible keyboard targets, one per creature (visible only on keyboard focus) */
+.cover-hotspot {
+  position: absolute;
+  z-index: 3;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  border-radius: 10px;
+  pointer-events: none;
+}
+.cover-hotspot:focus-visible { outline: 3px solid var(--paper); box-shadow: 0 0 0 6px var(--ink); }
+
+/* Setup message (shown when the page is opened as a file instead of through a local server) */
+.cover-msg {
+  position: absolute;
+  left: 1rem;
+  bottom: 1rem;
+  z-index: 6;
+  max-width: 34rem;
+  margin: 0;
+  padding: 0.6rem 0.8rem;
+  background: #fff;
+  color: #111;
+  border-left: 4px solid var(--accent);
+  font: 0.85rem/1.45 var(--font-ui);
+}
+
+/* =========================================================
+   Title block under the scene
+   ========================================================= */
+/* The title is lettered on the rock in the art; only the intro line sits below. */
+.cover-text {
+  max-width: 44rem;
+  margin-inline: auto;
+  padding: 3.5rem 16px 3rem;
+  text-align: center;
+}
+.nowrap { white-space: nowrap; }
+.cover-dek { margin: 0; font-size: 1.3rem; line-height: 1.55; letter-spacing: 0.03em; text-wrap: balance; }
+
+/* Everything that sits over the scene is placed against this frame.
+   Corner gaps follow the mockup: a little tighter at the top than at the sides. */
+.cover-frame {
+  position: relative;
+  --corner-x: clamp(16px, 2.8vw, 44px);
+  --corner-y: clamp(14px, 1.7vw, 26px);
+}
+
+/* "Switch all" with the help line under it, in the top left corner */
+.cover-controls {
+  position: absolute;                /* no z-index: a stacking context would stop the button's multiply */
+  top: var(--corner-y);
+  left: var(--corner-x);
+  max-width: calc(100% - 2 * var(--corner-x));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.7rem;
+}
+.cover-help {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-tag);
+  font-size: 0.9rem;
+  line-height: 1.35;
+  letter-spacing: 0.03em;
+  white-space: pre-line;             /* cover.js puts a line break after "culture." */
+  text-shadow: 0 0 6px var(--paper), 0 0 14px var(--paper);
+}
+
+/* The button: the same pill as the name tags (black, multiply, 56%). To read as
+   clickable it has a light rim, a soft drop shadow, a sparkle, and it darkens
+   and lifts on hover and presses down on click. */
+.cover-switch {
+  position: relative;
+  top: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  padding: 0.75em 1.6em 0.65em 1.3em;
+  border: 1px solid rgb(243 238 227 / 0.5);
+  border-radius: 999px;
+  background: transparent;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.25);
+  color: var(--paper);
+  font-family: var(--font-tag);
+  font-size: 1.05rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 150ms ease, box-shadow 150ms ease, top 150ms ease;
+}
+.cover-switch::before {               /* the box */
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: #000;
+  opacity: 0.56;
+  mix-blend-mode: multiply;
+  transition: opacity 150ms ease;
+}
+.cover-switch::after {                /* sparkle, matching the switch effect */
+  content: "";
+  order: -1;                         /* flex order also changes paint order, so... */
+  position: relative;
+  z-index: 1;                        /* ...lift it back above the box */
+  width: 0.95em;
+  height: 0.95em;
+  background: var(--magic);
+  clip-path: polygon(50% 0, 64% 36%, 100% 50%, 64% 64%, 50% 100%, 36% 64%, 0 50%, 36% 36%);
+  transition: transform 300ms ease;
+}
+.cover-switch-label { position: relative; }
+/* (top, not transform, moves it: a transform would stop the multiply) */
+.cover-switch:hover { top: -1px; border-color: var(--paper); box-shadow: 0 4px 12px rgb(0 0 0 / 0.3); }
+.cover-switch:hover::before { opacity: 0.78; }
+.cover-switch:hover::after { transform: rotate(45deg) scale(1.15); }
+.cover-switch:active { top: 1px; box-shadow: 0 1px 3px rgb(0 0 0 / 0.3); }
+.cover-switch:active::before { opacity: 0.9; }
+.cover-switch[aria-pressed="true"] { border-color: var(--magic); }
+.cover-switch:focus-visible { outline: 2px solid var(--paper); outline-offset: 3px; }
+
+/* Byline in the top right corner, level with the top of the button */
+.cover-byline {
+  position: absolute;
+  top: calc(var(--corner-y) + 0.2rem);
+  right: var(--corner-x);
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-tag);
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  white-space: nowrap;
+  text-shadow: 0 0 6px var(--paper), 0 0 14px var(--paper);
+}
+
+/* Scroll cue: white line drawing at the bottom centre of the scene. The dot runs
+   down the dotted line and the arrow nudges down. It fades once the reader scrolls. */
+.cover-scroll {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--edge) + 4px);
+  width: 34px;
+  height: 68px;
+  margin-left: -17px;
+  color: #fff;
+  filter: drop-shadow(0 0 2px rgb(0 0 0 / 0.45));  /* keeps the white lines visible on pale grass */
+  transition: opacity 400ms ease;
+}
+.cover-scroll svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.cover-scroll rect, .cover-scroll line, .cover-scroll polyline {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.cover-scroll-track { stroke-dasharray: 0.1 3.2; stroke-width: 1.6; }
+.cover-scroll-dot { fill: currentColor; animation: cover-scroll-dot 1.8s ease-in infinite; }
+.cover-scroll polyline { animation: cover-scroll-arrow 1.8s ease-in-out infinite; }
+@keyframes cover-scroll-dot {
+  0%   { transform: translateY(0); opacity: 0; }
+  15%  { opacity: 1; }
+  75%  { opacity: 1; }
+  100% { transform: translateY(34px); opacity: 0; }
+}
+@keyframes cover-scroll-arrow { 0%, 60%, 100% { transform: translateY(0); } 80% { transform: translateY(3px); } }
+.cover-scroll.is-gone { opacity: 0; pointer-events: none; }
+.cover-scroll:focus-visible { outline: 2px solid #fff; outline-offset: 4px; border-radius: 4px; }
+
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+
+/* =========================================================
+   Phones: a taller scene the reader can swipe across
+   ========================================================= */
+@media (max-width: 700px) {
+  .cover-stage {
+    height: 72svh;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+  }
+  .cover-stage::-webkit-scrollbar { display: none; }
+  .cover-inner { position: relative; left: auto; bottom: auto; height: 100%; width: auto; }
+  .cover-help { font-size: 0.9rem; }
+  .cover-byline { font-size: 0.85rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cover-hint { animation: none; }
+  .creature-part, .creature-part.on { transition: none; }
+  .creature-part.glow { animation: none; }
+  .cover-switch, .cover-switch::before, .cover-switch::after { transition: none; }
+  .cover-switch:hover, .cover-switch:active { top: 0; }
+  .cover-sparkles { display: none; }
+  .cover-scroll-dot, .cover-scroll polyline { animation: none; }
+  .cover-scroll { transition: none; }
+}

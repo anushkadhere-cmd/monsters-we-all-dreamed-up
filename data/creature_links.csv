@@ -1,0 +1,110 @@
+creature_a,mythology_a,creature_b,mythology_b,strength,cross_culture
+Python,Greek,Vritra,Hindu,near-identical,TRUE
+Python,Greek,Yamata no Orochi,Japanese,near-identical,TRUE
+Python,Greek,Jörmungandr,Norse,near-identical,TRUE
+Python,Greek,Kaliya,Hindu,loose,TRUE
+Hydra of Lerna,Greek,Yamata no Orochi,Japanese,near-identical,TRUE
+Ladon,Greek,Fáfnir,Norse,near-identical,TRUE
+Ladon,Greek,Vasuki,Hindu,near-identical,TRUE
+Typhon,Greek,Vritra,Hindu,near-identical,TRUE
+Typhon,Greek,Yamata no Orochi,Japanese,near-identical,TRUE
+Typhon,Greek,Jörmungandr,Norse,near-identical,TRUE
+Typhon,Greek,Ravana,Hindu,loose,TRUE
+Cerberus,Greek,Garmr,Norse,near-identical,TRUE
+Cerberus,Greek,Sharvara and Shyama,Hindu,near-identical,TRUE
+Medusa,Greek,Yuki-onna,Japanese,loose,TRUE
+Medusa,Greek,Yakshini,Hindu,loose,TRUE
+Medusa,Greek,Hidimbā (Hidimbi),Hindu,loose,TRUE
+Medusa,Greek,Huldra,Norse,loose,TRUE
+Medusa,Greek,Lamia,Greek,loose,FALSE
+Medusa,Greek,Sirens,Greek,loose,FALSE
+Medusa,Greek,Jorōgumo,Japanese,loose,TRUE
+Medusa,Greek,Rokurokubi,Japanese,loose,TRUE
+Medusa,Greek,Euryale,Greek,loose,FALSE
+Medusa,Greek,Stheno,Greek,loose,FALSE
+Sirens,Greek,Yuki-onna,Japanese,loose,TRUE
+Sirens,Greek,Huldra,Norse,loose,TRUE
+Sirens,Greek,Jorōgumo,Japanese,loose,TRUE
+Sirens,Greek,Yakshini,Hindu,loose,TRUE
+Sirens,Greek,Empousa,Greek,loose,FALSE
+Sirens,Greek,Tsuchigumo,Japanese,loose,TRUE
+Chimera,Greek,Nue,Japanese,loose,TRUE
+Chimera,Greek,Sharabha,Hindu,loose,TRUE
+Chimera,Greek,Navagunjara,Hindu,loose,TRUE
+Minotaur,Greek,Nandi,Hindu,loose,TRUE
+Minotaur,Greek,Mahishasura,Hindu,loose,TRUE
+Harpies,Greek,Tengu,Japanese,loose,TRUE
+Harpies,Greek,Karura,Japanese,loose,TRUE
+Harpies,Greek,Yakshini,Hindu,loose,TRUE
+Harpies,Greek,Tsuchigumo,Japanese,loose,TRUE
+Griffin,Greek,Garuda,Hindu,near-identical,TRUE
+Griffin,Greek,Makara,Hindu,loose,TRUE
+Griffin,Greek,Yaksha,Hindu,loose,TRUE
+Griffin,Greek,Kirtimukha,Hindu,loose,TRUE
+Lamia,Greek,Yuki-onna,Japanese,loose,TRUE
+Lamia,Greek,Rokurokubi,Japanese,loose,TRUE
+Lamia,Greek,Yakshini,Hindu,loose,TRUE
+Lamia,Greek,Hidimbā (Hidimbi),Hindu,loose,TRUE
+Lamia,Greek,Huldra,Norse,loose,TRUE
+Lamia,Greek,Jorōgumo,Japanese,loose,TRUE
+Lamia,Greek,Surpanakha,Hindu,loose,TRUE
+Lamia,Greek,Empousa,Greek,loose,FALSE
+Lamia,Greek,Yamauba,Japanese,loose,TRUE
+Charybdis,Greek,Kraken,Norse,loose,TRUE
+Charybdis,Greek,Umibōzu,Japanese,loose,TRUE
+Jörmungandr,Norse,Vritra,Hindu,near-identical,TRUE
+Jörmungandr,Norse,Yamata no Orochi,Japanese,near-identical,TRUE
+Jörmungandr,Norse,Ōnamazu,Japanese,loose,TRUE
+Jörmungandr,Norse,Shesha (Ananta),Hindu,near-identical,TRUE
+Jörmungandr,Norse,Lindworm,Norse,loose,FALSE
+Níðhöggr (Nidhogg),Norse,Vritra,Hindu,loose,TRUE
+Níðhöggr (Nidhogg),Norse,Vasuki,Hindu,loose,TRUE
+Níðhöggr (Nidhogg),Norse,Lindworm,Norse,loose,FALSE
+Fenrir,Norse,Sköll and Hati,Norse,loose,FALSE
+Fenrir,Norse,Ōkami,Japanese,loose,TRUE
+Garmr,Norse,Sharvara and Shyama,Hindu,near-identical,TRUE
+Fáfnir,Norse,Vasuki,Hindu,near-identical,TRUE
+Fáfnir,Norse,Kaliya,Hindu,loose,TRUE
+Fáfnir,Norse,Lindworm,Norse,loose,FALSE
+Jötnar (Frost/Mountain Giants),Norse,Kumbhakarna,Hindu,loose,TRUE
+Jötnar (Frost/Mountain Giants),Norse,Cyclopes,Greek,loose,TRUE
+Jötnar (Frost/Mountain Giants),Norse,Daidarabocchi,Japanese,loose,TRUE
+Huldra,Norse,Yuki-onna,Japanese,loose,TRUE
+Huldra,Norse,Yakshini,Hindu,loose,TRUE
+Huldra,Norse,Kitsune,Japanese,loose,TRUE
+Huldra,Norse,Jorōgumo,Japanese,loose,TRUE
+Draugr,Norse,Pishacha,Hindu,loose,TRUE
+Draugr,Norse,Vetala,Hindu,loose,TRUE
+Draugr,Norse,Bakeneko / Nekomata,Japanese,loose,TRUE
+Kraken,Norse,Umibōzu,Japanese,loose,TRUE
+Yamata no Orochi,Japanese,Vritra,Hindu,near-identical,TRUE
+Kitsune,Japanese,Yakshini,Hindu,loose,TRUE
+Kitsune,Japanese,Hidimbā (Hidimbi),Hindu,loose,TRUE
+Oni,Japanese,Shuten-dōji,Japanese,near-identical,FALSE
+Nue,Japanese,Sharabha,Hindu,loose,TRUE
+Nue,Japanese,Navagunjara,Hindu,loose,TRUE
+Jorōgumo,Japanese,Yakshini,Hindu,loose,TRUE
+Jorōgumo,Japanese,Tsuchigumo,Japanese,loose,FALSE
+Jorōgumo,Japanese,Futakuchi-onna,Japanese,near-identical,FALSE
+Yuki-onna,Japanese,Yakshini,Hindu,loose,TRUE
+Rokurokubi,Japanese,Yakshini,Hindu,loose,TRUE
+Kappa,Japanese,Makara,Hindu,loose,TRUE
+Karura,Japanese,Garuda,Hindu,near-identical,TRUE
+Garuda,Hindu,Sleipnir,Norse,loose,TRUE
+Ravana,Hindu,Shuten-dōji,Japanese,near-identical,TRUE
+Yakshini,Hindu,Empousa,Greek,loose,TRUE
+Sharabha,Hindu,Navagunjara,Hindu,loose,FALSE
+Kumbhakarna,Hindu,Cyclopes,Greek,loose,TRUE
+Kumbhakarna,Hindu,Daidarabocchi,Japanese,loose,TRUE
+Empousa,Greek,Futakuchi-onna,Japanese,near-identical,TRUE
+Empousa,Greek,Yamauba,Japanese,loose,TRUE
+Euryale,Greek,Stheno,Greek,loose,FALSE
+Amphisbaena,Greek,Gandaberunda,Hindu,loose,TRUE
+Vetala,Hindu,Bakeneko / Nekomata,Japanese,loose,TRUE
+Airavata,Hindu,Sleipnir,Norse,loose,TRUE
+Airavata,Hindu,Pegasus,Greek,loose,TRUE
+Tsuchigumo,Japanese,Futakuchi-onna,Japanese,near-identical,FALSE
+Nandi,Hindu,Mahishasura,Hindu,loose,FALSE
+Cyclopes,Greek,Daidarabocchi,Japanese,loose,TRUE
+Sleipnir,Norse,Pegasus,Greek,loose,TRUE
+Yaksha,Hindu,Kirtimukha,Hindu,loose,FALSE

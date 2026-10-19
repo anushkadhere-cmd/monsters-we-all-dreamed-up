@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>How similar are they really?</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Alyamama&display=swap');
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #FFFAF2;
+    font-family: 'Alyamama', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 0;
+  }
+  h1 {
+    font-size: 40px;
+    color: #2A2A2A;
+    margin: 0 0 12px;
+    font-weight: 700;
+  }
+  #subtitle {
+    font-size: 13px;
+    color: #6B6B6B;
+    margin-bottom: 18px;
+    text-align: center;
+    max-width: 640px;
+    line-height: 1.5;
+  }
+  #stage {
+    position: relative;
+    width: calc(100vw - 250px);
+    height: calc(100vh - 200px);
+    max-width: calc(100vw - 250px);
+    max-height: calc(100vh - 200px);
+    background: #FFFAF2;
+    border: 1px solid #eee2cf;
+  }
+  #canvas { width: 100%; height: 100%; cursor: grab; }
+  #canvas:active { cursor: grabbing; }
+  .net-dot {
+    cursor: pointer;
+    stroke-width: 2.5;
+    stroke-opacity: 0.95;
+    fill-opacity: 1;
+    transition: filter 0.12s ease;
+  }
+  .net-dot:hover { filter: brightness(1.2); }
+  .hub-ring {
+    fill: none;
+    stroke-opacity: 0.55;
+    stroke-width: 1.5;
+    stroke-dasharray: 2 2;
+    pointer-events: none;
+  }
+  .net-line { stroke: #9c9284; fill: none; }
+  .node-label {
+    font-size: 9px;
+    fill: #4B4536;
+    pointer-events: none;
+    paint-order: stroke;
+    stroke: #FFFAF2;
+    stroke-width: 3px;
+    stroke-linejoin: round;
+    opacity: 0;
+    transition: opacity 0.12s ease;
+  }
+  #tooltip {
+    position: fixed;
+    display: none;
+    width: 320px;
+    background: #fff;
+    padding: 16px 18px;
+    box-shadow: 0 18px 48px rgba(15,23,42,0.16);
+    font-size: 13px;
+    line-height: 1.5;
+    z-index: 1000;
+    pointer-events: none;
+    border-radius: 6px;
+  }
+  #tooltip .tt-name { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+  #tooltip .tt-sub { font-size: 11px; color: #4B5563; margin-bottom: 8px; }
+  #tooltip .tt-desc { color: #334155; }
+  #legend {
+    display: flex;
+    gap: 22px;
+    margin-top: 16px;
+    font-size: 12px;
+    color: #3a3a3a;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 820px;
+  }
+  #legend .item { display: flex; align-items: center; gap: 6px; }
+  #legend .swatch { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+  #legend .divider { width: 1px; height: 14px; background: #ddd; margin: 0 4px; }
+  #legend .line-key { display: flex; align-items: center; gap: 6px; }
+  #legend .line-sample { width: 24px; height: 0; border-top-width: 2px; border-top-style: solid; }
+  #controls {
+    margin-top: 10px;
+    font-size: 11.5px;
+    color: #8a8171;
+  }
+</style>
+</head>
+<body>
+
+<h1>How similar are they really?</h1>
+<div id="subtitle">
+  Each creature is pulled toward the others it most closely parallels — near-identical
+  parallels pull tight, loose thematic echoes stay loose, and creatures with no real
+  equivalent drift to the edges on their own. Drag any dot to explore; hover for details.
+</div>
+
+<div id="stage">
+  <svg id="canvas" viewBox="0 0 900 900" xmlns="http://www.w3.org/2000/svg"></svg>
+</div>
+<div id="tooltip"></div>
+
+<div id="legend">
+  <div class="line-key"><span class="line-sample" style="border-color:#4B4536;"></span> near-identical parallel</div>
+  <div class="line-key"><span class="line-sample" style="border-color:#c9c0ad; border-top-style:dashed;"></span> loose thematic parallel</div>
+  <div class="item"><span class="swatch" style="background:#FF8C00;"></span> Hindu</div>
+  <div class="item"><span class="swatch" style="background:#E53E3E;"></span> Shinto</div>
+  <div class="item"><span class="swatch" style="background:#5B7FA6;"></span> Greek</div>
+  <div class="item"><span class="swatch" style="background:#3CA55C;"></span> Norse</div>
+</div>
+<div id="controls">Scroll / pinch to zoom &middot; drag background to pan &middot; drag a dot to reposition it</div>
+
+<script>
+const DATA = {"nodes": [{"name": "Python", "mythology": "Greek", "color": "#5B7FA6", "x": 352.1, "y": 628.4, "popularity": 6.3, "type": "serpent/dragon", "desc": "Killed by Apollo at Delphi, who then founded his oracle on the spot, taking the epithet Pythian"}, {"name": "Hydra of Lerna", "mythology": "Greek", "color": "#5B7FA6", "x": 370.8, "y": 654.2, "popularity": 2.6, "type": "multi-headed beast / serpent", "desc": "Grown in the swamps of Lerna, sacred to Hera; slain by Heracles with help from Iolaus who cauterized each severed neck"}, {"name": "Ladon", "mythology": "Greek", "color": "#5B7FA6", "x": 317.5, "y": 577.4, "popularity": 4.2, "type": "serpent/dragon", "desc": "Offspring of Typhon and Echidna, set by Hera to guard the golden apples of the Hesperides"}, {"name": "Typhon", "mythology": "Greek", "color": "#5B7FA6", "x": 376.4, "y": 626.7, "popularity": 6.3, "type": "serpent/dragon, primordial", "desc": "Gaia's last child, made to avenge the Titans; battled Zeus for supremacy of the cosmos and was buried under Mount Etna"}, {"name": "Cerberus", "mythology": "Greek", "color": "#5B7FA6", "x": 653.1, "y": 368.7, "popularity": 4.2, "type": "multi-headed beast", "desc": "Offspring of Typhon and Echidna; stationed at the gates of the underworld"}, {"name": "Medusa", "mythology": "Greek", "color": "#5B7FA6", "x": 312.0, "y": 193.1, "popularity": 6.3, "type": "hybrid human-animal / beautiful female monster", "desc": "A mortal Gorgon, in some versions once beautiful and cursed by Athena after being violated by Poseidon in her temple; beheaded by Perseus using a mirrored..."}, {"name": "Sirens", "mythology": "Greek", "color": "#5B7FA6", "x": 335.7, "y": 193.2, "popularity": 4.7, "type": "beautiful female monster, hybrid winged", "desc": "Companions of Persephone in some accounts; their song promised knowledge but lured sailors to wreck their ships on rocky shores"}, {"name": "Scylla", "mythology": "Greek", "color": "#5B7FA6", "x": 143.1, "y": 192.9, "popularity": 1.0, "type": "hybrid, sea monster", "desc": "Once a beautiful nymph, transformed into a monster out of jealousy (by Circe or Amphitrite depending on the version) after Poseidon or Glaucus fell for her"}, {"name": "Chimera", "mythology": "Greek", "color": "#5B7FA6", "x": 91.9, "y": 439.6, "popularity": 2.6, "type": "hybrid", "desc": "Offspring of Typhon and Echidna; terrorized Lycia until killed by Bellerophon"}, {"name": "Minotaur", "mythology": "Greek", "color": "#5B7FA6", "x": 205.1, "y": 588.0, "popularity": 2.1, "type": "hybrid human-animal", "desc": "Born of Pasipha\u00eb's union with the Cretan Bull; imprisoned in the Labyrinth built by Daedalus and fed Athenian youths as tribute"}, {"name": "Sphinx", "mythology": "Greek", "color": "#5B7FA6", "x": 509.4, "y": 111.6, "popularity": 1.0, "type": "hybrid, winged", "desc": "Sent by Hera (or Ares) to plague Thebes; posed her riddle to travelers and killed those who failed, until Oedipus solved it and she cast herself from a cliff"}, {"name": "Harpies", "mythology": "Greek", "color": "#5B7FA6", "x": 394.3, "y": 196.2, "popularity": 3.1, "type": "hybrid winged, female", "desc": "Winds personified as monstrous women; sent by Zeus to punish King Phineus by fouling all his food until driven off by the Argonauts"}, {"name": "Echidna", "mythology": "Greek", "color": "#5B7FA6", "x": 338.6, "y": 680.0, "popularity": 1.0, "type": "hybrid, beautiful female monster (upper body), mother of monsters", "desc": "Daughter of Phorcys and Ceto (or Gaia and Tartarus); with Typhon, mothered the Hydra, Chimera, Cerberus, Sphinx, Ladon, and Nemean Lion"}, {"name": "Nemean Lion", "mythology": "Greek", "color": "#5B7FA6", "x": 80.0, "y": 373.5, "popularity": 1.0, "type": "beast", "desc": "Offspring of Typhon and Echidna (or fell from the moon in some versions); terrorized Nemea until strangled by Heracles, whose hide became his signature cloak"}, {"name": "Griffin", "mythology": "Greek", "color": "#5B7FA6", "x": 510.5, "y": 210.0, "popularity": 4.2, "type": "hybrid, winged", "desc": "Said to nest in the mountains of Scythia and India, fiercely guarding gold deposits from the one-eyed Arimaspians"}, {"name": "Lamia", "mythology": "Greek", "color": "#5B7FA6", "x": 317.5, "y": 191.6, "popularity": 6.3, "type": "beautiful female monster", "desc": "Once a queen loved by Zeus; when Hera killed her children, grief drove her to become a child-eating monster who could remove her own eyes"}, {"name": "Charybdis", "mythology": "Greek", "color": "#5B7FA6", "x": 610.7, "y": 497.4, "popularity": 2.1, "type": "monster, primordial", "desc": "Once a naiad turned into a monstrous whirlpool by Zeus as punishment for stealing cattle; lives opposite Scylla in the Strait of Messina"}, {"name": "J\u00f6rmungandr", "mythology": "Norse", "color": "#5C8A5C", "x": 361.3, "y": 628.9, "popularity": 10.0, "type": "serpent/dragon, world-encircling", "desc": "Child of Loki and the giantess Angrbo\u00f0a; cast into the sea by Odin, grew to encircle the world; fated to kill and be killed by Thor at Ragnar\u00f6k"}, {"name": "N\u00ed\u00f0h\u00f6ggr (Nidhogg)", "mythology": "Norse", "color": "#5C8A5C", "x": 343.7, "y": 600.2, "popularity": 2.6, "type": "serpent/dragon", "desc": "Lives beneath Yggdrasil's roots in Niflheim, gnawing them eternally; associated with the corpse-shore N\u00e1str\u00f6nd where oathbreakers and murderers are punished"}, {"name": "Fenrir", "mythology": "Norse", "color": "#5C8A5C", "x": 519.2, "y": 619.1, "popularity": 2.1, "type": "wolf", "desc": "Son of Loki and Angrbo\u00f0a; the gods raised him then bound him with the unbreakable ribbon Gleipnir after prophecy warned of his role in Ragnar\u00f6k; will kill..."}, {"name": "Garmr", "mythology": "Norse", "color": "#5C8A5C", "x": 640.9, "y": 365.9, "popularity": 4.2, "type": "wolf/hound", "desc": "Bound at the entrance to Gnipahellir, the cave leading to Hel; breaks free at Ragnar\u00f6k to fight T\u00fdr, and the two kill each other"}, {"name": "F\u00e1fnir", "mythology": "Norse", "color": "#5C8A5C", "x": 322.4, "y": 592.3, "popularity": 5.2, "type": "serpent/dragon", "desc": "Originally a dwarf who murdered his father for cursed gold, then transformed into a dragon to guard it; slain by the hero Sigurd, who then eats his heart..."}, {"name": "J\u00f6tnar (Frost/Mountain Giants)", "mythology": "Norse", "color": "#5C8A5C", "x": 120.4, "y": 525.2, "popularity": 2.6, "type": "giant, primordial", "desc": "Descended from the primordial giant Ymir; in constant, structural opposition to the Aesir gods, who are themselves partly descended from giants"}, {"name": "Huldra", "mythology": "Norse", "color": "#5C8A5C", "x": 327.8, "y": 185.2, "popularity": 4.7, "type": "beautiful female monster", "desc": "A forest-dwelling seductress of Scandinavian folklore, closely tied to Norse tradition; her hidden tail betrays her true nature to careful observers"}, {"name": "Draugr", "mythology": "Norse", "color": "#5C8A5C", "x": 448.2, "y": 90.0, "popularity": 2.6, "type": "undead", "desc": "The reanimated dead, often a hoard-guarding chieftain within his own burial mound; a recurring obstacle in the Icelandic sagas"}, {"name": "Valkyries", "mythology": "Norse", "color": "#5C8A5C", "x": 663.3, "y": 492.3, "popularity": 1.0, "type": "semi-divine female warriors", "desc": "Odin's handmaidens, sent to battlefields to select the worthy dead (the 'einherjar') and bring them to Valhalla to prepare for Ragnar\u00f6k"}, {"name": "Kraken", "mythology": "Norse", "color": "#5C8A5C", "x": 624.4, "y": 495.3, "popularity": 2.1, "type": "sea monster", "desc": "First described in later medieval Scandinavian sailors' accounts and bestiaries rather than the Eddas; said to lurk off Norway and Greenland"}, {"name": "Yamata no Orochi", "mythology": "Japanese", "color": "#A6415C", "x": 366.3, "y": 636.3, "popularity": 8.9, "type": "serpent/dragon, multi-headed", "desc": "Terrorized Izumo province, devouring a family's daughters one by one each year; Susanoo tricks it with eight vats of sake, then slays it and finds the sword..."}, {"name": "Ry\u016bjin (and Ry\u016b, dragon-kind generally)", "mythology": "Japanese", "color": "#A6415C", "x": 113.7, "y": 232.5, "popularity": 1.0, "type": "dragon", "desc": "Sea dragon god who rules the ocean from a palace of coral and crystal (Ry\u016bg\u016b-j\u014d); appears in the tale of Hoori and Toyotama-hime"}, {"name": "Mizuchi", "mythology": "Japanese", "color": "#A6415C", "x": 84.6, "y": 305.0, "popularity": 1.0, "type": "serpent/dragon", "desc": "A catch-all term for river-dwelling serpent spirits across many local Japanese legends, distinct from the singular, named Yamata no Orochi"}, {"name": "Kitsune", "mythology": "Japanese", "color": "#A6415C", "x": 325.8, "y": 165.6, "popularity": 2.6, "type": "hybrid shapeshifter (fox), beautiful female monster (in human form)", "desc": "Sacred messengers of the rice deity Inari in benevolent tellings; in cautionary tales, they seduce or trick men while disguised as beautiful women"}, {"name": "Oni", "mythology": "Japanese", "color": "#A6415C", "x": 438.4, "y": 616.5, "popularity": 2.6, "type": "humanoid ogre", "desc": "Believed to originate in Onmy\u014ed\u014d cosmology as embodiments of misfortune and disease; famously defeated by the folk hero Momotar\u014d with his animal companions"}, {"name": "Tengu", "mythology": "Japanese", "color": "#A6415C", "x": 412.1, "y": 194.3, "popularity": 1.5, "type": "hybrid winged humanoid", "desc": "Originally demonic harbingers of war, later reimagined as fierce but honorable protectors of mountains and martial arts, sometimes teaching skilled..."}, {"name": "Nue", "mythology": "Japanese", "color": "#A6415C", "x": 90.9, "y": 446.1, "popularity": 2.6, "type": "hybrid, chimeric", "desc": "Blamed for a mysterious illness afflicting Emperor Kon\u014de by appearing nightly over the palace as a black cloud; shot down by the warrior Minamoto no Yorimasa"}, {"name": "Jor\u014dgumo", "mythology": "Japanese", "color": "#A6415C", "x": 337.1, "y": 200.2, "popularity": 5.8, "type": "beautiful female monster, hybrid", "desc": "Said to lure a man into her home with music, then bind him in silk threads while she or her spider servants drain his life"}, {"name": "Yuki-onna", "mythology": "Japanese", "color": "#A6415C", "x": 327.1, "y": 178.7, "popularity": 3.6, "type": "beautiful female monster", "desc": "Appears to travelers lost in snowstorms; in the best-known tale (Minokichi) she spares a young man on the condition he never speak of her, then unknowingly..."}, {"name": "Rokurokubi", "mythology": "Japanese", "color": "#A6415C", "x": 316.9, "y": 177.4, "popularity": 2.6, "type": "beautiful female monster", "desc": "Often depicted as an unaware sufferer of a curse rather than a deliberate predator, distinguishing her somewhat from the more actively predatory Jor\u014dgumo..."}, {"name": "Kappa", "mythology": "Japanese", "color": "#A6415C", "x": 561.2, "y": 242.5, "popularity": 1.5, "type": "hybrid, water creature", "desc": "Lurks in rivers and ponds, drags in unwary children or livestock; can be defeated or bargained with by getting it to spill the water from the dish atop its head"}, {"name": "\u014cnamazu", "mythology": "Japanese", "color": "#A6415C", "x": 375.4, "y": 607.5, "popularity": 1.5, "type": "giant catfish", "desc": "Believed to cause earthquakes by thrashing beneath the islands of Japan; kept still by the god Kashima's stone (the kaname-ishi) pressing it down"}, {"name": "Umib\u014dzu", "mythology": "Japanese", "color": "#A6415C", "x": 607.1, "y": 485.7, "popularity": 2.1, "type": "sea spirit", "desc": "Said to rise from calm water at night; sailors traditionally stayed silent and avoided eye contact to survive an encounter"}, {"name": "Karura", "mythology": "Japanese", "color": "#A6415C", "x": 452.6, "y": 199.4, "popularity": 3.1, "type": "hybrid, winged humanoid (bird-headed)", "desc": "Adapted from the Hindu/Buddhist Garuda as Buddhism spread to Japan; appears among the Twenty-Eight Legions guarding Kannon and in temple guardian statuary"}, {"name": "Baku", "mythology": "Japanese", "color": "#A6415C", "x": 321.7, "y": 83.6, "popularity": 1.0, "type": "hybrid, chimeric", "desc": "Traditionally invoked by reciting its name three times after a nightmare, so it will devour the bad dream; overuse was said to leave the dreamer permanently..."}, {"name": "Vritra", "mythology": "Hindu", "color": "#C97B3D", "x": 362.3, "y": 622.4, "popularity": 7.9, "type": "serpent/dragon, primordial", "desc": "Vritra dammed up all the world's waters; Indra, after drinking Soma for strength, slew him with the thunderbolt (vajra) made from the sage Dadhichi's bones,..."}, {"name": "Shesha (Ananta)", "mythology": "Hindu", "color": "#C97B3D", "x": 355.7, "y": 646.4, "popularity": 2.6, "type": "naga, multi-headed cosmic serpent", "desc": "The primordial serpent upon whom Vishnu reclines in the cosmic ocean between cycles of creation; also called Ananta ('endless')"}, {"name": "Vasuki", "mythology": "Hindu", "color": "#C97B3D", "x": 327.2, "y": 579.7, "popularity": 4.7, "type": "naga, serpent", "desc": "King of the Nagas; wound around Mount Mandara and pulled by gods and demons in tug-of-war fashion to churn the Ocean of Milk and produce the nectar of..."}, {"name": "Kaliya", "mythology": "Hindu", "color": "#C97B3D", "x": 325.8, "y": 618.7, "popularity": 2.1, "type": "naga, serpent", "desc": "Poisoned the Yamuna river until the child-god Krishna dove in, danced upon his many hoods to exhaust him, and banished him to the ocean rather than killing him"}, {"name": "Garuda", "mythology": "Hindu", "color": "#C97B3D", "x": 485.7, "y": 200.3, "popularity": 4.7, "type": "hybrid, winged", "desc": "Born to free his enslaved mother Vinata from the Nagas, sparking the eternal enmity between Garuda's kind and serpents; became Vishnu's mount and a symbol..."}, {"name": "Ravana", "mythology": "Hindu", "color": "#C97B3D", "x": 409.2, "y": 621.2, "popularity": 3.1, "type": "rakshasa, multi-headed", "desc": "King of Lanka, granted near-invincibility by Brahma; his abduction of Sita triggers the war chronicled in the Ramayana, ending in his death at Rama's hands"}, {"name": "Yakshini", "mythology": "Hindu", "color": "#C97B3D", "x": 342.0, "y": 187.5, "popularity": 6.3, "type": "beautiful female monster / nature spirit", "desc": "Female nature spirits associated with trees, water, and fertility, ruled by Kubera, god of wealth; capable of great generosity or, in folk tales, of preying..."}, {"name": "Hidimb\u0101 (Hidimbi)", "mythology": "Hindu", "color": "#C97B3D", "x": 305.5, "y": 172.5, "popularity": 2.6, "type": "rakshasi, shapeshifter, beautiful female monster", "desc": "A rakshasi sent to kill the Pandava brothers during their exile; instead falls in love with Bhima, marries him, and becomes the mother of the hero Ghatotkacha"}, {"name": "Surpanakha", "mythology": "Hindu", "color": "#C97B3D", "x": 287.4, "y": 186.0, "popularity": 1.5, "type": "rakshasi, beautiful female monster (in disguised form)", "desc": "Ravana's sister; her disfigurement by Lakshmana after she tries to seduce Rama and attacks Sita is the spark that leads Ravana to abduct Sita, triggering..."}, {"name": "Sharabha", "mythology": "Hindu", "color": "#C97B3D", "x": 91.9, "y": 433.0, "popularity": 2.6, "type": "hybrid, composite", "desc": "A fearsome composite avatar of Shiva invoked in some Puranic traditions to pacify Vishnu's Narasimha avatar after it remained enraged following the defeat..."}, {"name": "Makara", "mythology": "Hindu", "color": "#C97B3D", "x": 540.0, "y": 228.2, "popularity": 2.1, "type": "hybrid, aquatic", "desc": "A composite aquatic creature and the vahana of the river goddess Ganga; widely carved as a threshold guardian on temple doorways across South and Southeast Asia"}, {"name": "Kumbhakarna", "mythology": "Hindu", "color": "#C97B3D", "x": 131.2, "y": 523.4, "popularity": 2.6, "type": "giant, rakshasa", "desc": "Cursed by Brahma (via a trick by Saraswati) to sleep for six months at a time; wakes to fight in the war against Rama and is slain in battle"}, {"name": "Pishacha", "mythology": "Hindu", "color": "#C97B3D", "x": 436.3, "y": 101.4, "popularity": 1.5, "type": "undead / flesh-eating spirit", "desc": "Flesh-eating demons said to haunt cremation grounds and possess the unwary; warded off through mantra and protective ritual rather than fought directly"}, {"name": "Navagunjara", "mythology": "Hindu", "color": "#C97B3D", "x": 92.3, "y": 426.4, "popularity": 2.6, "type": "hybrid, composite (9 animals)", "desc": "Considered a form of Krishna that appeared before Arjuna, made of nine animals fused together, testing whether Arjuna would shoot at an unrecognizable..."}, {"name": "Empousa", "mythology": "Greek", "color": "#5B7FA6", "x": 332.6, "y": 207.9, "popularity": 4.7, "type": "hybrid human-animal / beautiful female monster", "desc": "A servant-demon of Hecate who prowled roads at night, taking the form of a beautiful woman to seduce travelers, especially young men, before feeding on..."}, {"name": "Euryale", "mythology": "Greek", "color": "#5B7FA6", "x": 288.9, "y": 208.8, "popularity": 2.1, "type": "hybrid human-animal / Gorgon sister", "desc": "One of the three Gorgon sisters, daughters of the sea deities Phorcys and Ceto; pursued Perseus after he beheaded Medusa but could not catch him"}, {"name": "Stheno", "mythology": "Greek", "color": "#5B7FA6", "x": 281.3, "y": 204.9, "popularity": 2.1, "type": "hybrid human-animal / Gorgon sister", "desc": "One of the three Gorgon sisters, daughters of Phorcys and Ceto; immortal, unlike Medusa, and survives past the central myth"}, {"name": "Manticore", "mythology": "Greek", "color": "#5B7FA6", "x": 673.2, "y": 444.6, "popularity": 1.0, "type": "hybrid human-animal", "desc": "Described by the Greek physician Ctesias as a beast native to Persia/India, likely based on garbled travelers' reports of a tiger"}, {"name": "Basilisk", "mythology": "Greek", "color": "#5B7FA6", "x": 531.4, "y": 644.7, "popularity": 1.0, "type": "serpent/dragon", "desc": "Described in Greek natural-history writing (not primarily myth-narrative) as the 'king of serpents,' born from a rooster's egg according to later medieval..."}, {"name": "Amphisbaena", "mythology": "Greek", "color": "#5B7FA6", "x": 261.9, "y": 104.6, "popularity": 1.5, "type": "serpent/dragon", "desc": "Said by Greek sources to have sprung from the blood dripping from the Gorgon Medusa's severed head as Perseus flew over Libya"}, {"name": "Geryon", "mythology": "Greek", "color": "#5B7FA6", "x": 82.3, "y": 339.3, "popularity": 1.0, "type": "giant", "desc": "Lived on the red island of Erytheia in the far west; Heracles killed him and stole his cattle as the Tenth Labour, with help against Geryon's herdsman and..."}, {"name": "Sk\u00f6ll and Hati", "mythology": "Norse", "color": "#5C8A5C", "x": 538.8, "y": 623.2, "popularity": 1.5, "type": "wolf / celestial pursuer", "desc": "Chase the sun and moon across the sky every day; their eventual success in catching their prey is one of the fixed prophesied events of Ragnar\u00f6k, plunging..."}, {"name": "Lindworm", "mythology": "Norse", "color": "#5C8A5C", "x": 338.3, "y": 611.8, "popularity": 2.6, "type": "serpent/dragon", "desc": "A recurring dragon-type across later Scandinavian and broader Germanic folk legend, often guarding a hoard or cursing a bloodline; less textually fixed than..."}, {"name": "Vetala", "mythology": "Hindu", "color": "#C97B3D", "x": 432.2, "y": 88.7, "popularity": 2.1, "type": "undead / spirit", "desc": "Best known from the Vetala Panchavimshati (Twenty-Five Tales of the Vetala), in which King Vikramaditya must carry a Vetala-possessed corpse while it tells..."}, {"name": "Apsara", "mythology": "Hindu", "color": "#C97B3D", "x": 97.9, "y": 270.6, "popularity": 1.0, "type": "nature/guardian spirit / celestial nymph", "desc": "Sent by Indra, most famously to disrupt the meditative austerities (tapas) of powerful ascetics whose growing spiritual strength threatened to rival the gods"}, {"name": "Gandharva", "mythology": "Hindu", "color": "#C97B3D", "x": 680.0, "y": 400.9, "popularity": 1.0, "type": "nature/guardian spirit / celestial musician", "desc": "Divine musicians and entertainers in Indra's court, also invoked in the Gandharva marriage tradition, a consensual union considered valid without formal..."}, {"name": "Kimpurusha", "mythology": "Hindu", "color": "#C97B3D", "x": 498.6, "y": 651.9, "popularity": 1.0, "type": "hybrid human-animal", "desc": "Attendants of Kubera, god of wealth, described dwelling on Mount Gandhamadana alongside Kinnaras, Gandharvas, and Vidyadharas in the Mahabharata"}, {"name": "Vidyadhara", "mythology": "Hindu", "color": "#C97B3D", "x": 260.8, "y": 663.4, "popularity": 1.0, "type": "nature/guardian spirit / wisdom-bearer", "desc": "Wisdom-bearing demigods who attend Shiva in the Himalayas and appear across the Mahabharata and Ramayana in courtly, non-combative roles"}, {"name": "Kamadhenu", "mythology": "Hindu", "color": "#C97B3D", "x": 670.6, "y": 299.2, "popularity": 1.0, "type": "hybrid human-animal / divine animal", "desc": "Called the 'mother of all cows,' produced during the Samudra Manthan (Churning of the Ocean) in some Puranic tellings, granting any wish to those who..."}, {"name": "Airavata", "mythology": "Hindu", "color": "#C97B3D", "x": 540.9, "y": 171.2, "popularity": 2.1, "type": "hybrid human-animal / divine mount", "desc": "Produced during the Samudra Manthan (Churning of the Ocean of Milk) and given to Indra as his mount; also said to represent the eastern cardinal direction"}, {"name": "Gandaberunda", "mythology": "Hindu", "color": "#C97B3D", "x": 248.7, "y": 107.1, "popularity": 1.5, "type": "hybrid human-animal / multi-headed bird", "desc": "A ferocious two-headed avatar taken by Vishnu-as-Narasimha to defeat Sharabha, a lion-bird form taken by Shiva; the two fought for eighteen days before..."}, {"name": "Yamauba", "mythology": "Japanese", "color": "#A6415C", "x": 313.9, "y": 214.3, "popularity": 2.1, "type": "shapeshifter / mountain hag", "desc": "Lives alone in a mountain hut, offering food and shelter to lost travelers, only to reveal her monstrous true form and attack once they are asleep"}, {"name": "Tsuchigumo", "mythology": "Japanese", "color": "#A6415C", "x": 360.3, "y": 201.8, "popularity": 4.2, "type": "hybrid human-animal / earth spider, beautiful female monster (in shapeshifted form)", "desc": "Named after both a giant spider yokai and a historical derogatory term for clans that resisted the Yamato imperial court; in the best-known legend, Minamoto..."}, {"name": "Bakeneko / Nekomata", "mythology": "Japanese", "color": "#A6415C", "x": 449.2, "y": 100.9, "popularity": 2.1, "type": "shapeshifter, occasionally beautiful female monster (Bakeneko tales only)", "desc": "A cat that has lived long enough (traditions vary: ten, twelve, or eighty years) becomes a Bakeneko; if it lives longer still, its tail splits and it..."}, {"name": "Futakuchi-onna", "mythology": "Japanese", "color": "#A6415C", "x": 347.1, "y": 208.8, "popularity": 5.8, "type": "hybrid human-animal / beautiful female monster", "desc": "A woman develops a second mouth on the back of her head, most often in folklore tied to a stepmother who starved a stepchild, or a miserly wife who ate..."}, {"name": "Sharvara and Shyama", "mythology": "Hindu", "color": "#C97B3D", "x": 653.2, "y": 360.9, "popularity": 4.2, "type": "underworld guardian, hound-pair", "desc": "Described in the Rigveda (Book 10, Hymn 14) as 'four-eyed, road-guarding, man-beholding' dogs who watch the path souls travel to Yama's kingdom"}, {"name": "Yomotsu-shikome", "mythology": "Japanese", "color": "#A6415C", "x": 562.6, "y": 608.0, "popularity": 1.0, "type": "underworld guardian, hag-demons", "desc": "Sent by the dead Izanami to pursue her husband Izanagi after he sees her decayed corpse and flees Yomi; he escapes by throwing objects they stop to eat,..."}, {"name": "\u014ckami", "mythology": "Japanese", "color": "#A6415C", "x": 507.3, "y": 635.1, "popularity": 1.5, "type": "wolf, sacred guardian", "desc": "Revered across rural Japan as a protector of farmland and travelers; farmers left food offerings at wolf shrines in gratitude"}, {"name": "Lycaon", "mythology": "Greek", "color": "#5B7FA6", "x": 514.7, "y": 631.7, "popularity": 1.0, "type": "wolf, punishment-transformation (not a fixed monster)", "desc": "Served Zeus the flesh of his own murdered son (or a captive, in some versions) to test the god's omniscience; Zeus destroyed his sons with lightning and..."}, {"name": "Nandi", "mythology": "Hindu", "color": "#C97B3D", "x": 197.7, "y": 603.2, "popularity": 2.1, "type": "hybrid human-animal, bull-guardian", "desc": "Shiva's mount and devoted gatekeeper; stone Nandi statues traditionally face the inner sanctum at Shiva temples, and worshippers pass their prayers to Shiva..."}, {"name": "Mahishasura", "mythology": "Hindu", "color": "#C97B3D", "x": 186.9, "y": 604.3, "popularity": 2.1, "type": "hybrid human-animal, shapeshifting demon", "desc": "Waged war on the gods after his boon made him nearly unkillable; the goddess Durga was created specifically to destroy him, and the battle is a central myth..."}, {"name": "Cyclopes", "mythology": "Greek", "color": "#5B7FA6", "x": 130.8, "y": 512.3, "popularity": 2.6, "type": "giant, primordial race", "desc": "Three elder Cyclopes (Brontes, Steropes, Arges) forged the gods' signature weapons; a separate, wilder race appears in Homer's Odyssey, including..."}, {"name": "Daidarabocchi", "mythology": "Japanese", "color": "#A6415C", "x": 118.7, "y": 514.5, "popularity": 2.6, "type": "giant, colossal folk figure", "desc": "A folkloric giant blamed for shaping the physical landscape across Japan \u2014 certain lakes, hills, and depressions are locally said to be its footprints or..."}, {"name": "Sleipnir", "mythology": "Norse", "color": "#5C8A5C", "x": 517.2, "y": 179.4, "popularity": 2.6, "type": "hybrid, divine mount / companion", "desc": "Born when Loki, in mare form, was impregnated by a builder's stallion; becomes Odin's personal steed, the fastest of all horses, ridden even into Hel"}, {"name": "Hr\u00e6svelgr", "mythology": "Norse", "color": "#5C8A5C", "x": 438.5, "y": 89.2, "popularity": 1.0, "type": "winged being, elemental giant", "desc": "Sits at the northern edge of the sky in giant form; his wingbeats are said to be the literal origin of wind"}, {"name": "Huginn and Muninn", "mythology": "Norse", "color": "#5C8A5C", "x": 568.3, "y": 151.9, "popularity": 1.0, "type": "winged being, divine messenger-companions", "desc": "Fly out each morning across the world and return each evening to report everything they've seen and heard directly into Odin's ears"}, {"name": "Yaksha", "mythology": "Hindu", "color": "#C97B3D", "x": 532.5, "y": 204.5, "popularity": 2.1, "type": "nature/guardian spirit, treasure-keeper", "desc": "Nature spirits ruled by Kubera, god of wealth; guard forests, mountains, and buried treasure across Vedic, epic, and later Buddhist/Jain texts"}, {"name": "Pegasus", "mythology": "Greek", "color": "#5B7FA6", "x": 534.4, "y": 163.1, "popularity": 2.1, "type": "hybrid, divine mount / companion", "desc": "Born from Medusa's blood when Perseus beheaded her; later tamed by the hero Bellerophon with Athena's golden bridle to help him defeat the Chimera"}, {"name": "Centaurs (Chiron & Nessus)", "mythology": "Greek", "color": "#5B7FA6", "x": 363.0, "y": 80.0, "popularity": 1.0, "type": "hybrid human-animal", "desc": "Most centaurs descend from Ixion's union with a cloud-phantom of Hera; Chiron is a separate, older lineage, born of Cronus and the nymph Philyra, which the..."}, {"name": "Ymir", "mythology": "Norse", "color": "#5C8A5C", "x": 624.7, "y": 562.5, "popularity": 1.0, "type": "giant, primordial creation-being", "desc": "The first being to emerge from the primordial void Ginnungagap as ice met fire; killed by Odin and his brothers, who built the entire world from his flesh,..."}, {"name": "Hanuman", "mythology": "Hindu", "color": "#C97B3D", "x": 152.6, "y": 579.2, "popularity": 1.0, "type": "hybrid human-animal (vanara)", "desc": "Son of the wind god Vayu; helps Rama rescue Sita from Ravana, most famously leaping to Lanka and setting the city ablaze with his burning tail"}, {"name": "Kirtimukha", "mythology": "Hindu", "color": "#C97B3D", "x": 529.4, "y": 214.5, "popularity": 2.1, "type": "hybrid, guardian face", "desc": "Created when Shiva's uncontrolled fury took monstrous form; finding nothing else to consume, it devoured its own body down to the face, and Shiva \u2014 pleased..."}, {"name": "Amabie", "mythology": "Japanese", "color": "#A6415C", "x": 535.8, "y": 131.2, "popularity": 1.0, "type": "prophetic sea spirit", "desc": "A single documented sighting in Higo Province (present-day Kumamoto) in April 1846: a glowing creature rose from the sea, prophesied good harvests followed..."}, {"name": "Shuten-d\u014dji", "mythology": "Japanese", "color": "#A6415C", "x": 425.4, "y": 617.7, "popularity": 4.2, "type": "oni, named demon chief", "desc": "Ruled a band of demons from a lair on Mount \u014ce; lured into drinking poisoned sake by the warrior Minamoto no Yorimitsu and his companions, then beheaded \u2014..."}], "links": [{"source": "Python", "target": "Vritra", "weight": 3.0}, {"source": "Python", "target": "Yamata no Orochi", "weight": 3.0}, {"source": "Python", "target": "J\u00f6rmungandr", "weight": 3.0}, {"source": "Python", "target": "Kaliya", "weight": 1.0}, {"source": "Hydra of Lerna", "target": "Yamata no Orochi", "weight": 3.0}, {"source": "Ladon", "target": "F\u00e1fnir", "weight": 3.0}, {"source": "Ladon", "target": "Vasuki", "weight": 3.0}, {"source": "Typhon", "target": "Vritra", "weight": 3.0}, {"source": "Typhon", "target": "Yamata no Orochi", "weight": 3.0}, {"source": "Typhon", "target": "J\u00f6rmungandr", "weight": 3.0}, {"source": "Typhon", "target": "Ravana", "weight": 1.0}, {"source": "Cerberus", "target": "Garmr", "weight": 3.0}, {"source": "Cerberus", "target": "Sharvara and Shyama", "weight": 3.0}, {"source": "Medusa", "target": "Yuki-onna", "weight": 1.0}, {"source": "Medusa", "target": "Yakshini", "weight": 1.0}, {"source": "Medusa", "target": "Hidimb\u0101 (Hidimbi)", "weight": 1.0}, {"source": "Medusa", "target": "Huldra", "weight": 1.0}, {"source": "Medusa", "target": "Lamia", "weight": 1.0}, {"source": "Medusa", "target": "Sirens", "weight": 1.0}, {"source": "Medusa", "target": "Jor\u014dgumo", "weight": 1.0}, {"source": "Medusa", "target": "Rokurokubi", "weight": 1.0}, {"source": "Medusa", "target": "Euryale", "weight": 1.0}, {"source": "Medusa", "target": "Stheno", "weight": 1.0}, {"source": "Sirens", "target": "Yuki-onna", "weight": 1.0}, {"source": "Sirens", "target": "Huldra", "weight": 1.0}, {"source": "Sirens", "target": "Jor\u014dgumo", "weight": 1.0}, {"source": "Sirens", "target": "Yakshini", "weight": 1.0}, {"source": "Sirens", "target": "Empousa", "weight": 1.0}, {"source": "Sirens", "target": "Tsuchigumo", "weight": 1.0}, {"source": "Chimera", "target": "Nue", "weight": 1.0}, {"source": "Chimera", "target": "Sharabha", "weight": 1.0}, {"source": "Chimera", "target": "Navagunjara", "weight": 1.0}, {"source": "Minotaur", "target": "Nandi", "weight": 1.0}, {"source": "Minotaur", "target": "Mahishasura", "weight": 1.0}, {"source": "Harpies", "target": "Tengu", "weight": 1.0}, {"source": "Harpies", "target": "Karura", "weight": 1.0}, {"source": "Harpies", "target": "Yakshini", "weight": 1.0}, {"source": "Harpies", "target": "Tsuchigumo", "weight": 1.0}, {"source": "Griffin", "target": "Garuda", "weight": 3.0}, {"source": "Griffin", "target": "Makara", "weight": 1.0}, {"source": "Griffin", "target": "Yaksha", "weight": 1.0}, {"source": "Griffin", "target": "Kirtimukha", "weight": 1.0}, {"source": "Lamia", "target": "Yuki-onna", "weight": 1.0}, {"source": "Lamia", "target": "Rokurokubi", "weight": 1.0}, {"source": "Lamia", "target": "Yakshini", "weight": 1.0}, {"source": "Lamia", "target": "Hidimb\u0101 (Hidimbi)", "weight": 1.0}, {"source": "Lamia", "target": "Huldra", "weight": 1.0}, {"source": "Lamia", "target": "Jor\u014dgumo", "weight": 1.0}, {"source": "Lamia", "target": "Surpanakha", "weight": 1.0}, {"source": "Lamia", "target": "Empousa", "weight": 1.0}, {"source": "Lamia", "target": "Yamauba", "weight": 1.0}, {"source": "Charybdis", "target": "Kraken", "weight": 1.0}, {"source": "Charybdis", "target": "Umib\u014dzu", "weight": 1.0}, {"source": "J\u00f6rmungandr", "target": "Vritra", "weight": 3.0}, {"source": "J\u00f6rmungandr", "target": "Yamata no Orochi", "weight": 3.0}, {"source": "J\u00f6rmungandr", "target": "\u014cnamazu", "weight": 1.0}, {"source": "J\u00f6rmungandr", "target": "Shesha (Ananta)", "weight": 3.0}, {"source": "J\u00f6rmungandr", "target": "Lindworm", "weight": 1.0}, {"source": "N\u00ed\u00f0h\u00f6ggr (Nidhogg)", "target": "Vritra", "weight": 1.0}, {"source": "N\u00ed\u00f0h\u00f6ggr (Nidhogg)", "target": "Vasuki", "weight": 1.0}, {"source": "N\u00ed\u00f0h\u00f6ggr (Nidhogg)", "target": "Lindworm", "weight": 1.0}, {"source": "Fenrir", "target": "Sk\u00f6ll and Hati", "weight": 1.0}, {"source": "Fenrir", "target": "\u014ckami", "weight": 1.0}, {"source": "Garmr", "target": "Sharvara and Shyama", "weight": 3.0}, {"source": "F\u00e1fnir", "target": "Vasuki", "weight": 3.0}, {"source": "F\u00e1fnir", "target": "Kaliya", "weight": 1.0}, {"source": "F\u00e1fnir", "target": "Lindworm", "weight": 1.0}, {"source": "J\u00f6tnar (Frost/Mountain Giants)", "target": "Kumbhakarna", "weight": 1.0}, {"source": "J\u00f6tnar (Frost/Mountain Giants)", "target": "Cyclopes", "weight": 1.0}, {"source": "J\u00f6tnar (Frost/Mountain Giants)", "target": "Daidarabocchi", "weight": 1.0}, {"source": "Huldra", "target": "Yuki-onna", "weight": 1.0}, {"source": "Huldra", "target": "Yakshini", "weight": 1.0}, {"source": "Huldra", "target": "Kitsune", "weight": 1.0}, {"source": "Huldra", "target": "Jor\u014dgumo", "weight": 1.0}, {"source": "Draugr", "target": "Pishacha", "weight": 1.0}, {"source": "Draugr", "target": "Vetala", "weight": 1.0}, {"source": "Draugr", "target": "Bakeneko / Nekomata", "weight": 1.0}, {"source": "Kraken", "target": "Umib\u014dzu", "weight": 1.0}, {"source": "Yamata no Orochi", "target": "Vritra", "weight": 3.0}, {"source": "Kitsune", "target": "Yakshini", "weight": 1.0}, {"source": "Kitsune", "target": "Hidimb\u0101 (Hidimbi)", "weight": 1.0}, {"source": "Oni", "target": "Shuten-d\u014dji", "weight": 3.0}, {"source": "Nue", "target": "Sharabha", "weight": 1.0}, {"source": "Nue", "target": "Navagunjara", "weight": 1.0}, {"source": "Jor\u014dgumo", "target": "Yakshini", "weight": 1.0}, {"source": "Jor\u014dgumo", "target": "Tsuchigumo", "weight": 1.0}, {"source": "Jor\u014dgumo", "target": "Futakuchi-onna", "weight": 3.0}, {"source": "Yuki-onna", "target": "Yakshini", "weight": 1.0}, {"source": "Rokurokubi", "target": "Yakshini", "weight": 1.0}, {"source": "Kappa", "target": "Makara", "weight": 1.0}, {"source": "Karura", "target": "Garuda", "weight": 3.0}, {"source": "Garuda", "target": "Sleipnir", "weight": 1.0}, {"source": "Ravana", "target": "Shuten-d\u014dji", "weight": 3.0}, {"source": "Yakshini", "target": "Empousa", "weight": 1.0}, {"source": "Sharabha", "target": "Navagunjara", "weight": 1.0}, {"source": "Kumbhakarna", "target": "Cyclopes", "weight": 1.0}, {"source": "Kumbhakarna", "target": "Daidarabocchi", "weight": 1.0}, {"source": "Empousa", "target": "Futakuchi-onna", "weight": 3.0}, {"source": "Empousa", "target": "Yamauba", "weight": 1.0}, {"source": "Euryale", "target": "Stheno", "weight": 1.0}, {"source": "Amphisbaena", "target": "Gandaberunda", "weight": 1.0}, {"source": "Vetala", "target": "Bakeneko / Nekomata", "weight": 1.0}, {"source": "Airavata", "target": "Sleipnir", "weight": 1.0}, {"source": "Airavata", "target": "Pegasus", "weight": 1.0}, {"source": "Tsuchigumo", "target": "Futakuchi-onna", "weight": 3.0}, {"source": "Nandi", "target": "Mahishasura", "weight": 1.0}, {"source": "Cyclopes", "target": "Daidarabocchi", "weight": 1.0}, {"source": "Sleipnir", "target": "Pegasus", "weight": 1.0}, {"source": "Yaksha", "target": "Kirtimukha", "weight": 1.0}]};
+
+// ---------- color helpers ----------
+function hexToRgb(hex) { const c = hex.replace('#',''); const v = parseInt(c,16); return { r:(v>>16)&255, g:(v>>8)&255, b:v&255 }; }
+function rgbToHex({r,g,b}) { return `#${[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('')}`; }
+function rgbToHsl({r,g,b}) {
+  r/=255; g/=255; b/=255;
+  const max=Math.max(r,g,b), min=Math.min(r,g,b);
+  let h=0,s=0,l=(max+min)/2;
+  if (max!==min) {
+    const d=max-min;
+    s = l>0.5 ? d/(2-max-min) : d/(max+min);
+    switch(max){ case r: h=(g-b)/d+(g<b?6:0); break; case g: h=(b-r)/d+2; break; case b: h=(r-g)/d+4; break; }
+    h/=6;
+  }
+  return {h,s,l};
+}
+function hslToRgb({h,s,l}) {
+  let r,g,b;
+  if (s===0){ r=g=b=l; }
+  else {
+    const hue2rgb=(p,q,t)=>{ if(t<0)t+=1; if(t>1)t-=1; if(t<1/6) return p+(q-p)*6*t; if(t<1/2) return q; if(t<2/3) return p+(q-p)*(2/3-t)*6; return p; };
+    const q = l<0.5 ? l*(1+s) : l+s-l*s;
+    const p = 2*l-q;
+    r=hue2rgb(p,q,h+1/3); g=hue2rgb(p,q,h); b=hue2rgb(p,q,h-1/3);
+  }
+  return { r:Math.round(r*255), g:Math.round(g*255), b:Math.round(b*255) };
+}
+function pastelColor(hex){ const hsl = rgbToHsl(hexToRgb(hex)); hsl.s = Math.min(0.55, hsl.s*0.7+0.15); hsl.l = Math.max(0.86, hsl.l*0.65+0.25); return rgbToHex(hslToRgb(hsl)); }
+function darkerShade(hex){ const hsl = rgbToHsl(hexToRgb(hex)); hsl.s = Math.min(0.9, hsl.s*1.2+0.08); hsl.l = Math.max(0.28, hsl.l*0.65); return rgbToHex(hslToRgb(hsl)); }
+
+// ---------- degree (connectivity) per node, used to identify hubs ----------
+const degree = {};
+const weightedDegree = {};
+DATA.nodes.forEach(n => { degree[n.name] = 0; weightedDegree[n.name] = 0; });
+DATA.links.forEach(l => {
+  degree[l.source] = (degree[l.source]||0) + 1;
+  degree[l.target] = (degree[l.target]||0) + 1;
+  weightedDegree[l.source] = (weightedDegree[l.source]||0) + l.weight;
+  weightedDegree[l.target] = (weightedDegree[l.target]||0) + l.weight;
+});
+
+const rMin = 6, rMax = 22;
+function radius(n) {
+  const base = rMin + (n.popularity - 1) / 9 * (rMax - rMin);
+  // hubs (highly-connected nodes) get a small visual boost so the "hub" in
+  // hub-and-spoke actually reads as a hub
+  const hubBoost = Math.min(6, (weightedDegree[n.name] || 0) * 0.6);
+  return base + hubBoost;
+}
+
+// ---------- svg setup ----------
+const width = 900, height = 900;
+const svg = d3.select('#canvas');
+const zoomLayer = svg.append('g');
+
+svg.call(d3.zoom().scaleExtent([0.4, 4]).on('zoom', (event) => {
+  zoomLayer.attr('transform', event.transform);
+}));
+
+const lineLayer = zoomLayer.append('g');
+const dotLayer = zoomLayer.append('g');
+const labelLayer = zoomLayer.append('g');
+
+const linkSel = lineLayer.selectAll('line')
+  .data(DATA.links)
+  .join('line')
+  .attr('class', 'net-line')
+  .attr('stroke-width', d => d.weight >= 3 ? 1.6 : 0.8)
+  .attr('stroke-opacity', d => d.weight >= 3 ? 0.55 : 0.28)
+  .attr('stroke-dasharray', d => d.weight >= 3 ? null : '3 3');
+
+const nodeSel = dotLayer.selectAll('circle')
+  .data(DATA.nodes)
+  .join('circle')
+  .attr('class', 'net-dot')
+  .attr('r', d => radius(d))
+  .attr('fill', d => pastelColor(d.color))
+  .attr('stroke', d => darkerShade(d.color));
+
+const labelSel = labelLayer.selectAll('text')
+  .data(DATA.nodes)
+  .join('text')
+  .attr('class', 'node-label')
+  .attr('text-anchor', 'middle')
+  .attr('dy', d => -(radius(d) + 5))
+  .text(d => d.name);
+
+// ---------- hub-and-spoke force simulation ----------
+// Link distance: strong (near-identical, weight 3) pulls nodes close together;
+// loose thematic parallels (weight 1) keep more distance. Unconnected nodes
+// have no link force at all and simply repel outward to the margins.
+const linkDistance = d3.scaleLinear().domain([1, 3]).range([170, 55]).clamp(true);
+const linkStrength  = d3.scaleLinear().domain([1, 3]).range([0.25, 1]).clamp(true);
+
+const simulation = d3.forceSimulation(DATA.nodes)
+  .force('link', d3.forceLink(DATA.links)
+    .id(d => d.name)
+    .distance(d => linkDistance(d.weight))
+    .strength(d => linkStrength(d.weight)))
+  .force('charge', d3.forceManyBody().strength(-90))
+  .force('collide', d3.forceCollide(d => radius(d) + 5))
+  .force('center', d3.forceCenter(width / 2, height / 2))
+  .force('x', d3.forceX(width / 2).strength(0.015))
+  .force('y', d3.forceY(height / 2).strength(0.015))
+  .alphaDecay(0.02)
+  .on('tick', ticked);
+
+function ticked() {
+  linkSel
+    .attr('x1', d => d.source.x).attr('y1', d => d.source.y)
+    .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
+  nodeSel.attr('cx', d => d.x).attr('cy', d => d.y);
+  labelSel.attr('x', d => d.x).attr('y', d => d.y);
+}
+
+// ---------- drag ----------
+nodeSel.call(
+  d3.drag()
+    .on('start', (event, d) => { if (!event.active) simulation.alphaTarget(0.25).restart(); d.fx = d.x; d.fy = d.y; })
+    .on('drag', (event, d) => { d.fx = event.x; d.fy = event.y; })
+    .on('end', (event, d) => { if (!event.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; })
+);
+
+// ---------- tooltip + label reveal ----------
+const tooltip = document.getElementById('tooltip');
+nodeSel
+  .on('mouseenter', (event, d) => { showTooltip(d); showLabel(d, true); })
+  .on('mousemove', positionTooltip)
+  .on('mouseleave', (event, d) => { tooltip.style.display = 'none'; showLabel(d, false); });
+
+function showLabel(d, on) {
+  labelSel.filter(x => x.name === d.name).style('opacity', on ? 1 : 0);
+}
+function showTooltip(n) {
+  tooltip.innerHTML = `
+    <div class="tt-name">${n.name}</div>
+    <div class="tt-sub">${n.mythology} &middot; ${n.type} &middot; ${degree[n.name]} link${degree[n.name]===1?'':'s'}</div>
+    <div class="tt-desc">${n.desc}</div>
+  `;
+  tooltip.style.display = 'block';
+}
+function positionTooltip(event) {
+  const pad = 16;
+  let left = event.clientX + pad;
+  let top = event.clientY + pad;
+  if (left + 320 > window.innerWidth) left = event.clientX - 320 - pad;
+  tooltip.style.left = left + 'px';
+  tooltip.style.top = top + 'px';
+}
+
+// ---------- legend ----------
+const legendMyth = document.getElementById('legend-myth');
+const mythColors = {};
+DATA.nodes.forEach(n => { mythColors[n.mythology] = n.color; });
+Object.entries(mythColors).forEach(([myth, color]) => {
+  const item = document.createElement('div');
+  item.className = 'item';
+  item.innerHTML = `<span class="swatch" style="background:${pastelColor(color)};border:1.5px solid ${darkerShade(color)}"></span> ${myth}`;
+  legendMyth.appendChild(item);
+});
+</script>
+
+</body>
+</html>
