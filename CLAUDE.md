@@ -13,7 +13,7 @@ Previous version: https://anushkadhere-cmd.github.io/Submission/story.html (repo
 | Path | What |
 | --- | --- |
 | `index.html`, `css/cover.css`, `js/cover.js` | The page and the cover (built) |
-| `charts/` | The three charts, copied unchanged from the old repo: `index.html` (quadrant), `graph2_network.html` (network), `chord.html` (chord), plus `creatures_data.js` and `Group 67–69.png`. Each is shown in its own full-screen frame in the article; a frame that's off screen is hidden, so only one chart is ever visible |
+| `charts/` | The three charts from the old repo: `index.html` (quadrant), `graph2_network.html` (network), `chord.html` (chord), plus `creatures_data.js` and `Group 67–69.png`. Data and look unchanged; edits so far: "Shinto" labels now say "Japanese", the network's broken legend-myth code is gone, and the network zooms only with Ctrl+scroll or pinch. Each is shown in its own frame in the article at the window size it was designed for (`data-design-w/h`) and scaled down to fit (`js/article.js`); a frame that's off screen is hidden, so only one chart is ever visible |
 | `css/article.css`, `js/article.js` | The article under the cover: the whole script verbatim, with a grey placeholder box (labelled with its bracketed name) for every interaction and chart. Pinned boxes keep their paragraphs as scroll cards and show the current [… STEP] name. Replace each box with the real thing |
 | `assets/cover/full/` | Cover art: one full-artboard PNG per layer (the real art) |
 | `tools/trim_cover.py` | Publishing step: trims the cover PNGs and writes `assets/cover/layout.json`. Needs Python + Pillow (both installed) |
@@ -79,7 +79,7 @@ Each step is one Claude Code conversation. Check it in the preview, then commit 
 
 ## Known fixes when porting the old charts
 
-- Label Japanese creatures "Japanese", never "Shinto".
+- Label Japanese creatures "Japanese", never "Shinto" (done in the quadrant and network; the one "Shinto folk belief" left in `creatures_data.js` is a source citation).
 - The old chord side panel shows `$39\%$`; write plain `39%`.
 - Only one chart may be visible at a time (the old page let the network chart's title show behind the quadrant plot).
 - Yama's dogs are "Sharvara and Shyama" everywhere. Don't claim Cerberus's name comes from them: most linguists reject that etymology.

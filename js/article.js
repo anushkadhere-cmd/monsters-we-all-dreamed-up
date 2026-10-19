@@ -30,4 +30,23 @@
     entries.forEach((e) => e.target.classList.toggle("is-offscreen", !e.isIntersecting))
   );
   frames.forEach((f) => seen.observe(f));
+
+  // Each chart keeps the window size it was designed for and is scaled as a
+  // whole to fit its box (never above full size), so nothing is cropped.
+  const fit = (frame) => {
+    const iframe = frame.querySelector("iframe");
+    const w = +frame.dataset.designW, h = +frame.dataset.designH;
+    if (!iframe || !w || !h) return;
+    const bw = frame.clientWidth, bh = frame.clientHeight;
+    const s = Math.min(1, bw / w, bh / h);
+    Object.assign(iframe.style, {
+      width: w + "px",
+      height: h + "px",
+      transform: "scale(" + s + ")",
+      left: (bw - w * s) / 2 + "px",
+      top: (bh - h * s) / 2 + "px",
+    });
+  };
+  const sizer = new ResizeObserver((entries) => entries.forEach((e) => fit(e.target)));
+  frames.forEach((f) => { fit(f); sizer.observe(f); });
 })();

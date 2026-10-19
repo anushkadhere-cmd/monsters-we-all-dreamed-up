@@ -408,7 +408,7 @@ const CREATURES_DATA = [
   {
     "name": "Yamata no Orochi",
     "mythology": "Japanese",
-    "mythLabel": "Shinto (Japanese)",
+    "mythLabel": "Japanese",
     "quadrant": "top-right",
     "color": "#c0435c",
     "type": "serpent/dragon, multi-headed",
@@ -423,7 +423,7 @@ const CREATURES_DATA = [
   {
     "name": "Ryūjin (and Ryū, dragon-kind generally)",
     "mythology": "Japanese",
-    "mythLabel": "Shinto (Japanese)",
+    "mythLabel": "Japanese",
     "quadrant": "top-right",
     "color": "#c0435c",
     "type": "dragon",
@@ -438,7 +438,7 @@ const CREATURES_DATA = [
   {
     "name": "Mizuchi",
     "mythology": "Japanese",
-    "mythLabel": "Shinto (Japanese)",
+    "mythLabel": "Japanese",
     "quadrant": "top-right",
     "color": "#c0435c",
     "type": "serpent/dragon",
@@ -453,7 +453,7 @@ const CREATURES_DATA = [
   {
     "name": "Kitsune",
     "mythology": "Japanese",
-    "mythLabel": "Shinto (Japanese)",
+    "mythLabel": "Japanese",
     "quadrant": "top-right",
     "color": "#c0435c",
     "type": "hybrid shapeshifter (fox), beautiful female monster (in human form)",
@@ -468,7 +468,7 @@ const CREATURES_DATA = [
   {
     "name": "Oni",
     "mythology": "Japanese",
-    "mythLabel": "Shinto (Japanese)",
+    "mythLabel": "Japanese",
     "quadrant": "top-right",
     "color": "#c0435c",
     "type": "humanoid ogre",
@@ -483,7 +483,7 @@ const CREATURES_DATA = [
   {
     "name": "Tengu",
     "mythology": "Japanese",
-    "mythLabel": "Shinto (Japanese)",
+    "mythLabel": "Japanese",
     "quadrant": "top-right",
     "color": "#c0435c",
     "type": "hybrid winged humanoid",
@@ -498,7 +498,7 @@ const CREATURES_DATA = [
   {
     "name": "Nue",
     "mythology": "Japanese",
-    "mythLabel": "Shinto (Japanese)",
+    "mythLabel": "Japanese",
     "quadrant": "top-right",
     "color": "#c0435c",
     "type": "hybrid, chimeric",
@@ -513,7 +513,7 @@ const CREATURES_DATA = [
   {
     "name": "Jorōgumo",
     "mythology": "Japanese",
-    "mythLabel": "Shinto (Japanese)",
+    "mythLabel": "Japanese",
     "quadrant": "top-right",
     "color": "#c0435c",
     "type": "beautiful female monster, hybrid",
@@ -528,7 +528,7 @@ const CREATURES_DATA = [
   {
     "name": "Yuki-onna",
     "mythology": "Japanese",
-    "mythLabel": "Shinto (Japanese)",
+    "mythLabel": "Japanese",
     "quadrant": "top-right",
     "color": "#c0435c",
     "type": "beautiful female monster",
@@ -543,7 +543,7 @@ const CREATURES_DATA = [
   {
     "name": "Rokurokubi",
     "mythology": "Japanese",
-    "mythLabel": "Shinto (Japanese)",
+    "mythLabel": "Japanese",
     "quadrant": "top-right",
     "color": "#c0435c",
     "type": "beautiful female monster",
@@ -558,7 +558,7 @@ const CREATURES_DATA = [
   {
     "name": "Kappa",
     "mythology": "Japanese",
-    "mythLabel": "Shinto (Japanese)",
+    "mythLabel": "Japanese",
     "quadrant": "top-right",
     "color": "#c0435c",
     "type": "hybrid, water creature",
@@ -573,7 +573,7 @@ const CREATURES_DATA = [
   {
     "name": "Ōnamazu",
     "mythology": "Japanese",
-    "mythLabel": "Shinto (Japanese)",
+    "mythLabel": "Japanese",
     "quadrant": "top-right",
     "color": "#c0435c",
     "type": "giant catfish",
@@ -588,7 +588,7 @@ const CREATURES_DATA = [
   {
     "name": "Umibōzu",
     "mythology": "Japanese",
-    "mythLabel": "Shinto (Japanese)",
+    "mythLabel": "Japanese",
     "quadrant": "top-right",
     "color": "#c0435c",
     "type": "sea spirit",
@@ -603,7 +603,7 @@ const CREATURES_DATA = [
   {
     "name": "Karura",
     "mythology": "Japanese",
-    "mythLabel": "Shinto (Japanese)",
+    "mythLabel": "Japanese",
     "quadrant": "top-right",
     "color": "#c0435c",
     "type": "hybrid, winged humanoid (bird-headed)",
@@ -618,7 +618,7 @@ const CREATURES_DATA = [
   {
     "name": "Baku",
     "mythology": "Japanese",
-    "mythLabel": "Shinto (Japanese)",
+    "mythLabel": "Japanese",
     "quadrant": "top-right",
     "color": "#c0435c",
     "type": "hybrid, chimeric",
@@ -1098,7 +1098,7 @@ const CREATURES_DATA = [
   {
     "name": "Yamauba",
     "mythology": "Japanese",
-    "mythLabel": "Shinto (Japanese)",
+    "mythLabel": "Japanese",
     "quadrant": "top-right",
     "color": "#c0435c",
     "type": "shapeshifter / mountain hag",
@@ -1113,7 +1113,7 @@ const CREATURES_DATA = [
   {
     "name": "Tsuchigumo",
     "mythology": "Japanese",
-    "mythLabel": "Shinto (Japanese)",
+    "mythLabel": "Japanese",
     "quadrant": "top-right",
     "color": "#c0435c",
     "type": "hybrid human-animal / earth spider, beautiful female monster (in shapeshifted form)",
@@ -1128,7 +1128,7 @@ const CREATURES_DATA = [
   {
     "name": "Bakeneko / Nekomata",
     "mythology": "Japanese",
-    "mythLabel": "Shinto (Japanese)",
+    "mythLabel": "Japanese",
     "quadrant": "top-right",
     "color": "#c0435c",
     "type": "shapeshifter, occasionally beautiful female monster (Bakeneko tales only)",
@@ -1143,7 +1143,7 @@ const CREATURES_DATA = [
   {
     "name": "Futakuchi-onna",
     "mythology": "Japanese",
-    "mythLabel": "Shinto (Japanese)",
+    "mythLabel": "Japanese",
     "quadrant": "top-right",
     "color": "#c0435c",
     "type": "hybrid human-animal / beautiful female monster",
@@ -1173,7 +1173,7 @@ const CREATURES_DATA = [
   {
     "name": "Yomotsu-shikome",
     "mythology": "Japanese",
-    "mythLabel": "Shinto (Japanese)",
+    "mythLabel": "Japanese",
     "quadrant": "top-right",
     "color": "#c0435c",
     "type": "underworld guardian, hag-demons",
@@ -1188,7 +1188,7 @@ const CREATURES_DATA = [
   {
     "name": "Ōkami",
     "mythology": "Japanese",
-    "mythLabel": "Shinto (Japanese)",
+    "mythLabel": "Japanese",
     "quadrant": "top-right",
     "color": "#c0435c",
     "type": "wolf, sacred guardian",
@@ -1263,7 +1263,7 @@ const CREATURES_DATA = [
   {
     "name": "Daidarabocchi",
     "mythology": "Japanese",
-    "mythLabel": "Shinto (Japanese)",
+    "mythLabel": "Japanese",
     "quadrant": "top-right",
     "color": "#c0435c",
     "type": "giant, colossal folk figure",
@@ -1413,7 +1413,7 @@ const CREATURES_DATA = [
   {
     "name": "Amabie",
     "mythology": "Japanese",
-    "mythLabel": "Shinto (Japanese)",
+    "mythLabel": "Japanese",
     "quadrant": "top-right",
     "color": "#c0435c",
     "type": "prophetic sea spirit",
@@ -1428,7 +1428,7 @@ const CREATURES_DATA = [
   {
     "name": "Shuten-dōji",
     "mythology": "Japanese",
-    "mythLabel": "Shinto (Japanese)",
+    "mythLabel": "Japanese",
     "quadrant": "top-right",
     "color": "#c0435c",
     "type": "oni, named demon chief",
