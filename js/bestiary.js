@@ -39,16 +39,26 @@
   // ---------- the question ----------
   const box = document.getElementById("pick-buttons");
   if (box) {
+    // one card per choice: an icon (assets/bestiary/) and the label
     [...CULTURES, null].forEach((c) => {
       const b = document.createElement("button");
       b.type = "button";
-      b.className = "pick-button";
+      b.className = "pick-card";
+      const icon = document.createElement("img");
+      icon.src = "assets/bestiary/" + (c ? c.toLowerCase() : "curious") + ".png";
+      icon.alt = "";
+      icon.className = "pick-icon";
+      const label = document.createElement("span");
+      label.className = "pick-label";
       if (c) {
         b.dataset.culture = c;
         b.style.setProperty("--c", "var(--c-" + c.toLowerCase() + ")");
-        b.innerHTML = '<span class="pick-dot" aria-hidden="true"></span>';
+        label.textContent = c;
+      } else {
+        label.innerHTML = "Just<br>curious";   // two lines, as in the design
+        b.setAttribute("aria-label", "Just curious");
       }
-      b.append(c || "Just curious");
+      b.append(icon, label);
       b.addEventListener("click", () => MonsterBestiary.set(c));
       box.appendChild(b);
     });
@@ -68,7 +78,7 @@
         const r = q.getBoundingClientRect();
         if (r.bottom < 0 || r.top > innerHeight) q.scrollIntoView({ block: "center" });
       }, 1200);
-      const pressed = q.querySelector('[aria-pressed="true"]') || q.querySelector(".pick-button");
+      const pressed = q.querySelector('[aria-pressed="true"]') || q.querySelector(".pick-card");
       pressed?.focus({ preventScroll: true });
     });
   }
