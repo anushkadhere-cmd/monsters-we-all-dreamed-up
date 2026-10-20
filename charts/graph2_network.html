@@ -39,7 +39,7 @@
   #subtitle {
     max-width: 640px;
     margin: 0 0 8px;
-    font-size: 15px;
+    font-size: 14px;
     line-height: 1.45;
     text-align: center;
     color: var(--ink-soft);
@@ -97,7 +97,9 @@
     flex-wrap: wrap;
     gap: 10px 30px;
     margin-top: 10px;
-    font-size: 18px;
+    font-size: 15px;
+    letter-spacing: var(--caps-tracking);   /* small spaced capitals, like the cover's name tags */
+    text-transform: uppercase;
   }
   #legend .item, #legend .line-key { display: flex; align-items: center; gap: 8px; }
   #legend .swatch { width: 16px; height: 16px; border-radius: 50%; border: 1.2px solid var(--ink); }
@@ -114,7 +116,7 @@
   @media (max-width: 560px) {
     body { padding: 8px 10px 10px; }
     #subtitle { font-size: 12px; margin-bottom: 4px; }
-    #legend { font-size: 14px; gap: 6px 16px; margin-top: 6px; }
+    #legend { font-size: 12px; gap: 6px 16px; margin-top: 6px; }
     #legend .divider { display: none; }
     #controls { font-size: 11px; margin-top: 4px; text-align: center; }
   }

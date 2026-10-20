@@ -1,7 +1,13 @@
 /* =========================================================
-   The article under the cover. Colours and fonts come from the
-   tokens at the top of css/cover.css. One plain background for now;
-   the four sky colours come later (build order step 2).
+   The article under the cover. Colours and fonts come from
+   css/tokens.css. One plain background for now; the four sky
+   colours come later (build order step 2).
+
+   Text system (after The Pudding's "Pockets"): one 40rem reading
+   column with 16px side padding; body 17px on phones, 18px wider,
+   line height 1.7, 1.5rem between paragraphs; about 4rem above a
+   heading and 1rem below; charts and pinned illustrations up to
+   64rem; scroll cards up to 30rem with a thin ink border.
    ========================================================= */
 .article {
   --placeholder: #d6d3cc;
@@ -9,17 +15,20 @@
   padding: 1rem 16px 8rem;
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
 }
+/* vertical rhythm: blocks 2.5rem apart, 4rem above a heading, 1rem below it */
+.article > * + * { margin-top: 2.5rem; }
+.article > .col:has(> h2), .article > .pick, .article > .about { margin-top: 4rem; }
+.article > .col:has(> h2) + * { margin-top: 1rem; }
 
 /* Reading column */
 .col { width: 100%; max-width: 40rem; margin-inline: auto; }
-.prose { display: flex; flex-direction: column; gap: 1.2rem; }
-.article p { margin: 0; font-family: var(--font-body); font-size: 1.2rem; line-height: 1.65; letter-spacing: 0.01em; }
+.prose { display: flex; flex-direction: column; gap: 1.5rem; }
+.article p { margin: 0; font-family: var(--font-body); font-size: 18px; line-height: 1.7; letter-spacing: 0.01em; text-align: left; }
 
 /* Section headings */
 .article h2 {
-  margin: 3rem 0 0;
+  margin: 0;
   font-family: var(--font-heading);
   font-weight: 400;
   font-size: clamp(2rem, 5vw, 3rem);
@@ -33,7 +42,7 @@
   font-size: 1.6rem;
   line-height: 1.15;
 }
-.about p { font-size: 1.05rem; }
+.about h3 { margin-bottom: 0.5rem; }
 
 /* Grey placeholder box: stands in for an interaction or chart, labelled with its bracketed name */
 .ph {
@@ -72,7 +81,7 @@
 
 /* The chart grid: centred on the same axis as the reading column, wider,
    with the article's side margins. */
-.article { --chart-grid: 76rem; --cards: 24rem; --cards-gap: 3rem; }
+.article { --chart-grid: 64rem; --cards: 22rem; --cards-gap: 2.5rem; }
 
 /* Chart 1 doesn't pin: one screen tall, scrolls past like the rest of the page */
 .chart-solo { width: 100%; max-width: var(--chart-grid); margin-inline: auto; }
@@ -124,7 +133,7 @@
   place-items: center;
   padding: 1.5rem 16px;
 }
-.ph-pinned { width: min(100%, 60rem); height: min(80svh, 36rem); justify-content: flex-start; } /* label at the top, clear of the cards */
+.ph-pinned { width: min(100%, 64rem); height: min(80svh, 36rem); justify-content: flex-start; } /* label at the top, clear of the cards */
 
 .steps {
   position: relative;
@@ -143,18 +152,18 @@
 .step-spacer { min-height: 70vh; min-height: 70svh; }
 .card {
   pointer-events: auto;
-  width: min(100%, 27rem);
-  padding: 1.2rem 1.4rem;
+  width: min(100%, 30rem);
+  padding: 1.25rem 1.5rem;
   background: var(--paper);
-  border: 1px solid rgb(30 28 25 / 0.18);
-  border-radius: 8px;
-  box-shadow: 0 10px 30px rgb(30 28 25 / 0.16);
+  border: 1px solid var(--ink);          /* thin ink border */
+  border-radius: 6px;
+  box-shadow: 0 6px 18px rgb(30 28 25 / 0.08);
 }
-.card p { font-size: 1.1rem; }
+.card p { font-size: 18px; line-height: 1.7; }
 
 /* Phones: the box pins to the top and the cards pass underneath it */
 @media (max-width: 760px) {
-  .article p { font-size: 1.1rem; }
+  .article p { font-size: 17px; }
   .sticky { place-items: start center; padding-top: 12px; z-index: 2; pointer-events: none; }
   .sticky .ph, .sticky .chart-frame { pointer-events: auto; }
   .ph-pinned { height: 44svh; min-height: 0; }
@@ -166,7 +175,7 @@
   .scrolly-chart .chart-frame { height: 60svh; }
   .step { align-items: flex-end; padding-bottom: 6svh; min-height: 80svh; }
   .step-spacer { min-height: 60svh; }
-  .card p { font-size: 1.02rem; }
+  .card p { font-size: 17px; }
 }
 
 /* =========================================================
@@ -175,8 +184,8 @@
    multiply mode, a light rim, lift on hover. The picked one
    fills with its culture's colour.
    ========================================================= */
-.pick h2 { margin-top: 1rem; }
-.article .pick-intro { margin-top: 2.5rem; font-size: 24px; line-height: 29px; }   /* same heading gap as elsewhere */
+.pick h2 { margin-top: 0; }
+.article .pick-intro { margin-top: 1rem; font-size: 24px; line-height: 29px; }   /* 1rem below a heading, as elsewhere */
 /* wide screens: the question on one line, the intro breaking after "your"
    (both may run past the reading column's right edge) */
 @media (min-width: 1000px) {
