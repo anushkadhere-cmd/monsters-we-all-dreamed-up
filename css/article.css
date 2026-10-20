@@ -20,7 +20,7 @@
 /* Section headings */
 .article h2 {
   margin: 3rem 0 0;
-  font-family: var(--font-display);
+  font-family: var(--font-heading);
   font-weight: 400;
   font-size: clamp(2rem, 5vw, 3rem);
   line-height: 1.1;
@@ -28,7 +28,7 @@
 }
 .article h3 {
   margin: 0 0 0.2rem;
-  font-family: var(--font-display);
+  font-family: var(--font-heading);
   font-weight: 400;
   font-size: 1.6rem;
   line-height: 1.15;

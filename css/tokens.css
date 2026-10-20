@@ -23,7 +23,8 @@
   --c-japanese: #a3352a;   /* vermilion (the cover's accent red) */
   --c-norse: #6aa384;      /* sage green (the hills) */
 
-  --font-display: "Disney Heroic", Georgia, serif;     /* headings and chart titles (assets/fonts/DisneyHeroic.ttf) */
+  --font-heading: "Hubballi", Georgia, serif;           /* article headings and chart titles, in sentence case (as in Figma) */
+  --font-display: "Disney Heroic", Georgia, serif;     /* decorative lettering: bestiary card labels, chart hover titles (assets/fonts/DisneyHeroic.ttf) */
   --font-body: "Hubballi", Georgia, serif;              /* body text, chart labels, legends, notes (Google Fonts) */
   --font-tag: "Hubballi", var(--font-ui);               /* creature name tags */
   --font-ui: ui-monospace, "SFMono-Regular", Menlo, monospace;
