@@ -31,8 +31,9 @@
   );
   frames.forEach((f) => seen.observe(f));
 
-  // Each chart keeps the window size it was designed for and is scaled as a
-  // whole to fit its box (never above full size), so nothing is cropped.
+  // A chart with a design size (data-design-w/h) is drawn at that size and scaled
+  // as a whole to fit its box (never above full size), so nothing is cropped.
+  // A chart without one (the network) simply fills its box at real size.
   const fit = (frame) => {
     const iframe = frame.querySelector("iframe");
     const w = +frame.dataset.designW, h = +frame.dataset.designH;
