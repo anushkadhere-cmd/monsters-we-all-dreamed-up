@@ -198,7 +198,10 @@ body { background: var(--paper); color: var(--ink); font-family: var(--font-body
   text-align: center;
 }
 .nowrap { white-space: nowrap; }
-.cover-dek { margin: 0; font-size: 1.3rem; line-height: 1.55; letter-spacing: 0.03em; text-wrap: balance; }
+.cover-dek { margin: 0; font-size: 30px; line-height: 29px; letter-spacing: 0.03em; text-wrap: balance; }
+/* wide screens: break after "one", as in the mockup; narrower screens wrap naturally */
+@media (min-width: 900px) { .cover-dek { white-space: nowrap; } }
+@media (max-width: 899px) { .dek-break { display: none; } .cover-dek { font-size: 24px; line-height: 29px; } }
 
 /* Everything that sits over the scene is placed against this frame.
    Corner gaps follow the mockup: a little tighter at the top than at the sides. */
