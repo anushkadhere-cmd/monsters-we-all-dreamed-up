@@ -176,6 +176,7 @@
    fills with its culture's colour.
    ========================================================= */
 .pick h2 { margin-top: 1rem; }
+.article .pick-intro { margin-top: 2.5rem; }   /* same gap as heading-to-paragraph elsewhere */
 .pick-buttons { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.5rem; }
 .pick-button {
   position: relative;
