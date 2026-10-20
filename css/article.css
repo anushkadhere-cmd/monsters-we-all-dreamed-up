@@ -194,7 +194,7 @@
   gap: 0.9rem;
   min-height: 6.5rem;
   padding: 0.9rem 1.1rem;
-  border: 2px solid transparent;
+  border: 1.5px solid transparent;
   border-radius: 18px;
   /* cream paper, like the design: a warm base with a faint mottle */
   background:
@@ -216,12 +216,12 @@
 }
 .pick-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgb(30 28 25 / 0.16), 0 12px 24px rgb(30 28 25 / 0.10); }
 .pick-card:active { transform: translateY(1px); }
-.pick-card:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+.pick-card:focus-visible { outline: 1px solid var(--ink); outline-offset: 3px; }
 /* picked: a thick border in the culture's colour and a faint tint of it */
 .pick-card[aria-pressed="true"] {
   border-color: var(--c);
   background-color: color-mix(in srgb, var(--c) 18%, #f6e5c2);
-  box-shadow: 0 0 0 2px var(--c), 0 8px 18px rgb(30 28 25 / 0.12);
+  box-shadow: 0 8px 18px rgb(30 28 25 / 0.12);
 }
 
 @media (max-width: 1000px) {
