@@ -87,20 +87,11 @@
 .chart-solo { width: 100%; max-width: var(--chart-grid); margin-inline: auto; }
 .chart-solo .chart-frame { height: auto; aspect-ratio: 980 / 820; max-height: 92vh; max-height: 92svh; } /* its design proportions, so no empty bands */
 
-/* Pinned charts are three layers inside .scrolly-chart:
-     1. the title (h2.chart-title): pinned at the top, on a paper band, above everything
-     2. the script cards (.steps): scroll past, sliding under the title band
-     3. the chart (.sticky): pinned under the title band
-   js/article.js sets --head to the title band's height. */
-.scrolly-chart { --head: 7rem; }
-.scrolly-chart > .chart-title {
-  position: sticky;
-  top: 0;
-  z-index: 3;
-  margin: 0;
-  background: var(--paper);
-}
-.scrolly-chart > .sticky { top: var(--head); height: calc(100vh - var(--head)); height: calc(100svh - var(--head)); }
+/* Pinned charts: the title and note sit above in the reading column
+   (.chart-head) and scroll away like any heading; the chart then pins to the
+   full screen, and the script cards scroll over and fully off the top. */
+.chart-head .chart-dek { margin-top: 1rem; }
+.scrolly-chart > .sticky { top: 0; height: 100vh; height: 100svh; }
 
 /* Desktop: the cards run in a column on the left, the chart sits to their right,
    so cards never cover it. The network (.is-bleed) lies under the whole screen
@@ -108,11 +99,7 @@
    starting view stay in the right-hand area (js/article.js tells it how far). */
 @media (min-width: 761px) {
   .scrolly-chart { --side: max(32px, (100% - var(--chart-grid)) / 2); }
-  .scrolly-chart > .chart-title {
-    /* same size as the other headings, lined up with the reading column */
-    padding: 5vh var(--side) 2.5vh max(16px, (100vw - 40rem) / 2);
-  }
-  .scrolly-chart > .sticky { display: block; place-items: normal; padding: 0 var(--side) 3vh; z-index: 0; }
+  .scrolly-chart > .sticky { display: block; place-items: normal; padding: 4vh var(--side); z-index: 0; }
   .scrolly-chart .chart-frame { width: auto; height: 100%; margin-left: calc(var(--cards) + var(--cards-gap)); }
   .scrolly-chart > .sticky:has(.is-bleed) { padding: 0; }
   .scrolly-chart .chart-frame.is-bleed { margin-left: 0; }
@@ -147,7 +134,7 @@
   min-height: 100svh;
   display: flex;
   align-items: center;
-  padding-inline: max(16px, 5vw);
+  padding-inline: max(16px, (100% - var(--chart-grid)) / 2);   /* every card starts on the same edge: the 64rem grid's left side */
 }
 .step-spacer { min-height: 70vh; min-height: 70svh; }
 .card {
@@ -170,8 +157,7 @@
   .chart-frame { height: 60svh; }
   .chart-solo .chart-frame { height: auto; }
   /* title and chart pin together on solid paper above the cards, which pass underneath */
-  .scrolly-chart > .chart-title { padding: 12px 16px 10px; }
-  .scrolly-chart > .sticky { padding: 0; }
+  .scrolly-chart > .sticky { padding: 0; background: linear-gradient(var(--paper), var(--paper)) top / 100% 60svh no-repeat; } /* solid behind the pinned chart so cards pass underneath cleanly */
   .scrolly-chart .chart-frame { height: 60svh; }
   .step { align-items: flex-end; padding-bottom: 6svh; min-height: 80svh; }
   .step-spacer { min-height: 60svh; }
@@ -194,17 +180,21 @@
 @media (max-width: 999px) {
   .pick-break { display: none; }   /* narrower screens: let the intro wrap naturally */
 }
-/* the five cards: wider than the reading column, centred on it, one row on desktop */
+/* the five cards: wider than the reading column, centred on it. Each card is
+   at least as wide as its label, so text never spills out; they share a row
+   when they fit and wrap when they don't. */
 .pick-buttons {
   position: relative;
   left: 50%;
-  width: min(var(--chart-grid, 76rem), 100vw - 32px);
+  width: min(76rem, 100vw - 32px);
   transform: translateX(-50%);
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 1rem;
   margin-top: 1.75rem;
 }
+.pick-buttons > .pick-card { flex: 1 1 0; min-width: max-content; }
 .pick-card {
   display: flex;
   align-items: center;
@@ -227,7 +217,8 @@
 }
 .pick-icon { flex-shrink: 0; width: auto; height: 4.2rem; max-width: 4.6rem; object-fit: contain; }
 .pick-label {
-  font-size: clamp(1.15rem, 1.8vw, 1.6rem);   /* the same size on every card */
+  font-size: 1.3rem;   /* the same size on every card */
+  white-space: nowrap;
   line-height: 1.05;
   text-transform: uppercase;
 }
@@ -241,11 +232,9 @@
   box-shadow: 0 8px 18px rgb(30 28 25 / 0.12);
 }
 
-@media (max-width: 1000px) {
-  .pick-buttons { grid-template-columns: repeat(auto-fit, minmax(min(100%, 12.5rem), 1fr)); }
-}
 @media (max-width: 760px) {
-  .pick-buttons { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
+  .pick-buttons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
+  .pick-buttons > .pick-card { min-width: 0; }
   .pick-card { min-height: 5rem; padding: 0.7rem 0.8rem; gap: 0.6rem; }
   .pick-icon { height: 3.2rem; max-width: 3.4rem; }
   .pick-label { font-size: 1.1rem; }

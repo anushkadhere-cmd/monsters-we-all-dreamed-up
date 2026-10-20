@@ -10,7 +10,7 @@
   // In the article the title is a heading on the page, so the chart hides its own (?embed)
   if (/[?&]embed\b/.test(location.search)) document.documentElement.classList.add('embedded');
 </script>
-<style>.embedded h1 { display: none; }</style>
+<style>.embedded h1, .embedded #subtitle { display: none; }  /* in the article the title and note are page text */</style>
 <style>
   /* Restyled to match the article (css/tokens.css): paper background, ink
      linework, the shared culture colours, Disney Heroic title, Hubballi labels.
@@ -102,6 +102,7 @@
     text-transform: uppercase;
   }
   #legend .item, #legend .line-key { display: flex; align-items: center; gap: 8px; }
+  #legend .legend-group { display: flex; align-items: center; gap: 10px 30px; flex-wrap: nowrap; white-space: nowrap; }
   #legend .swatch { width: 16px; height: 16px; border-radius: 50%; border: 1.2px solid var(--ink); }
   #legend .line-sample { width: 32px; height: 0; border-top: 1.6px solid var(--ink); }
   #legend .line-sample.loose { border-top-style: dashed; border-top-width: 1.2px; opacity: 0.7; }
@@ -116,8 +117,10 @@
   @media (max-width: 560px) {
     body { padding: 8px 10px 10px; }
     #subtitle { font-size: 12px; margin-bottom: 4px; }
-    #legend { font-size: 12px; gap: 6px 16px; margin-top: 6px; }
-    #legend .divider { display: none; }
+    #legend { font-size: 11px; gap: 6px 16px; margin-top: 6px; }
+    #legend .swatch { width: 12px; height: 12px; }
+    #legend .legend-group { gap: 6px 14px; }
+    #legend .legend-group:first-child { flex-wrap: wrap; justify-content: center; }  /* the line types may wrap; the four cultures stay on one line */
     #controls { font-size: 11px; margin-top: 4px; text-align: center; }
   }
 </style>
@@ -138,13 +141,17 @@
 <div id="tooltip"></div>
 
 <div id="legend">
-  <div class="line-key"><span class="line-sample"></span> near-identical parallel</div>
-  <div class="line-key"><span class="line-sample loose"></span> loose thematic parallel</div>
-  <span class="divider"></span>
-  <div class="item"><span class="swatch" style="background:var(--c-greek);"></span> Greek</div>
-  <div class="item"><span class="swatch" style="background:var(--c-hindu);"></span> Hindu</div>
-  <div class="item"><span class="swatch" style="background:var(--c-japanese);"></span> Japanese</div>
-  <div class="item"><span class="swatch" style="background:var(--c-norse);"></span> Norse</div>
+  <!-- two groups that each stay on one line: the line types, and the four cultures -->
+  <div class="legend-group">
+    <div class="line-key"><span class="line-sample"></span> near-identical parallel</div>
+    <div class="line-key"><span class="line-sample loose"></span> loose thematic parallel</div>
+  </div>
+  <div class="legend-group">
+    <div class="item"><span class="swatch" style="background:var(--c-greek);"></span> Greek</div>
+    <div class="item"><span class="swatch" style="background:var(--c-hindu);"></span> Hindu</div>
+    <div class="item"><span class="swatch" style="background:var(--c-japanese);"></span> Japanese</div>
+    <div class="item"><span class="swatch" style="background:var(--c-norse);"></span> Norse</div>
+  </div>
 </div>
 <div id="controls">Ctrl + scroll / pinch to zoom &middot; drag background to pan &middot; drag a dot to reposition it</div>
 

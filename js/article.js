@@ -51,14 +51,6 @@
   const sizer = new ResizeObserver((entries) => entries.forEach((e) => fit(e.target)));
   frames.forEach((f) => { fit(f); sizer.observe(f); });
 
-  // Pinned charts: the chart sits under the title band, so it needs the band's height
-  document.querySelectorAll(".scrolly-chart > .chart-title").forEach((title) => {
-    const scrolly = title.parentElement;
-    const setHead = () => scrolly.style.setProperty("--head", title.offsetHeight + "px");
-    new ResizeObserver(setHead).observe(title);
-    setHead();
-  });
-
   // The network lies under the whole screen on desktop. Tell it where the card
   // column ends, so its note, legend and starting view stay clear of the cards.
   const desktop = matchMedia("(min-width: 761px)");
