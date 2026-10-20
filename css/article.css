@@ -168,3 +168,103 @@
   .step-spacer { min-height: 60svh; }
   .card p { font-size: 1.02rem; }
 }
+
+/* =========================================================
+   "Which bestiary did you grow up with?" (js/bestiary.js)
+   Pill buttons like the cover's "Switch all": black at 56% in
+   multiply mode, a light rim, lift on hover. The picked one
+   fills with its culture's colour.
+   ========================================================= */
+.pick h2 { margin-top: 1rem; }
+.pick-buttons { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.5rem; }
+.pick-button {
+  position: relative;
+  top: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  padding: 0.75em 1.5em 0.65em;
+  border: 1px solid rgb(243 238 227 / 0.5);
+  border-radius: 999px;
+  background: transparent;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.25);
+  color: var(--paper);
+  font-family: var(--font-tag);
+  font-size: 1.05rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 150ms ease, box-shadow 150ms ease, top 150ms ease, color 150ms ease;
+}
+.pick-button::before {               /* the box (top, not transform, moves it: a transform would stop the multiply) */
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: #000;
+  opacity: 0.56;
+  mix-blend-mode: multiply;
+  transition: opacity 150ms ease, background-color 150ms ease;
+}
+.pick-buttons { position: relative; z-index: 0; }  /* keeps each button's box behind its own label */
+.pick-dot {
+  width: 0.7em;
+  height: 0.7em;
+  border-radius: 50%;
+  background: var(--c);
+  box-shadow: 0 0 0 1px rgb(243 238 227 / 0.7);
+}
+.pick-button:hover { top: -1px; border-color: var(--paper); box-shadow: 0 4px 12px rgb(0 0 0 / 0.3); }
+.pick-button:hover::before { opacity: 0.78; }
+.pick-button:active { top: 1px; box-shadow: 0 1px 3px rgb(0 0 0 / 0.3); }
+.pick-button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+/* picked: filled with the culture's colour */
+.pick-button[aria-pressed="true"] { border-color: var(--ink); }
+.pick-button[aria-pressed="true"]::before { background: var(--c); opacity: 1; mix-blend-mode: normal; }
+.pick-button[aria-pressed="true"] .pick-dot { box-shadow: 0 0 0 1.5px var(--paper); }
+.pick-button[data-culture="Hindu"][aria-pressed="true"],
+.pick-button[data-culture="Norse"][aria-pressed="true"] { color: var(--ink); }   /* dark text on the light colours */
+
+/* "Your bestiary: Greek · change", fixed in the bottom right corner */
+.bestiary-tag {
+  position: fixed;
+  right: 16px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 0.45em;
+  padding: 0.55em 1em 0.5em;
+  border: 1px solid rgb(243 238 227 / 0.4);
+  border-radius: 999px;
+  background: rgb(30 28 25 / 0.88);
+  box-shadow: 0 4px 14px rgb(0 0 0 / 0.25);
+  color: var(--paper);
+  font-family: var(--font-tag);
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+.bestiary-tag[hidden] { display: none; }
+.bestiary-tag b { font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; }
+.bestiary-tag-dot { width: 0.7em; height: 0.7em; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 1px rgb(243 238 227 / 0.7); }
+.bestiary-tag button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+  opacity: 0.85;
+}
+.bestiary-tag button:hover { opacity: 1; }
+.bestiary-tag button:focus-visible { outline: 2px solid var(--paper); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pick-button, .pick-button::before { transition: none; }
+  .pick-button:hover, .pick-button:active { top: 0; }
+}

@@ -53,7 +53,7 @@
 
   <!-- ================= ARTICLE (next steps) ================= -->
   <main class="article" id="article">
-    <div class="col"><div class="ph"><span class="ph-name">[Which bestiary did you grow up with?]</span></div></div>
+    <section class="col pick" id="pick" aria-labelledby="pick-q"><h2 id="pick-q">Which bestiary did you grow up with?</h2><div class="pick-buttons" id="pick-buttons" role="group" aria-labelledby="pick-q"></div></section>
     <div class="scrolly scrolly-ill" data-scrolly><div class="sticky"><div class="ph ph-pinned"><span class="ph-name">[Two serpents · illustration]</span><span class="ph-step" aria-hidden="true"></span></div></div><div class="steps"><div class="step step-spacer" data-step=""></div><div class="step" data-step=""><div class="card"><p>In Izumo, in western Japan, an eight-headed serpent eats one daughter a year. When the storm god Susanoo comes to stop it, he doesn't fight it head-on. He sets out eight vats of sake, waits until every head is drunk, and cuts the serpent to pieces.</p></div></div><div class="step" data-step=""><div class="card"><p>Thousands of kilometres away, on India's Yamuna river, a many-headed serpent named Kaliya is poisoning the water. A boy god, Krishna, dives in and dances on its heads until it gives up and leaves.</p></div></div><div class="step" data-step=""><div class="card"><p>Nothing in the historical record links these two stories. Yet both have a river, a serpent with too many heads, and a hero who wins by being cleverer rather than stronger.</p></div></div></div></div>
     <div class="scrolly scrolly-ill" data-scrolly><div class="sticky"><div class="ph ph-pinned"><span class="ph-name">[Three silhouettes · illustration]</span><span class="ph-step" aria-hidden="true"></span></div></div><div class="steps"><div class="step step-spacer" data-step=""></div><div class="step" data-step=""><div class="card"><p>Once you notice it, you can't stop seeing it. A dog guards the door to the dead in Greece, in Scandinavia and in India. A serpent grows big enough to wrap around the whole world. A woman is far too beautiful, and there is always something under the hem.</p></div></div><div class="step" data-step=""><div class="card"><p>So which is it? Did these monsters travel, carried along by traders, armies and monks? Or did people who never met look at the same dark river and imagine the same thing?</p></div></div></div></div>
     <div class="col prose"><p>To find out, I built a bestiary.</p></div>
@@ -86,7 +86,16 @@
     <div class="col prose about"><h3>About this bestiary</h3><p>This is a look at four traditions, not a survey of world mythology. Hundreds of other cultures have their own monsters, and many of them would change this picture. Within these four, the 96 creatures were chosen for having a defined form and a central role in a story, so plenty of minor beings are left out.</p><p>The matches between creatures, their roles and their fame scores are my own judgements, based on primary texts and reference sources such as Theoi.com, the Sacred Texts Archive, the Kojiki and the Poetic Edda. Japanese yōkai come from a folklore that is still growing, so that tradition can never be counted as complete.</p></div>
   </main>
 
+  <!-- "Your bestiary" tag, fixed in a corner once a tradition is picked (js/bestiary.js) -->
+  <div class="bestiary-tag" id="bestiary-tag" hidden>
+    <span class="bestiary-tag-dot" aria-hidden="true"></span>
+    <span>Your bestiary: <b id="bestiary-tag-name"></b></span>
+    <span aria-hidden="true">·</span>
+    <button type="button" id="bestiary-tag-change">change</button>
+  </div>
+
   <script src="js/cover.js" defer></script>
+  <script src="js/bestiary.js" defer></script>
   <script src="js/article.js" defer></script>
 </body>
 </html>
