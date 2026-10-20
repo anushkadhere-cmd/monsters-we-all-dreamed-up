@@ -50,4 +50,34 @@
   };
   const sizer = new ResizeObserver((entries) => entries.forEach((e) => fit(e.target)));
   frames.forEach((f) => { fit(f); sizer.observe(f); });
+
+  // Pinned charts: the chart sits under the title band, so it needs the band's height
+  document.querySelectorAll(".scrolly-chart > .chart-title").forEach((title) => {
+    const scrolly = title.parentElement;
+    const setHead = () => scrolly.style.setProperty("--head", title.offsetHeight + "px");
+    new ResizeObserver(setHead).observe(title);
+    setHead();
+  });
+
+  // The network lies under the whole screen on desktop. Tell it where the card
+  // column ends, so its note, legend and starting view stay clear of the cards.
+  const desktop = matchMedia("(min-width: 761px)");
+  const inset = (frame) => {
+    const doc = frame.querySelector("iframe").contentDocument;
+    if (!doc || !doc.documentElement) return;
+    let px = 0;
+    const card = frame.closest(".scrolly")?.querySelector(".card");
+    if (desktop.matches && card) {
+      const gap = parseFloat(getComputedStyle(frame.closest(".article")).getPropertyValue("--cards-gap")) *
+                  parseFloat(getComputedStyle(document.documentElement).fontSize) || 48;
+      px = Math.max(0, card.getBoundingClientRect().right + gap - frame.getBoundingClientRect().left);
+    }
+    doc.documentElement.style.setProperty("--inset-left", px + "px");
+  };
+  document.querySelectorAll(".chart-frame.is-bleed").forEach((frame) => {
+    const iframe = frame.querySelector("iframe");
+    iframe.addEventListener("load", () => inset(frame));
+    new ResizeObserver(() => inset(frame)).observe(frame);
+    inset(frame);
+  });
 })();

@@ -78,29 +78,38 @@
 .chart-solo { width: 100%; max-width: var(--chart-grid); margin-inline: auto; }
 .chart-solo .chart-frame { height: auto; aspect-ratio: 980 / 820; max-height: 92vh; max-height: 92svh; } /* its design proportions, so no empty bands */
 
-/* Pinned charts on desktop: the script cards run in a column on the left,
-   the chart sits to their right, so cards never cover it. */
+/* Pinned charts are three layers inside .scrolly-chart:
+     1. the title (h2.chart-title): pinned at the top, on a paper band, above everything
+     2. the script cards (.steps): scroll past, sliding under the title band
+     3. the chart (.sticky): pinned under the title band
+   js/article.js sets --head to the title band's height. */
+.scrolly-chart { --head: 7rem; }
+.scrolly-chart > .chart-title {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  margin: 0;
+  background: var(--paper);
+}
+.scrolly-chart > .sticky { top: var(--head); height: calc(100vh - var(--head)); height: calc(100svh - var(--head)); }
+
+/* Desktop: the cards run in a column on the left, the chart sits to their right,
+   so cards never cover it. The network (.is-bleed) lies under the whole screen
+   instead, so dragged or zoomed dots are never cut off; its note, legend and
+   starting view stay in the right-hand area (js/article.js tells it how far). */
 @media (min-width: 761px) {
   .scrolly-chart { --side: max(32px, (100% - var(--chart-grid)) / 2); }
-  /* the pinned layer sits above the cards (so they slide under the title band),
-     but lets clicks through everywhere except the chart */
-  .scrolly-chart .sticky { display: block; place-items: normal; padding: 0 var(--side); z-index: 2; pointer-events: none; }
-  .scrolly-chart .chart-frame { pointer-events: auto; }
-  .chart-pin { display: flex; flex-direction: column; height: 100%; }
-  /* the chart's title: same size as the other headings, lined up with the
-     reading column, on a paper band the cards slide under */
-  .scrolly-chart .chart-title {
-    position: relative;
-    z-index: 2;
-    margin: 0;
-    padding: 5vh 0 2.5vh max(0px, max(16px, (100vw - 40rem) / 2) - var(--side));
-    background: var(--paper);
+  .scrolly-chart > .chart-title {
+    /* same size as the other headings, lined up with the reading column */
+    padding: 5vh var(--side) 2.5vh max(16px, (100vw - 40rem) / 2);
   }
-  .scrolly-chart .chart-frame { flex: 1; width: auto; height: auto; min-height: 0; margin: 0 0 3vh calc(var(--cards) + var(--cards-gap)); }
+  .scrolly-chart > .sticky { display: block; place-items: normal; padding: 0 var(--side) 3vh; z-index: 0; }
+  .scrolly-chart .chart-frame { width: auto; height: 100%; margin-left: calc(var(--cards) + var(--cards-gap)); }
+  .scrolly-chart > .sticky:has(.is-bleed) { padding: 0; }
+  .scrolly-chart .chart-frame.is-bleed { margin-left: 0; }
   .scrolly-chart .step { padding-inline: var(--side); }
   .scrolly-chart .card { width: var(--cards); }
 }
-
 /* =========================================================
    Pinned placeholders: the box stays on screen while its
    paragraphs scroll over it as cards.
@@ -151,10 +160,10 @@
   .ph-pinned { height: 44svh; min-height: 0; }
   .chart-frame { height: 60svh; }
   .chart-solo .chart-frame { height: auto; }
-  /* title and chart pin together on solid paper, so cards passing underneath never show through */
-  .scrolly-chart .sticky { padding: 0 16px; }
-  .chart-pin { width: calc(100% + 32px); margin-inline: -16px; padding: 12px 16px 0; background: var(--paper); } /* full-width band */
-  .scrolly-chart .chart-title { margin: 0 0 10px; }
+  /* title and chart pin together on solid paper above the cards, which pass underneath */
+  .scrolly-chart > .chart-title { padding: 12px 16px 10px; }
+  .scrolly-chart > .sticky { padding: 0; }
+  .scrolly-chart .chart-frame { height: 60svh; }
   .step { align-items: flex-end; padding-bottom: 6svh; min-height: 80svh; }
   .step-spacer { min-height: 60svh; }
   .card p { font-size: 1.02rem; }
