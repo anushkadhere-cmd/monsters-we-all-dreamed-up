@@ -176,7 +176,15 @@
    fills with its culture's colour.
    ========================================================= */
 .pick h2 { margin-top: 1rem; }
-.article .pick-intro { margin-top: 2.5rem; }   /* same gap as heading-to-paragraph elsewhere */
+.article .pick-intro { margin-top: 2.5rem; font-size: 24px; line-height: 29px; }   /* same heading gap as elsewhere */
+/* wide screens: the question on one line, the intro breaking after "your"
+   (both may run past the reading column's right edge) */
+@media (min-width: 1000px) {
+  .pick h2, .article .pick-intro { white-space: nowrap; }
+}
+@media (max-width: 999px) {
+  .pick-break { display: none; }   /* narrower screens: let the intro wrap naturally */
+}
 /* the five cards: wider than the reading column, centred on it, one row on desktop */
 .pick-buttons {
   position: relative;
