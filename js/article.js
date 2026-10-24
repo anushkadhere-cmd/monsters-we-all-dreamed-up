@@ -73,3 +73,77 @@
     inset(frame);
   });
 })();
+
+/* =========================================================
+   Motion helpers, shared by every scroll interaction.
+
+     Motion.ease(t)            the article's easing (--ease in css/cover.css) for t in 0..1
+     Motion.reduced            true when the reader asked for reduced motion
+     Motion.track(els, fn)     calls fn(progress[]) whenever the page scrolls or resizes.
+                               progress[i] runs 0 -> 1 while els[i] passes the reading
+                               line (55% down the screen); below 0 before, above 1 after.
+                               Use it to *scrub* movement with the scroll.
+     Motion.enter(el, e, opts) styles el for an entrance amount e (0 hidden, 1 shown):
+                               fade + slide (24px) + scale (0.96 -> 1); reduced motion: fade only.
+   ========================================================= */
+(() => {
+  "use strict";
+  const root = getComputedStyle(document.documentElement);
+  const reducedQuery = matchMedia("(prefers-reduced-motion: reduce)");
+
+  // cubic-bezier easing read from the --ease token, solved numerically
+  const nums = (root.getPropertyValue("--ease").match(/-?[\d.]+/g) || [0.22, 1, 0.36, 1]).map(Number);
+  const [x1, y1, x2, y2] = nums.length === 4 ? nums : [0.22, 1, 0.36, 1];
+  const bez = (a, b, t) => 3 * a * t * (1 - t) * (1 - t) + 3 * b * t * t * (1 - t) + t * t * t;
+  function ease(t) {
+    if (t <= 0) return 0;
+    if (t >= 1) return 1;
+    let lo = 0, hi = 1, s = t;
+    for (let i = 0; i < 24; i++) {          // find s with bezier-x(s) = t
+      s = (lo + hi) / 2;
+      if (bez(x1, x2, s) < t) lo = s; else hi = s;
+    }
+    return bez(y1, y2, s);
+  }
+
+  const clamp01 = (v) => Math.max(0, Math.min(1, v));
+
+  function track(els, fn, { line = 0.55 } = {}) {
+    let pending = false;
+    const run = () => {
+      pending = false;
+      const y = innerHeight * line;
+      fn(els.map((el) => {
+        const r = el.getBoundingClientRect();
+        return (y - r.top) / Math.max(1, r.height);
+      }));
+    };
+    const ask = () => { if (!pending) { pending = true; requestAnimationFrame(run); } };
+    addEventListener("scroll", ask, { passive: true });
+    addEventListener("resize", ask);
+    run();
+    return ask;
+  }
+
+  // entrance amount e (0..1) -> opacity, slide and scale. dx/dy give the slide direction.
+  function enter(el, e, { dx = 0, dy = 1, x = 0, y = 0, scale = 1 } = {}) {
+    const shift = parseFloat(root.getPropertyValue("--enter-shift")) || 24;
+    const s0 = parseFloat(root.getPropertyValue("--enter-scale")) || 0.96;
+    el.style.opacity = String(clamp01(e));
+    el.style.visibility = e <= 0.001 ? "hidden" : "visible";
+    if (reducedQuery.matches) {
+      el.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+      return;
+    }
+    const k = 1 - clamp01(e);
+    el.style.transform =
+      `translate(${x + dx * shift * k}px, ${y + dy * shift * k}px) scale(${scale * (s0 + (1 - s0) * clamp01(e))})`;
+  }
+
+  window.Motion = {
+    ease, track, enter, clamp01,
+    get reduced() { return reducedQuery.matches; },
+    // amount of a window [start, start+len] reached at t, eased
+    win: (t, start, len) => ease(clamp01((t - start) / len)),
+  };
+})();

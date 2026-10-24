@@ -8,6 +8,14 @@
   --fade: 280ms;           /* how long each creature takes to fade out, and its twin to fade in */
   --fade-gap: 120ms;       /* the twin starts fading in this long after the first one starts fading out */
   --edge: clamp(28px, 5vw, 72px); /* height of the torn bottom edge of the cover */
+
+  /* Motion system for every scroll interaction (js/article.js reads --ease too) */
+  --ease: cubic-bezier(.22, 1, .36, 1);
+  --dur-s: 300ms;          /* small: hovers, tags, underlines */
+  --dur-m: 600ms;          /* standard */
+  --dur-l: 900ms;          /* big entrances */
+  --enter-shift: 24px;     /* things slide this far as they fade in or out */
+  --enter-scale: 0.96;     /* and grow from this scale to 1 */
 }
 
 * { box-sizing: border-box; }
