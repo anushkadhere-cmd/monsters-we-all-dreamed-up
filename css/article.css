@@ -284,67 +284,96 @@
 
 /* =========================================================
    Opening ("In Izumo…" to "To find out, I built a bestiary.")
-   js/opening.js scrubs everything on the stage with the scroll.
-   Desktop: text column left, sticky full-height stage right.
-   Phone: the stage sticks to the top 45% on paper, text scrolls under it.
+   section.scrolly > .stage (sticky) + .steps (one .step per paragraph).
+   js/opening.js sets data-step (1–6) on the section and the stage as each
+   paragraph crosses the middle of the screen; the states below animate
+   with the article's easing, so scrolling back plays them in reverse.
+   Desktop: steps on the left 40%, stage on the right 60%.
+   Phone (<900px): stage sticks at the top (50vh), steps scroll over it on paper cards.
    ========================================================= */
-.opening {
-  display: grid;
-  grid-template-columns: minmax(0, 24rem) minmax(0, 1fr);
-  column-gap: 3rem;
+#opening.scrolly {
+  margin-inline: auto;
   width: 100%;
   max-width: var(--chart-grid);
-  margin-inline: auto;
+  display: grid;
+  grid-template-columns: 40% 60%;
 }
-.op-text { grid-column: 1; grid-row: 1; }
-.op-stage {
+#opening { overflow-x: clip; }   /* Kaliya waits off to the right; clip keeps the stage sticky */
+#opening .stage {
   grid-column: 2;
   grid-row: 1;
   position: sticky;
   top: 0;
   height: 100vh;
   height: 100svh;
-  display: grid;
-  place-items: center;
-  align-self: start;
 }
-.op-box { position: relative; width: 100%; max-height: 82svh; aspect-ratio: 5 / 4; }
-.op-step { min-height: 100vh; min-height: 100svh; display: flex; align-items: center; }
-.op-step:last-child { min-height: 80vh; min-height: 80svh; }
-.op-step p { max-width: 24rem; }
-
-/* everything on the stage starts hidden; js/opening.js brings it in and out */
-.op-img, .op-tag { position: absolute; opacity: 0; visibility: hidden; will-change: transform, opacity; }
-.op-img img { display: block; width: 100%; height: auto; }
-.op-orochi { width: 54%; left: 23%; top: 26%; }
-.op-kaliya { width: 48%; left: 51%; top: 28%; }
-.op-sil { width: 31%; bottom: 10%; }
-.op-hound { left: 1%; }
-.op-serpent { left: 34.5%; }
-.op-woman { left: 68%; }
-.op-sil img { filter: brightness(0) saturate(0) opacity(0.92); }   /* dark ink shapes */
-
-/* Orochi's heads sway in a slow loop */
-.op-orochi img { transform-origin: 50% 85%; animation: op-sway 7s ease-in-out infinite alternate; }
-@keyframes op-sway {
-  from { transform: rotate(-1.6deg) translateY(0); }
-  to   { transform: rotate(1.6deg) translateY(-1.5%); }
+#opening .steps { grid-column: 1; grid-row: 1; margin: 0; position: relative; z-index: 1; pointer-events: auto; }
+#opening .step {
+  min-height: 90vh;
+  min-height: 90svh;
+  display: flex;
+  align-items: center;
+  padding: 0 2rem 0 0;
+}
+/* each paragraph sits in a paper card, like the story cards later in the article */
+#opening .step p {
+  width: min(100%, 30rem);
+  padding: 1.25rem 1.5rem;
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  border-radius: 6px;
+  box-shadow: 0 6px 18px rgb(30 28 25 / 0.08);
 }
 
-/* the dotted line between the two serpents, drawn by widening its clip */
-.op-link { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
-.op-link-path {
-  fill: none;
-  stroke: var(--ink);
-  stroke-width: 5;
-  stroke-linecap: round;
-  stroke-dasharray: 0 12;
-  vector-effect: non-scaling-stroke;
+/* everything on the stage: absolutely placed, hidden until its step */
+#opening .op-img, #opening .op-tag, #opening .op-label {
+  position: absolute;
+  opacity: 0;
+  transform: translateY(var(--enter-shift)) scale(var(--enter-scale));
+  transition:
+    opacity var(--dur-m) var(--ease),
+    transform var(--dur-l) var(--ease),
+    left var(--dur-l) var(--ease),
+    top var(--dur-l) var(--ease),
+    width var(--dur-l) var(--ease);
+  will-change: opacity, transform;
 }
-/* the three things the two stories share, placed along the line */
-.op-tag {
+#opening .op-img {
+  left: 50%;
+  top: 52%;
+  width: 70%;
+  height: 70%;
+  max-width: 90%;
+  max-height: 70%;
+  object-fit: contain;
   translate: -50% -50%;
-  padding: 0.35em 0.85em 0.3em;
+}
+
+/* 1 Orochi fades and rises in, centred */
+/* the serpents are 50% larger than the other stage images: their boxes go past the 90% / 70% caps */
+#opening :is(.op-orochi, .op-kaliya) { max-width: none; max-height: 100%; height: 100%; }
+#opening .op-orochi { width: 100%; }   /* alone in step 1 it fills the stage width (about +43%) */
+#opening .stage:is([data-step="1"]) .op-orochi { opacity: 1; transform: none; }
+#opening .op-orochi { animation: op-sway 7s ease-in-out infinite alternate; }   /* gentle sway, all the time */
+@keyframes op-sway { from { rotate: -1.4deg; } to { rotate: 1.4deg; } }
+
+/* 2–3 Orochi moves to the left half at 0.8; Kaliya slides in on the right */
+#opening .op-kaliya { left: 75%; width: 69%; transform: translateX(calc(var(--enter-shift) * 2)) scale(var(--enter-scale)); }
+#opening .stage:is([data-step="2"], [data-step="3"]) .op-orochi { opacity: 1; left: 25%; width: 69%; transform: scale(0.8); }
+#opening .stage:is([data-step="2"], [data-step="3"]) .op-kaliya { opacity: 1; transform: scale(0.8); }
+
+/* 3 a dotted line draws between them, and three tags fade in one after another */
+#opening .op-line { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+#opening .op-line-dots { fill: none; stroke: var(--ink); stroke-width: 5; stroke-linecap: round; stroke-dasharray: 0 14; vector-effect: non-scaling-stroke; }
+#opening .op-line-draw {
+  fill: none; stroke: #fff; stroke-width: 40;
+  stroke-dasharray: 1; stroke-dashoffset: 1;
+  transition: stroke-dashoffset var(--dur-l) var(--ease);
+}
+#opening .stage[data-step="3"] .op-line-draw { stroke-dashoffset: 0; }
+#opening .op-tag {
+  translate: -50% -50%;
+  padding: 0.4em 0.9em 0.35em;
   border: 1px solid var(--ink);
   border-radius: 999px;
   background: var(--paper);
@@ -355,63 +384,448 @@
   text-transform: uppercase;
   white-space: nowrap;
 }
+#opening .stage[data-step="3"] .op-tag { opacity: 1; transform: none; transition-delay: calc(var(--dur-s) + var(--i) * 180ms); }
 
-/* "travel" and "imagine" in the paragraph: a hand-drawn underline */
-.tw-word { position: relative; white-space: nowrap; }
-.tw-underline { position: absolute; left: -2%; bottom: -0.32em; width: 104%; height: 0.55em; overflow: visible; pointer-events: none; }
-.tw-underline path { fill: none; stroke: var(--accent); stroke-width: 2.2; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+/* 4 serpents and tags fade up and out; the silhouettes enter one by one
+   (at 0, 33 and 66% through the paragraph: data-sil on the stage) */
+#opening .stage:is([data-step="4"], [data-step="5"], [data-step="6"]) :is(.op-orochi, .op-kaliya) { transform: translateY(calc(var(--enter-shift) * -1)) scale(0.8); }
+#opening .op-sil { width: 28%; max-width: 30%; height: 56%; top: 54%; }
+#opening .op-sil[data-n="1"] { left: 18%; }
+#opening .op-sil[data-n="2"] { left: 50%; }
+#opening .op-sil[data-n="3"] { left: 82%; }
+#opening .op-sil { filter: brightness(0) opacity(0.9); }   /* dark ink shapes */
+#opening .stage[data-step="4"][data-sil="1"] .op-sil[data-n="1"],
+#opening .stage[data-step="4"][data-sil="2"] .op-sil:is([data-n="1"], [data-n="2"]),
+#opening .stage[data-step="4"][data-sil="3"] .op-sil { opacity: 1; transform: none; }
 
-/* the two labels they become, pinned until "Borrowed, inherited or imagined?" */
-.tw-bar {
-  position: fixed;
-  top: 18px;
+/* 5 silhouettes dim to 0.3; "travel" and "imagine" fly from the text to the stage */
+#opening .stage[data-step="5"] .op-sil { opacity: 0.3; transform: none; }
+#opening .op-label {
+  top: 22%;
+  translate: -50% -50%;
+  font-family: var(--font-heading);
+  font-size: clamp(32px, 3.6vw, 52px);
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  white-space: nowrap;
+}
+#opening .op-label[data-word="travel"] { left: 30%; }
+#opening .op-label[data-word="imagine"] { left: 70%; }
+#opening .stage[data-step="5"] .op-label { opacity: 1; transform: none; }
+
+/* 6 everything fades; the section ends and the stage unpins (default hidden states) */
+
+/* the underline under "travel" and "imagine": a normal inline word with an SVG under it */
+#opening .mark { position: relative; display: inline; white-space: nowrap; }
+#opening .mark svg {
+  position: absolute;
   left: 0;
+  bottom: -0.2em;
   width: 100%;
-  z-index: 15;
+  height: 0.35em;
+  overflow: visible;
+  pointer-events: none;
+}
+#opening .mark path {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset var(--dur-m) var(--ease);
+}
+#opening[data-step="5"] .mark path { stroke-dashoffset: 0; }
+#opening[data-step="5"] .mark[data-word="imagine"] path { transition-delay: 150ms; }
+
+/* Phone: the stage sticks at the top (50vh); the steps scroll over it on paper cards */
+@media (max-width: 899px) {
+  #opening.scrolly { display: block; margin-inline: -16px; width: auto; max-width: none; }
+  #opening .stage { height: 50vh; height: 50svh; z-index: 0; background: var(--paper); }
+  #opening .steps { padding: 0 16px; margin-top: 10svh; }
+  #opening .step { min-height: 90vh; min-height: 90svh; padding: 0; align-items: flex-end; padding-bottom: 8svh; }
+  #opening .step p {
+    padding: 1.1rem 1.25rem;
+    background: var(--paper);
+    border: 1px solid var(--ink);
+    border-radius: 6px;
+    box-shadow: 0 6px 18px rgb(30 28 25 / 0.1);
+  }
+  #opening .op-tag { font-size: 10px; }
+  /* side by side on a phone the serpents can only grow ~39% before they leave the screen */
+  #opening .op-kaliya { left: 74%; width: 64%; }
+  #opening .stage:is([data-step="2"], [data-step="3"]) .op-orochi { left: 26%; width: 64%; }
+}
+
+/* Reduced motion: opacity only, no movement */
+@media (prefers-reduced-motion: reduce) {
+  #opening .op-img, #opening .op-tag, #opening .op-label { transform: none !important; transition-property: opacity; }
+  #opening .op-orochi { animation: none; }
+  #opening .stage:is([data-step="2"], [data-step="3"]) .op-orochi { left: 25%; width: 69%; }
+  #opening .mark path { stroke-dashoffset: 0; opacity: 0; transition: opacity var(--dur-m) var(--ease); }
+  #opening[data-step="5"] .mark path { opacity: 1; }
+}
+
+/* =========================================================
+   "Building a bestiary" (js/build.js): the counter and the six family
+   cards. Same structure, step cards and motion tokens as #opening;
+   the stage is a little wider so the cards stay readable.
+   ========================================================= */
+#build.scrolly {
+  margin-inline: auto;
+  width: 100%;
+  max-width: min(76rem, 100%);
+  display: grid;
+  grid-template-columns: 40% 60%;
+}
+#build .stage { grid-column: 2; grid-row: 1; position: sticky; top: 0; height: 100vh; height: 100svh; }
+#build .steps { grid-column: 1; grid-row: 1; margin: 0; position: relative; z-index: 1; pointer-events: none; }
+#build .step p { pointer-events: auto; }   /* only the text cards catch taps; the jars and cards behind stay tappable */
+#build .step { min-height: 90vh; min-height: 90svh; display: flex; align-items: center; padding: 0 2rem 0 0; }
+#build .step p {
+  width: min(100%, 30rem);
+  padding: 1.25rem 1.5rem;
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  border-radius: 6px;
+  box-shadow: 0 6px 18px rgb(30 28 25 / 0.08);
+}
+
+/* ---------- the counter ---------- */
+#build .bd-counter {
+  position: absolute;
+  inset: 0;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 1.25rem;
+  gap: 2rem;
+  opacity: 0;
+  transform: translateY(var(--enter-shift)) scale(var(--enter-scale));
+  transition: opacity var(--dur-m) var(--ease), transform var(--dur-l) var(--ease);
+}
+#build .stage:is([data-step="1"], [data-step="2"]) .bd-counter { opacity: 1; transform: none; }
+#build .stage:is([data-step="3"], [data-step="4"], [data-step="5"], [data-step="6"], [data-step="7"], [data-step="8"], [data-step="9"]) .bd-counter {
+  transform: translateY(calc(var(--enter-shift) * -1)) scale(var(--enter-scale));
+}
+#build .bd-count { display: flex; align-items: baseline; gap: 0.6rem; }
+#build .bd-num { font-family: var(--font-heading); font-size: clamp(64px, 9vw, 128px); line-height: 1; font-variant-numeric: tabular-nums; min-width: 2ch; text-align: right; }
+#build .bd-unit { font-size: 15px; letter-spacing: var(--caps-tracking); text-transform: uppercase; }
+/* "Who made the cut": four jars the dots fall into, plus a small "cut" heap */
+#build .bd-piles { position: relative; display: flex; align-items: flex-end; gap: 14px; padding-top: 7rem; }
+#build .bd-pile {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 0; border: 0; background: none; color: var(--ink); font: inherit;
+  cursor: pointer;
+}
+#build .bd-jar {
+  /* 7 dots across; dots stack from the bottom up */
+  display: flex; flex-wrap: wrap-reverse; align-content: flex-start; gap: 3px;
+  width: calc(7 * 12px + 6 * 3px + 2 * 6px);
+  height: calc(4 * 12px + 3 * 3px + 2 * 6px + 6px);
+  padding: 6px;
+  border: 1.5px solid var(--ink);
+  border-top: 0;
+  border-radius: 0 0 14px 14px;
+  position: relative;
+}
+#build .bd-jar::before, #build .bd-jar::after {   /* the rim's two lips */
+  content: ""; position: absolute; top: -1px; width: 8px; border-top: 1.5px solid var(--ink);
+}
+#build .bd-jar::before { left: -7px; }
+#build .bd-jar::after { right: -7px; }
+#build .bd-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--c); border: 1px solid var(--ink);
+  opacity: 0;
+  transform: translateY(-14rem);                     /* waiting above the jar */
+  transition: transform var(--dur-m) var(--ease), opacity var(--dur-s) var(--ease);
+}
+#build .bd-dot.on { opacity: 1; transform: none; }  /* fallen in */
+#build .bd-pile-label {
+  font-size: 13px; letter-spacing: var(--caps-tracking); text-transform: uppercase; white-space: nowrap;
+  opacity: 0; transform: translateY(6px);
+  transition: opacity var(--dur-m) var(--ease), transform var(--dur-m) var(--ease);
+}
+#build .bd-pile-label.on { opacity: 1; transform: none; }
+#build .bd-pile:hover .bd-jar, #build .bd-pile:focus-visible .bd-jar, #build .bd-pile[aria-expanded="true"] .bd-jar { background: color-mix(in srgb, var(--c) 10%, transparent); }
+#build .bd-pile:focus-visible { outline: none; }
+#build .bd-pile:focus-visible .bd-pile-label { text-decoration: underline; text-underline-offset: 3px; }
+
+/* hover / tap / focus a jar: its five most famous members */
+#build .bd-famous {
+  position: absolute; left: 50%; bottom: calc(100% + 8px); translate: -50% 0;
+  display: flex; flex-direction: column; gap: 4px;
+  min-width: 10rem; padding: 0.7rem 0.9rem;
+  background: var(--paper); border: 1px solid var(--ink); border-radius: 6px;
+  box-shadow: 0 6px 18px rgb(30 28 25 / 0.12);
+  text-align: left; z-index: 3;
+  opacity: 0; transform: translateY(6px); pointer-events: none;
+  transition: opacity var(--dur-s) var(--ease), transform var(--dur-s) var(--ease);
+}
+#build .bd-pile:first-child .bd-famous { left: 0; translate: 0 0; }       /* outer jars: keep the list on screen */
+#build .bd-pile:nth-child(4) .bd-famous { left: auto; right: 0; translate: 0 0; }
+#build .bd-famous b { font-weight: 400; font-size: 11px; letter-spacing: var(--caps-tracking); text-transform: uppercase; color: var(--ink-soft); }
+#build .bd-famous-list { display: flex; flex-direction: column; gap: 2px; font-size: 15px; line-height: 1.3; }
+@media (hover: hover) and (pointer: fine) {
+  #build .bd-pile:hover .bd-famous { opacity: 1; transform: none; }
+}
+#build .bd-pile:focus-visible .bd-famous, #build .bd-pile[aria-expanded="true"] .bd-famous { opacity: 1; transform: none; }
+
+/* the ones that didn't make the cut: grey, bounce off a rim, land in the heap */
+#build .bd-cutzone { position: relative; align-self: flex-end; width: 40px; height: 30px; margin-bottom: 23px; }
+#build .bd-cut-label {
+  position: absolute; left: 0; bottom: -23px;
+  font-size: 12px; letter-spacing: var(--caps-tracking); text-transform: uppercase; color: var(--ink-soft);
+  opacity: 0; transition: opacity var(--dur-m) var(--ease);
+}
+#build .bd-cutzone.on .bd-cut-label { opacity: 1; }
+#build .bd-dot.bd-cut {
+  position: absolute; left: 0; top: 0;
+  background: #c9c3b8; border-color: var(--ink-soft);
+  transform: translate(var(--x0, 0), -6rem);
+}
+#build .bd-dot.bd-cut.on { animation: bd-bounce 1100ms var(--ease) forwards; opacity: 1; }
+@keyframes bd-bounce {
+  0%   { transform: translate(var(--x0), -6rem); opacity: 0; }
+  12%  { opacity: 1; }
+  38%  { transform: translate(var(--x0), var(--rim)); animation-timing-function: cubic-bezier(.2, .7, .4, 1); }
+  62%  { transform: translate(calc((var(--x0) + var(--x1)) / 2), calc(var(--rim) - 2.5rem)); animation-timing-function: cubic-bezier(.5, 0, .9, .5); }
+  100% { transform: translate(var(--x1), var(--y1)); opacity: 1; }
+}
+
+/* ---------- the six cards ---------- */
+#build .bd-cards {
+  position: absolute;
+  inset: 7vh 0;
+  container-type: size;
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  grid-template-rows: repeat(2, auto);
+  justify-content: center;
+  align-content: center;
+  gap: 18px;
   pointer-events: none;
-  visibility: hidden;
 }
-.tw-label {
-  display: inline-block;
-  padding: 0.4em 0.95em 0.35em;
-  border: 1px solid var(--ink);
-  border-radius: 999px;
-  background: var(--paper);
-  color: var(--ink);
-  font-family: var(--font-body);
-  font-size: 15px;
-  letter-spacing: var(--caps-tracking);
+#build .stage:is([data-step="3"], [data-step="4"], [data-step="5"], [data-step="6"], [data-step="7"], [data-step="8"], [data-step="9"]) .bd-cards { pointer-events: auto; }
+#build .fcard {
+  /* as big as fits: 3 across and 2 down, at the art's 3:4 shape */
+  width: min(calc((100cqw - 36px) / 3), calc((100cqh - 18px) / 2 * 0.75));
+  aspect-ratio: 3 / 4;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  perspective: 1200px;
+  opacity: 0;
+  transform: translateY(var(--enter-shift)) scale(var(--enter-scale));
+  transition: opacity var(--dur-m) var(--ease), transform var(--dur-m) var(--ease), filter var(--dur-m) var(--ease);
+}
+/* step 3: the cards enter one after another */
+#build .stage:is([data-step="3"], [data-step="4"], [data-step="5"], [data-step="6"], [data-step="7"], [data-step="8"], [data-step="9"]) .fcard {
+  opacity: 1; transform: none; transition-delay: calc(var(--i) * 90ms);
+}
+/* steps 4–9: that family's card lifts, the others dim */
+#build .stage:not([data-family=""]) .fcard { opacity: 0.35; filter: saturate(0.6); transition-delay: 0s; }
+#build .stage[data-family="0"] .fcard[data-i="0"],
+#build .stage[data-family="1"] .fcard[data-i="1"],
+#build .stage[data-family="2"] .fcard[data-i="2"],
+#build .stage[data-family="3"] .fcard[data-i="3"],
+#build .stage[data-family="4"] .fcard[data-i="4"],
+#build .stage[data-family="5"] .fcard[data-i="5"] { opacity: 1; filter: none; transform: translateY(-10px) scale(1.06); z-index: 2; }
+#build .stage:not([data-step]) .fcard, #build .stage[data-step="0"] .fcard { transition-delay: 0s; }
+
+/* the flip: hover (with a mouse), tap or Enter */
+#build .fcard-inner {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 500ms var(--ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  #build .fcard:hover .fcard-inner { transform: rotateY(180deg); }
+}
+#build .fcard[aria-pressed="true"] .fcard-inner { transform: rotateY(180deg); }
+#build .fcard:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; border-radius: 8px; }
+#build .fcard-face {
+  position: absolute;
+  inset: 0;
+  display: block;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 6px 16px rgb(30 28 25 / 0.18);
+  container-type: inline-size;   /* text sizes follow the card's width */
+}
+#build .fcard-face img { display: block; width: 100%; height: 100%; object-fit: cover; }
+#build .fcard-back { transform: rotateY(180deg); }
+
+/* live text on the art: the name in the top plate, the line in the bottom panel */
+#build .fcard-plate, #build .fcard-line, #build .fcard-panel { position: absolute; color: var(--ink); text-align: center; }
+#build .fcard-plate {
+  left: 21.5%; right: 21.5%; top: 2.6%; height: 5.6%;   /* the flat middle of the plate, clear of its curled ends */
+  display: flex; align-items: safe center; justify-content: safe center;   /* "safe": overflow shows on one side, so the fit step can see it */
+  font-family: var(--font-display);
+  font-size: 17px;                  /* js/build.js shrinks it until it fits the plate */
+  line-height: 1;
   text-transform: uppercase;
-  will-change: transform, opacity;
+  white-space: nowrap;
+  overflow: hidden;
 }
-.tw-label[data-word="travel"] { transform-origin: 100% 50%; }
-.tw-label[data-word="imagine"] { transform-origin: 0% 50%; }
+#build .fcard-line {
+  left: 12%; right: 12%; top: 85%; height: 10%;
+  display: flex; align-items: safe center; justify-content: safe center;
+  font-family: var(--font-body);
+  font-size: 15px;                  /* shrunk to fit the panel */
+  line-height: 1.2;
+  overflow: hidden;
+}
+/* the back: count, a four-colour culture bar, names grouped by culture */
+#build .fcard-panel {
+  left: 15%; right: 13%; top: 60%; bottom: 9%;   /* inside the panel, clear of its corner ornaments */
+  display: flex; flex-direction: column; gap: 0.5em;
+  padding-top: 0.35em;               /* room for the big count number */
+  text-align: left;
+  font-family: var(--font-body);
+  font-size: 13px;                  /* shrunk to fit the panel; everything inside is in em */
+  overflow: hidden;
+}
+#build .fcard-count { display: flex; align-items: baseline; gap: 0.35em; letter-spacing: var(--caps-tracking); text-transform: uppercase; }
+#build .fcard-count b { font-family: var(--font-heading); font-weight: 400; font-size: 2.2em; line-height: 1; letter-spacing: 0; }
+#build .fcard-bar { display: flex; flex: none; height: 0.55em; border: 1px solid var(--ink); border-radius: 2px; overflow: hidden; }
+#build .fcard-names { display: flex; flex-direction: column; gap: 0.3em; font-size: 0.82em; line-height: 1.3; }
+#build .fcard-culture b { font-weight: 400; letter-spacing: var(--caps-tracking); text-transform: uppercase; }
+#build .fcard-culture b::before { content: ""; display: inline-block; width: 0.75em; height: 0.75em; margin-right: 0.35em; border-radius: 50%; background: var(--c); vertical-align: -0.05em; }
 
-@media (max-width: 760px) {
-  .opening { grid-template-columns: minmax(0, 1fr); }
-  .op-stage {
-    grid-column: 1;
-    height: 45vh;
-    height: 45svh;
-    z-index: 2;
-    padding-top: 40px;                 /* room for the travel / imagine bar */
-    margin-inline: -16px;
-    background: var(--paper);
-    box-shadow: 0 10px 14px -10px rgb(30 28 25 / 0.18);
-  }
-  .op-box { width: auto; height: 100%; max-height: none; }
-  .op-text { grid-column: 1; grid-row: 2; }
-  .op-step { min-height: 75svh; }
-  .op-step:last-child { min-height: 60svh; }
-  .op-tag { font-size: 10px; }
-  .tw-bar { top: 0; height: 40px; background: var(--paper); }
-  .tw-label { font-size: 12px; }
+/* Phone (<900px): stage pinned at the top, cards 2 across, step cards scroll over */
+@media (max-width: 899px) {
+  #build.scrolly { display: block; margin-inline: -16px; width: auto; max-width: none; }
+  #build .stage { height: 62vh; height: 62svh; background: var(--paper); z-index: 0; }
+  #build .steps { padding: 0 16px; margin-top: 8svh; }
+  #build .step { min-height: 90svh; padding: 0 0 8svh; align-items: flex-end; }
+  #build .step p { width: 100%; padding: 1.1rem 1.25rem; }
+  #build .bd-cards { inset: 12px 16px; grid-template-columns: repeat(2, auto); grid-template-rows: repeat(3, auto); gap: 10px; }
+  #build .fcard { width: min(calc((100cqw - 10px) / 2), calc((100cqh - 20px) / 3 * 0.75)); }
+  #build .bd-counter { gap: 0.5rem; justify-content: flex-start; padding-top: 1rem; }   /* top of the pinned area, clear of the text card */
+  #build .bd-piles { gap: 6px; padding-top: 5.5rem; }
+  #build .bd-jar { width: calc(7 * 8px + 6 * 2px + 2 * 4px); height: calc(4 * 8px + 3 * 2px + 2 * 4px + 4px); padding: 4px; gap: 2px; }
+  #build .bd-dot { width: 8px; height: 8px; }
+  #build .bd-pile-label { font-size: 10px; }
+  #build .bd-cutzone { width: 28px; }
+  #build .bd-famous { min-width: 8.5rem; padding: 0.55rem 0.7rem; }
+  #build .bd-famous-list { font-size: 13px; }
 }
 
+/* Reduced motion: opacity only; the flip becomes a crossfade */
 @media (prefers-reduced-motion: reduce) {
-  .op-orochi img { animation: none; }
+  #build .bd-counter, #build .fcard, #build .bd-pile-label, #build .bd-dot:not(.bd-cut) { transform: none !important; }
+  #build .bd-dot.bd-cut, #build .bd-dot.bd-cut.on { animation: none; transform: translate(var(--x1), var(--y1)); transition: opacity var(--dur-m) var(--ease); }
+  #build .fcard-inner, #build .fcard[aria-pressed="true"] .fcard-inner, #build .fcard:hover .fcard-inner { transform: none !important; transition: none; }
+  #build .fcard-back { transform: none; opacity: 0; transition: opacity var(--dur-m) var(--ease); }
+  #build .fcard-face { backface-visibility: visible; }
+  #build .fcard[aria-pressed="true"] .fcard-back { opacity: 1; }
+  @media (hover: hover) and (pointer: fine) { #build .fcard:hover .fcard-back { opacity: 1; } }
 }
+
+/* =========================================================
+   Chart 1 (js/chart1.js): the guess, then the pinned quadrant
+   plot with one script card and four data pins on a layer above it.
+   ========================================================= */
+.guess {
+  display: flex; flex-direction: column; gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--paper); border: 1px solid var(--ink); border-radius: 6px;
+}
+.guess-kicker { font-size: 12px !important; letter-spacing: var(--caps-tracking); text-transform: uppercase; color: var(--ink-soft); line-height: 1 !important; }
+.guess .guess-q { font-family: var(--font-heading); font-size: 24px; line-height: 1.25; }
+.guess-opts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
+.guess-opts button {
+  position: relative; overflow: hidden;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.15rem 0.9rem; align-items: center;
+  padding: 0.75rem 0.9rem;
+  font: inherit; font-size: 17px; color: var(--ink); text-align: left;
+  background: var(--paper); border: 1px solid var(--ink); border-radius: 6px;
+  cursor: pointer;
+  transition: color var(--dur-m) var(--ease);
+}
+.guess-opts button::before {                 /* culture dot, as in the legends */
+  content: ""; position: absolute; z-index: 1; left: 0.9rem; top: 1.12rem; width: 10px; height: 10px; border-radius: 50%; background: var(--c);
+  transition: opacity var(--dur-s) var(--ease);
+}
+.guess-opts .opt-name { padding-left: 18px; }
+.guess-opts button:hover:not([aria-disabled]) { background: color-mix(in srgb, var(--c) 10%, var(--paper)); }
+.guess-opts button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.guess-opts button[aria-disabled] { cursor: default; }
+.guess-opts .bar {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 0;
+  background: color-mix(in srgb, var(--c) 28%, var(--paper));
+  transition: width var(--dur-l) var(--ease);
+}
+.guess-opts .opt-name, .guess-opts .opt-val, .guess-opts .opt-tag { position: relative; z-index: 1; }
+.guess-opts .opt-val { font-variant-numeric: tabular-nums; opacity: 0; transition: opacity var(--dur-m) var(--ease) var(--dur-s); }
+.guess-opts .opt-tag { grid-column: 1 / -1; padding-left: 18px; min-height: 1em; font-size: 11px; letter-spacing: var(--caps-tracking); text-transform: uppercase; }
+.guess.revealed .bar { width: var(--w); }
+.guess.revealed .opt-val { opacity: 1; }
+.guess.revealed button.answer .bar { background: var(--c); }
+.guess.revealed button.answer { color: var(--paper); }
+.guess.revealed button.answer::before { background: var(--paper); }
+.guess.revealed button.picked { border-width: 2px; padding: calc(0.75rem - 1px) calc(0.9rem - 1px); }
+.guess .guess-out { min-height: 1.7em; opacity: 0; transform: translateY(8px); transition: opacity var(--dur-m) var(--ease) var(--dur-m), transform var(--dur-m) var(--ease) var(--dur-m); }
+.guess.revealed .guess-out { opacity: 1; transform: none; }
+
+/* the pin layer: same box and scale as the chart (js/chart1.js copies it), never catches the pointer */
+.c1-pins { position: absolute; pointer-events: none; transform-origin: 0 0; z-index: 1; }
+.c1-pin { position: absolute; inset: 0; opacity: 0; transition: opacity var(--dur-m) var(--ease); }
+.c1-pin svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.c1-pins[data-pin="Greek"] .c1-pin[data-pin="Greek"],
+.c1-pins[data-pin="Hindu"] .c1-pin[data-pin="Hindu"],
+.c1-pins[data-pin="Japanese"] .c1-pin[data-pin="Japanese"],
+.c1-pins[data-pin="Norse"] .c1-pin[data-pin="Norse"] { opacity: 1; }
+.c1-ring { fill: none; stroke: var(--ink); stroke-width: 2; }
+.c1-call {
+  position: absolute; translate: -50% -100%;
+  padding: 0.3rem 0.75rem; white-space: nowrap;
+  font-family: var(--font-tag); font-size: 22px; line-height: 1.2; color: var(--paper);
+  background: var(--ink); border-radius: 999px;
+  transform: translateY(12px);
+  transition: transform var(--dur-m) var(--ease);
+}
+.c1-pins[data-pin="Greek"] [data-pin="Greek"] .c1-call,
+.c1-pins[data-pin="Hindu"] [data-pin="Hindu"] .c1-call,
+.c1-pins[data-pin="Japanese"] [data-pin="Japanese"] .c1-call,
+.c1-pins[data-pin="Norse"] [data-pin="Norse"] .c1-call { transform: none; }
+#chart1 .c1-pinstep { min-height: 80vh; min-height: 80svh; }
+@media (max-width: 760px) {
+  .guess { padding: 1rem 1.1rem; }
+  .guess .guess-q { font-size: 21px; }
+  .guess-opts { grid-template-columns: 1fr 1fr; }
+  .c1-call { font-size: 30px; }            /* the chart is drawn small on a phone; the label scales with it */
+  #chart1 .c1-pinstep { min-height: 70svh; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .guess-opts .bar { transition: none; }
+  .guess .guess-out, .c1-call { transform: none !important; }
+}
+
+/* Chart 2's guess: four choices, or name any creature (js/chart2.js) */
+.guess-other { display: flex; flex-direction: column; gap: 0.4rem; }
+.guess-other label { font-size: 14px; color: var(--ink-soft); }
+.guess-other-row { display: flex; gap: 0.5rem; }
+.guess-other input {
+  flex: 1; min-width: 0; padding: 0.6rem 0.8rem;
+  font: inherit; font-size: 17px; color: var(--ink); background: var(--paper);
+  border: 1px solid var(--ink); border-radius: 6px;
+}
+.guess-other button {
+  padding: 0.6rem 1rem; font: inherit; font-size: 15px; letter-spacing: 0.04em;
+  color: var(--paper); background: var(--ink); border: 1px solid var(--ink); border-radius: 6px; cursor: pointer;
+}
+.guess-other :disabled { opacity: 0.55; cursor: default; }
+.guess-other input:focus-visible, .guess-other button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.guess.locked .guess-out { opacity: 1; transform: none; transition-delay: 0s; }
+#chart2 .step[data-state="explore"] { min-height: 160vh; min-height: 160svh; }   /* free explore: the chart stays pinned for a while with its family buttons */

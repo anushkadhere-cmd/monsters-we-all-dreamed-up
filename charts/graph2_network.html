@@ -123,6 +123,56 @@
     #legend .legend-group:first-child { flex-wrap: wrap; justify-content: center; }  /* the line types may wrap; the four cultures stay on one line */
     #controls { font-size: 11px; margin-top: 4px; text-align: center; }
   }
+  /* ---------- story states (the article's scroll steps; script at the end) ---------- */
+  .story-note text { font-family: var(--font-body); fill: var(--ink); paint-order: stroke; stroke: var(--paper); stroke-linejoin: round; pointer-events: none; }
+  .story-note .sub { fill: var(--ink-soft); letter-spacing: var(--caps-tracking); text-transform: uppercase; }
+  #tooltip .tt-why { margin-top: 10px; padding-top: 8px; border-top: 1px solid rgb(30 28 25 / 0.2); }
+  #inset, #figures, #families { position: absolute; z-index: 2; }
+  #inset {
+    right: 12px; top: 12px; width: 190px; padding: 10px 12px 8px;
+    background: var(--paper); border: 1px solid var(--ink); border-radius: 6px;
+    opacity: 0; transform: translateY(16px); pointer-events: none;
+    transition: opacity .6s cubic-bezier(.22,1,.36,1), transform .6s cubic-bezier(.22,1,.36,1);
+  }
+  #inset .inset-title { font-size: 12px; letter-spacing: var(--caps-tracking); text-transform: uppercase; color: var(--ink-soft); }
+  #inset svg { display: block; width: 100%; height: auto; overflow: visible; }
+  #inset text { font-family: var(--font-body); fill: var(--ink); }
+  #inset .ax { font-size: 8px; letter-spacing: .1em; fill: var(--ink-soft); }
+  .state-opposite #inset { opacity: 1; transform: none; }
+  #figures {
+    right: 0; top: 0; bottom: 0; width: 170px;
+    display: flex; flex-direction: column; justify-content: center; gap: 4px; pointer-events: none;
+  }
+  #figures figure { margin: 0; opacity: 0; transform: translateX(48px); transition: opacity .6s cubic-bezier(.22,1,.36,1), transform .9s cubic-bezier(.22,1,.36,1); }
+  .state-women2 #figures figure { opacity: 1; transform: none; transition-delay: calc(var(--i) * 280ms); }
+  #figures img { display: block; width: 100%; height: auto; }
+  #figures figcaption { margin-top: -6px; text-align: center; font-size: 12px; letter-spacing: var(--caps-tracking); text-transform: uppercase; }
+  #families {
+    left: 50%; top: 10px; translate: -50% 0; width: min(100%, 760px);
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 6px;
+    opacity: 0; transform: translateY(-8px); pointer-events: none;
+    transition: opacity .6s cubic-bezier(.22,1,.36,1), transform .6s cubic-bezier(.22,1,.36,1);
+  }
+  .state-explore #families { opacity: 1; transform: none; pointer-events: auto; }
+  #families button {
+    font: 13px/1.2 var(--font-body); letter-spacing: .06em; text-transform: uppercase; color: var(--ink);
+    padding: 5px 11px; background: var(--paper); border: 1px solid var(--ink); border-radius: 999px; cursor: pointer;
+  }
+  #families button:hover { background: rgb(30 28 25 / 0.06); }
+  #families button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+  #families button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  @media (max-width: 560px) {
+    #inset { width: 128px; right: 6px; top: 6px; padding: 6px 8px 4px; }
+    #inset .inset-title { font-size: 9px; }
+    #figures { left: 0; right: 0; top: auto; bottom: 0; width: auto; height: 84px; flex-direction: row; justify-content: center; gap: 2px; }
+    #figures figure { width: 24%; transform: translateY(32px); }
+    #figures figcaption { font-size: 9px; margin-top: -4px; }
+    #families { top: 4px; gap: 4px; }
+    #families button { font-size: 10px; padding: 3px 7px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #inset, #figures figure, #families { transform: none !important; }
+  }
 </style>
 </head>
 <body>
@@ -137,6 +187,10 @@
 <div id="stage">
   <!-- the force layout spreads dots from about -220 to 1140, so the view takes all of it in -->
   <svg id="canvas" viewBox="-240 -240 1380 1380" xmlns="http://www.w3.org/2000/svg"></svg>
+  <!-- story states (see the script at the end): only shown at their scroll step -->
+  <div id="inset" aria-hidden="true"></div>
+  <div id="figures" aria-hidden="true"></div>
+  <div id="families" role="group" aria-label="Show one family's links"></div>
 </div>
 <div id="tooltip"></div>
 
@@ -194,10 +248,13 @@ const zoomFilter = (event) => {
   if (event.type.startsWith('touch')) return event.touches.length > 1;
   return !event.ctrlKey && !event.button;
 };
-svg.call(d3.zoom().filter(zoomFilter).scaleExtent([0.4, 4]).on('zoom', (event) => {
+const zoom = d3.zoom().filter(zoomFilter).scaleExtent([0.4, 4]).on('zoom', (event) => {
   zoomLayer.attr('transform', event.transform);
-}));
+  if (window.storyTick) storyTick();
+});
+svg.call(zoom);
 
+const haloLayer = zoomLayer.append('g');   // story states: glows and halos behind the dots
 const lineLayer = zoomLayer.append('g');
 const dotLayer = zoomLayer.append('g');
 const labelLayer = zoomLayer.append('g');
@@ -251,6 +308,7 @@ function ticked() {
     .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
   nodeSel.attr('cx', d => d.x).attr('cy', d => d.y);
   labelSel.attr('x', d => d.x).attr('y', d => d.y);
+  if (window.storyTick) storyTick();
 }
 
 // ---------- drag ----------
@@ -276,6 +334,7 @@ function showTooltip(n) {
     <div class="tt-name">${n.name}</div>
     <div class="tt-sub">${n.mythology} &middot; ${n.type} &middot; ${degree[n.name]} link${degree[n.name]===1?'':'s'}</div>
     <div class="tt-desc">${n.desc}</div>
+    ${window.storyWhy ? storyWhy(n) : ''}
   `;
   tooltip.style.display = 'block';
 }
@@ -289,6 +348,285 @@ function positionTooltip(event) {
   tooltip.style.top = top + 'px';
 }
 
+</script>
+
+<script src="creatures_data.js"></script>
+<script>
+// =========================================================
+// Story states for the article. js/chart2.js calls netState(name) as the
+// reader scrolls; every state is complete in itself, so scrolling back
+// plays it in reverse. Nothing here changes the data, the forces or the
+// chart's own drag, zoom and hover: it only dims, rings, names and zooms.
+//   hidden    before the chart: lines not drawn yet, unmatched dots gathered in
+//   intro     all 109 lines draw in; unmatched dots drift out to the edges
+//   serpent   zoom to the serpent knot, each serpent's slayer beside it
+//   opposite  the Shesha–Jörmungandr line, with both on a small quadrant inset
+//   women1    Medusa, Lamia and the yakshini glow; the rest fade to .2
+//   women2    the whole beautiful, lethal woman family; four figures slide in
+//   loners    the 24 with no match get a halo; hovering one says why
+//   explore   everything back, plus six family buttons that filter the links
+// =========================================================
+(() => {
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const DUR = reduced ? 0 : 800;
+  const phone = () => window.innerWidth <= 560;
+  const byName = new Map(DATA.nodes.map((n) => [n.name, n]));
+  const loners = new Set(DATA.nodes.filter((n) => !degree[n.name]).map((n) => n.name));
+  const maxDeg = Math.max(...Object.values(degree));
+  const mostLinked = DATA.nodes.filter((n) => degree[n.name] === maxDeg).map((n) => n.name);   // Medusa, Lamia, Yakshini
+  const SLAYERS = [['Python', 'Apollo'], ['Typhon', 'Zeus'], ['Vritra', 'Indra'], ['Yamata no Orochi', 'Susanoo'], ['Jörmungandr', 'Thor']];
+  const TWINS = ['Shesha (Ananta)', 'Jörmungandr'];
+  const WOMAN = 'beautiful lethal woman';
+  const NAMED_WOMEN = [...mostLinked, 'Huldra', 'Jorōgumo', 'Yuki-onna'];
+  const FAMILY_NAMES = {
+    'serpent or dragon': 'Serpents and dragons', 'many-headed beast': 'Many-headed beasts', 'shapeshifter': 'Shapeshifters',
+    'human or animal hybrid': 'Human hybrids', 'wolf or hound': 'Wolves and hounds', [WOMAN]: 'Beautiful, lethal women',
+  };
+  const families = new Map();   // name -> Set of families (CSV `families`)
+  const whyNot = new Map();     // name -> the CSV's note on why it has no double
+
+  // ---------- layers ----------
+  const defs = svg.append('defs');
+  defs.append('filter').attr('id', 'story-blur').attr('x', '-100%').attr('y', '-100%').attr('width', '300%').attr('height', '300%')
+    .append('feGaussianBlur').attr('stdDeviation', 7);
+  const haloSel = haloLayer.selectAll('circle').data(DATA.nodes).join('circle')
+    .attr('r', (d) => radius(d) + 9).attr('fill', (d) => cultureColor(d.mythology))
+    .attr('filter', 'url(#story-blur)').style('opacity', 0).style('pointer-events', 'none');
+  const noteLayer = svg.append('g').style('pointer-events', 'none');
+  let notes = [];
+
+  const unit = () => { const r = svg.node().getBoundingClientRect(); return Math.min(r.width, r.height) / 1380 || 1; };  // screen px per viewBox unit
+
+  window.storyTick = () => {
+    haloSel.attr('cx', (d) => d.x).attr('cy', (d) => d.y);
+    const all = noteLayer.selectAll('g.story-note');
+    if (all.empty()) return;
+    const t = d3.zoomTransform(svg.node());
+    const u = unit();
+    // names fan out from the middle of the group they belong to (names on their way out keep their own group)
+    const group = notes.length ? notes : all.data();
+    const cx = d3.mean(group, (n) => t.applyX(n.d.x)), cy = d3.mean(group, (n) => t.applyY(n.d.y));
+    all.each(function (n) {
+      const x = t.applyX(n.d.x), y = t.applyY(n.d.y);
+      let dx = x - cx, dy = y - cy; const len = Math.hypot(dx, dy);
+      if (len < 1) { dx = 1; dy = 0; } else { dx /= len; dy /= len; }
+      const gap = radius(n.d) * t.k + 8 / u;
+      const g = d3.select(this).attr('transform', `translate(${x + dx * gap},${y + dy * gap})`);
+      g.selectAll('text').attr('text-anchor', dx < -0.35 ? 'end' : dx > 0.35 ? 'start' : 'middle');
+      g.select('.main').attr('font-size', 16 / u).attr('stroke-width', 5 / u).attr('dy', dy < -0.35 ? -4 / u - (n.sub ? 15 / u : 0) : 5 / u);
+      g.select('.sub').attr('font-size', 11 / u).attr('stroke-width', 4 / u).attr('dy', dy < -0.35 ? -4 / u : 20 / u);
+    });
+  };
+
+  function setNotes(list) {
+    notes = list.map(([name, sub]) => ({ d: byName.get(name), name: name.replace(/ \(.*\)$/, ''), sub })).filter((n) => n.d);
+    const g = noteLayer.selectAll('g.story-note').data(notes, (n) => n.name + '|' + (n.sub || ''));
+    g.exit().transition().duration(DUR / 2).style('opacity', 0).remove();
+    const e = g.enter().append('g').attr('class', 'story-note').style('opacity', 0);
+    e.append('text').attr('class', 'main').text((n) => n.name);
+    e.append('text').attr('class', 'sub').text((n) => n.sub || '');
+    e.transition().delay(DUR / 2).duration(DUR).style('opacity', 1);
+    noteLayer.selectAll('g.story-note').sort((a, b) => notes.indexOf(a) - notes.indexOf(b));
+    storyTick();
+  }
+
+  // ---------- zoom: fit a group of dots into the free part of the view ----------
+  function fitTo(names, reserve = {}) {
+    const nodes = names.map((n) => byName.get(n)).filter(Boolean);
+    if (!nodes.length) return d3.zoomIdentity;
+    const r = svg.node().getBoundingClientRect(), u = unit();
+    const vw = r.width / u, vh = r.height / u, vx = -240 - (vw - 1380) / 2, vy = -240 - (vh - 1380) / 2;
+    const pad = (phone() ? 46 : 90) / u;     // room for the names around the group
+    const R = {
+      x: vx + ((reserve.left || 0) / u) + pad, y: vy + ((reserve.top || 0) / u) + pad,
+      w: vw - ((reserve.left || 0) + (reserve.right || 0)) / u - 2 * pad,
+      h: vh - ((reserve.top || 0) + (reserve.bottom || 0)) / u - 2 * pad,
+    };
+    const x0 = d3.min(nodes, (n) => n.x - radius(n)), x1 = d3.max(nodes, (n) => n.x + radius(n));
+    const y0 = d3.min(nodes, (n) => n.y - radius(n)), y1 = d3.max(nodes, (n) => n.y + radius(n));
+    const k = Math.max(0.6, Math.min(3, R.w / Math.max(1, x1 - x0), R.h / Math.max(1, y1 - y0)));
+    return d3.zoomIdentity.translate(R.x + R.w / 2 - k * (x0 + x1) / 2, R.y + R.h / 2 - k * (y0 + y1) / 2).scale(k);
+  }
+  const zoomTo = (t, now) => (now || !DUR ? svg.call(zoom.transform, t) : svg.transition('zoom').duration(DUR).ease(d3.easeCubicInOut).call(zoom.transform, t));
+
+  // ---------- lines draw in along their length (dash offset) ----------
+  let drawn = true;
+  function dashFor(d) {
+    const len = Math.hypot(d.target.x - d.source.x, d.target.y - d.source.y) + 2;
+    if (d.weight >= 3) return { dash: `${len} ${len}`, off: len };
+    const n = Math.ceil(len / 6);                     // the chart's own 3-3 dashes, then a gap as long as the line
+    return { dash: Array(n).fill('3 3').join(' ') + ` 0 ${len}`, off: n * 6 };
+  }
+  function drawLines(on, now) {
+    if (on === drawn) return;
+    drawn = on;
+    linkSel.interrupt('draw');
+    if (reduced || now) {
+      linkSel.attr('stroke-dasharray', (d) => (d.weight >= 3 ? null : '3 3')).attr('stroke-dashoffset', null)
+        .transition('draw').duration(reduced ? 600 : 0).style('stroke-opacity', on ? null : 0);
+      return;
+    }
+    linkSel.style('stroke-opacity', null).each(function (d) { const f = dashFor(d); d._off = f.off; d3.select(this).attr('stroke-dasharray', f.dash); });
+    if (on) {
+      linkSel.attr('stroke-dashoffset', (d) => d._off)
+        .transition('draw').delay((d, i) => i * 7).duration(DUR).ease(d3.easeCubicOut).attr('stroke-dashoffset', 0)
+        .on('end', function (d) { d3.select(this).attr('stroke-dasharray', d.weight >= 3 ? null : '3 3').attr('stroke-dashoffset', null); });
+    } else {
+      linkSel.attr('stroke-dashoffset', 0).transition('draw').duration(DUR / 2).attr('stroke-dashoffset', (d) => d._off);
+    }
+  }
+  // unmatched dots: gathered toward the middle and hidden before the lines draw
+  let gathered = false;
+  function gather(on, now) {
+    if (on === gathered) return;
+    gathered = on;
+    const sel = nodeSel.filter((d) => loners.has(d.name));
+    const off = (d) => `translate(${(450 - d.x) * 0.45},${(450 - d.y) * 0.45})`;
+    (now || !DUR ? sel : sel.transition('gather').duration(DUR * 1.6).ease(d3.easeCubicOut))
+      .attr('transform', on && !reduced ? off : null);
+  }
+
+  // ---------- the states ----------
+  const fams = (d) => families.get(d.name) || new Set();
+  const both = (l, test) => test(l.source) && test(l.target);
+  let state = 'intro', family = null;
+
+  function view() {
+    const P = phone();
+    const all = () => true;
+    switch (state) {
+      case 'serpent': {
+        const five = new Set(SLAYERS.map(([n]) => n));
+        const near = (d) => five.has(d.name) || DATA.links.some((l) => (five.has(l.source.name) && l.target === d) || (five.has(l.target.name) && l.source === d));
+        return { node: near, line: (l) => five.has(l.source.name) || five.has(l.target.name), zoom: [...five],
+                 notes: SLAYERS.map(([n, s]) => [n, 'slayer: ' + s]) };
+      }
+      case 'opposite': {
+        const two = new Set(TWINS);
+        return { node: (d) => two.has(d.name), line: (l) => both(l, (d) => two.has(d.name)), strong: (l) => both(l, (d) => two.has(d.name)),
+                 zoom: TWINS, notes: TWINS.map((n) => [n]), reserve: P ? { right: 140 } : { right: 220 } };
+      }
+      case 'women1':
+      case 'women2': {
+        const top = new Set(mostLinked);
+        const isW = (d) => fams(d).has(WOMAN);
+        const fig = P ? { bottom: 90 } : { right: 180 };
+        if (state === 'women1') return { node: (d) => top.has(d.name), line: (l) => both(l, (d) => top.has(d.name)), glow: (d) => top.has(d.name),
+                 zoom: DATA.nodes.filter(isW).map((d) => d.name), notes: mostLinked.map((n) => [n]), reserve: fig };
+        return { node: isW, line: (l) => both(l, isW), glow: isW, zoom: DATA.nodes.filter(isW).map((d) => d.name),
+                 notes: NAMED_WOMEN.map((n) => [n]), reserve: fig };
+      }
+      case 'loners':
+        return { node: (d) => loners.has(d.name), line: () => false, glow: (d) => loners.has(d.name), soft: true };
+      case 'explore':
+        if (family) return { node: (d) => fams(d).has(family), line: (l) => both(l, (d) => fams(d).has(family)) };
+        return { node: all, line: all };
+      default:
+        return { node: all, line: all };
+    }
+  }
+
+  function apply(now) {
+    document.body.className = 'state-' + state;
+    const v = view();
+    const T = (sel, name) => (now || !DUR ? sel : sel.transition(name).duration(DUR).ease(d3.easeCubicInOut));
+    drawLines(state !== 'hidden', now);
+    gather(state === 'hidden', now);
+    T(nodeSel, 'dim').style('opacity', (d) => (state === 'hidden' && loners.has(d.name) ? 0 : v.node(d) ? 1 : 0.2));
+    T(linkSel, 'dimline').style('opacity', (l) => (v.line(l) ? 1 : 0.12))
+      .attr('stroke-width', (l) => (v.strong && v.strong(l) ? 4 : l.weight >= 3 ? 1.6 : 0.8));
+    T(haloSel, 'halo').style('opacity', (d) => (v.glow && v.glow(d) ? (v.soft ? 0.35 : 0.75) : 0));
+    setNotes(v.notes || []);
+    zoomTo(v.zoom ? fitTo(v.zoom, v.reserve) : d3.zoomIdentity, now);
+  }
+
+  window.netState = (name) => {
+    if (name === state) return;
+    state = name;
+    if (name !== 'explore') setFamily(null, true);
+    apply(false);
+  };
+  window.storyWhy = (n) => (state === 'loners' && loners.has(n.name)
+    ? `<div class="tt-why"><b>No double anywhere.</b> ${whyNot.get(n.name) || ''}</div>` : '');
+  addEventListener('resize', () => { clearTimeout(window._storyRz); window._storyRz = setTimeout(() => apply(true), 150); });
+
+  // ---------- the quadrant inset (same placement rule as Chart 1, without its jitter) ----------
+  (() => {
+    const box = document.getElementById('inset');
+    const C = 80, M = 62, sign = { 'top-left': [-1, -1], 'top-right': [1, -1], 'bottom-left': [-1, 1], 'bottom-right': [1, 1] };
+    const dots = TWINS.map((name) => {
+      const c = (typeof CREATURES_DATA !== 'undefined' ? CREATURES_DATA : []).find((x) => x.name === name);
+      if (!c) return '';
+      const [sx, sy] = sign[c.quadrant];
+      const x = C + sx * c.helper * M, y = C + sy * c.antagonist * M;
+      const label = name.replace(/ \(.*\)$/, '');
+      // names sit clear of the axis words: under a dot left of centre, beside one below it
+      const [tx, ty, anchor] = x < C ? [x - 6, y - 11, 'start'] : [x - 11, y + 4, 'end'];
+      return `<circle cx="${x}" cy="${y}" r="7" fill="${cultureColor(c.mythology)}" stroke="var(--ink)" stroke-width="1"/>
+              <text x="${tx}" y="${ty}" font-size="12" text-anchor="${anchor}">${label}</text>`;
+    }).join('');
+    box.innerHTML = `<div class="inset-title">On the quadrant plot</div>
+      <svg viewBox="0 0 160 160">
+        <line x1="8" y1="${C}" x2="152" y2="${C}" stroke="var(--ink)" stroke-opacity=".35"/>
+        <line x1="${C}" y1="8" x2="${C}" y2="152" stroke="var(--ink)" stroke-opacity=".35"/>
+        <text class="ax" x="8" y="${C + 12}">PROTECTOR</text><text class="ax" x="152" y="${C + 12}" text-anchor="end">PROTECTOR</text>
+        <text class="ax" x="${C + 4}" y="14">DESTROYER</text><text class="ax" x="${C + 4}" y="157">DESTROYER</text>
+        ${dots}
+      </svg>`;
+  })();
+
+  // ---------- the four figures ----------
+  (() => {
+    const box = document.getElementById('figures');
+    [['medusa', 'Medusa', 'Greek'], ['huldra', 'Huldra', 'Norse'], ['yukionna', 'Yuki-onna', 'Japanese'], ['yakshini', 'Yakshini', 'Hindu']]
+      .forEach(([file, name, culture], i) => {
+        const f = document.createElement('figure');
+        f.style.setProperty('--i', i);
+        f.innerHTML = `<img src="../assets/lethal-women/woman-${file}.webp" alt="" loading="lazy"><figcaption>${name} · ${culture}</figcaption>`;
+        box.appendChild(f);
+      });
+  })();
+
+  // ---------- free explore: one button per family ----------
+  const famBox = document.getElementById('families');
+  function setFamily(f, quiet) {
+    family = family === f ? null : f;
+    [...famBox.children].forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.family === family)));
+    if (!quiet) apply(false);
+  }
+  Object.entries(FAMILY_NAMES).forEach(([key, label]) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.dataset.family = key; b.textContent = label; b.setAttribute('aria-pressed', 'false');
+    b.addEventListener('click', () => setFamily(key));
+    famBox.appendChild(b);
+  });
+
+  // ---------- read the CSV: families and the notes on why a creature has no double ----------
+  function parseCSV(text) {
+    const rows = []; let row = [], field = '', q = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (q) { if (c === '"' && text[i + 1] === '"') { field += '"'; i++; } else if (c === '"') q = false; else field += c; }
+      else if (c === '"') q = true;
+      else if (c === ',') { row.push(field); field = ''; }
+      else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(field); field = ''; if (row.length > 1 || row[0] !== '') rows.push(row); row = []; }
+      else field += c;
+    }
+    if (field || row.length) { row.push(field); rows.push(row); }
+    const head = rows.shift();
+    return rows.map((r) => Object.fromEntries(head.map((h, i) => [h, r[i] || ''])));
+  }
+  fetch('../data/mythology_creatures_dataset.csv').then((r) => r.text()).then((text) => {
+    parseCSV(text).forEach((r) => {
+      families.set(r.creature_name, new Set(r.families.split(';').map((f) => f.trim()).filter(Boolean)));
+      whyNot.set(r.creature_name, r.similarity_notes);
+    });
+    apply(true);
+  });
+
+  window.netReady = true;
+  window.dispatchEvent(new Event('netready'));
+})();
 </script>
 
 </body>
