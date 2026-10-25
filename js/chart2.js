@@ -1,12 +1,17 @@
 /* =========================================================
    Chart 2, "Same beast, different lore".
 
-   - The guess (demo §2): "Which creature has the most look-alikes?"
+   - The guess (demo §2, restyled as in Figma: four portrait cards, a name
+     field and a "Lock it in" button): "Which creature has the most look-alikes?"
      Four choices, or name any creature. Look-alikes = rows in
      data/creature_links.csv (all 109, the count the script uses:
      "each tied to ten others"). The reader's pick is locked in and
      only revealed when "Then comes the surprise" reaches the middle of
      the screen. Medusa, Lamia and the yakshini (10 each) all count as right.
+   - SB6: the dots wait clustered in the centre until the chart comes up
+     into view, then burst outward and the links draw in ("intro"); the
+     whole graph stays on screen for a while before the serpent zoom.
+     The free-explore screen centres the graph in the whole view.
    - The pinned network: each step's data-state is passed to the chart
      (netState in charts/graph2_network.html), which draws the visual
      state. States are complete in themselves, so scrolling back up
@@ -29,10 +34,18 @@
     const w = iframe.contentWindow;
     if (w.netReady) send(); else w.addEventListener("netready", send);
   });
+  const sticky = sec.querySelector(".sticky");
+  const frame = sec.querySelector(".chart-frame");
+  // the burst starts as the chart comes up into view (its top above 45% of the screen), not only once pinned
+  const pinned = () => sticky.getBoundingClientRect().top <= innerHeight * 0.45;
   const setState = (s) => {
+    if (s === "intro" && !pinned()) s = "hidden";        // SB6: the dots wait, clustered, until the chart is centred
     if (s === current) return;
     current = s;
     send();
+    // the final, free-explore screen: the graph centred in the whole view (no room kept for the cards)
+    frame.dataset.centred = s === "explore" ? "1" : "";
+    if (window.updateChartInset) updateChartInset();
     if (s === "women1" || s === "women2" || s === "loners" || s === "explore") revealGuess();
   };
   const io = new IntersectionObserver((entries) => {
@@ -42,6 +55,14 @@
     });
   }, { rootMargin: "-50% 0px -50% 0px" });
   steps.forEach((s) => io.observe(s));
+  // the first step is already in the middle as the chart arrives: explode once it pins
+  const check = () => {
+    const first = steps[0].getBoundingClientRect();
+    const inFirst = first.bottom >= innerHeight / 2;             // not yet past the first (empty) step
+    if (current === "hidden" && inFirst && pinned()) setState("intro");
+    else if (current === "intro" && !pinned()) setState("hidden");
+  };
+  addEventListener("scroll", check, { passive: true });          // two rect reads per scroll: cheap enough to run directly
 
   // ---------- the guess ----------
   const box = document.getElementById("guess-lookalike");
@@ -54,7 +75,14 @@
     if (text != null) n.textContent = text;
     return n;
   };
-  const CHOICES = ["Jörmungandr", "Cerberus", "Medusa", "Garuda"];
+  const CHOICES = ["Medusa", "Cerberus", "Garuda", "Jörmungandr"];   // Figma's order
+  // each card's portrait, placed as in Figma (percent of the 233 × 152 card; the card clips it)
+  const ART = {
+    "Medusa": { src: "assets/lethal-women/woman-medusa.webp", l: 2.41, t: -16.64, w: 126.0, h: 157.55 },
+    "Cerberus": { src: "assets/cover/cerberus.webp", l: 1.53, t: 1.6, w: 80.62, h: 179.48, r: 1.51, label: 56.5 },
+    "Garuda": { src: "assets/cover/garuda.webp", l: 18.26, t: 0, w: 88.82, h: 176.38 },
+    "Jörmungandr": { src: "assets/guess/jormungandr.webp", l: -15.78, t: -0.19, w: 121.41, h: 124.56, r: 18.3, label: 13.1 },
+  };
   const short = (n) => n.replace(/ \(.*\)$/, "");
 
   fetch("data/creature_links.csv?v=1").then((r) => r.text()).then((text) => {
@@ -99,7 +127,14 @@
       b.style.setProperty("--c", "var(--c-" + String(c.mythology || "greek").toLowerCase() + ")");
       b.style.setProperty("--w", (100 * n(k)) / max + "%");
       const tag = el("span", "opt-tag");
-      b.append(el("span", "bar"), el("span", "opt-name", short(k)), el("span", "opt-val", String(n(k))), tag);
+      b.dataset.k = k;
+      const a = ART[k];
+      const art = el("img", "opt-art");
+      Object.assign(art, { src: a.src, alt: "" });
+      Object.assign(art.style, { left: a.l + "%", top: a.t + "%", width: a.w + "%", height: a.h + "%", transform: a.r ? `rotate(${a.r}deg)` : "" });
+      const nameEl = el("span", "opt-name", short(k));
+      if (a.label) nameEl.style.left = a.label + "%";
+      b.append(art, el("span", "bar"), nameEl, el("span", "opt-val", String(n(k))), tag);
       if (n(k) === max) b.classList.add("answer");
       b.addEventListener("click", () => pick(k, b));
       list.appendChild(b);

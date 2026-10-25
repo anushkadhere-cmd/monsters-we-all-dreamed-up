@@ -4,12 +4,13 @@
 <meta charset="UTF-8">
 <title>Which mythology has the most shared vs. unique creatures?</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hubballi&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Harmattan&family=Hubballi&display=swap">
 <link rel="stylesheet" href="../css/tokens.css">
 <script>
   // In the article the title is a heading on the page, so the chart hides its own (?embed)
   if (/[?&]embed\b/.test(location.search)) document.documentElement.classList.add('embedded');
 </script>
+<style>html.embedded, .embedded body { background: transparent; }  /* the article's parchment shows through */</style>
 <style>.embedded h1, .embedded #subtitle { display: none; }  /* in the article the title and note are page text */</style>
 <style>
   /* Restyled to match the article (css/tokens.css): paper background, ink
@@ -21,15 +22,13 @@
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; overflow: hidden; }
   body {
+    position: relative;
     background: var(--paper);
     color: var(--ink);
-    font-family: var(--font-body);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 28px 40px;
+    font-family: "Harmattan", var(--font-body);
   }
+  /* standalone (not in the article): the title and note above, as before */
+  html:not(.embedded) body { display: flex; flex-direction: column; align-items: center; padding-top: 20px; }
   h1 {
     margin: 0 0 10px;
     max-width: 820px;
@@ -48,15 +47,34 @@
     text-align: center;
     color: var(--ink-soft);
   }
-  #stage { position: relative; width: 760px; height: 760px; flex-shrink: 0; }
+  #stage { position: absolute; inset: 0; }
   #canvas { display: block; width: 100%; height: 100%; overflow: visible; }
 
-  .group-arc { cursor: pointer; stroke: var(--paper); stroke-width: 1.5; }
-  .group-label { font-family: var(--font-body); font-size: 15px; letter-spacing: var(--caps-tracking); text-transform: uppercase; fill: var(--ink); }
-  .group-sub { font-family: var(--font-body); font-size: 13px; fill: var(--ink-soft); }
-
-  .ribbon { stroke: none; transition: opacity 0.15s ease; }
+  /* labels in the article's Harmattan; sizes are set from the circle's size */
+  .group-arc { stroke: var(--paper); stroke-width: 1.5; }
+  .explore .group-arc, .explore .ribbon { cursor: pointer; }
+  .group-label { letter-spacing: 0.06em; text-transform: uppercase; fill: var(--ink); }
+  .group-sub { fill: var(--ink-soft); }
+  .ribbon { stroke: var(--ink); stroke-width: 0; }
   .ribbon.dim { opacity: 0.08 !important; }
+  .pop { pointer-events: none; }
+  .pop rect { fill: var(--ink); }
+  .pop text { fill: var(--paper); text-anchor: middle; dominant-baseline: central; }
+  .edge { fill: none; stroke: var(--ink); stroke-linecap: round; }
+
+  /* free explore: click a ribbon, its pairs */
+  #pairs {
+    position: absolute; right: 12px; top: 12px; z-index: 5; display: none;
+    width: min(300px, calc(100% - 24px)); max-height: calc(100% - 24px); overflow-y: auto;
+    padding: 14px 16px 12px; background: #f4e7c4; border: 2px solid #927057; border-radius: 8px;
+    font-size: 16px; line-height: 1.35;
+  }
+  #pairs.open { display: block; }
+  #pairs h2 { margin: 0 28px 6px 0; font-family: var(--font-display); font-weight: 400; font-size: 20px; line-height: 1.1; }
+  #pairs .sub { margin: 0 0 8px; font-size: 14px; color: var(--ink-soft); }
+  #pairs ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 3px; }
+  #pairs li span { color: var(--ink-soft); font-size: 13px; }
+  #pairs button { position: absolute; right: 8px; top: 4px; border: 0; background: none; font-size: 26px; line-height: 1; cursor: pointer; color: var(--ink); }
 
   /* hover card, styled like the article's script cards */
   #tooltip {
@@ -69,10 +87,12 @@
   #tooltip .tt-title { font-family: var(--font-display); font-size: 20px; line-height: 1.1; margin-bottom: 4px; }
 
   /* small colour key and the script's note under the chart */
-  #key { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px 26px; margin-top: 8px; font-size: 13px; letter-spacing: var(--caps-tracking); text-transform: uppercase; }
-  #key .item { display: flex; align-items: center; gap: 8px; }
-  #key .swatch { width: 14px; height: 14px; border-radius: 3px; border: 1.2px solid var(--ink); }
-  #note { margin: 12px 0 0; max-width: 560px; font-size: 14px; line-height: 1.45; text-align: center; color: var(--ink-soft); }
+  #key, #note { position: absolute; left: 0; right: 0; margin: 0 auto; text-align: center; }
+  #key { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px 22px; letter-spacing: 0.06em; text-transform: uppercase; }
+  #key .item { display: flex; align-items: center; gap: 7px; }
+  #key .swatch { width: 0.9em; height: 0.9em; border-radius: 50%; }
+  #note { max-width: 34em; line-height: 1.35; color: var(--ink-soft); opacity: 0; transition: opacity .7s ease .9s; }
+  .shown #note { opacity: 1; }
 </style>
 </head>
 <body>
@@ -85,8 +105,9 @@
 </div>
 
 <div id="stage">
-  <svg id="canvas" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg"></svg>
+  <svg id="canvas" xmlns="http://www.w3.org/2000/svg"></svg>
 </div>
+<div id="pairs" role="dialog" aria-live="polite"></div>
 <div id="key"></div>
 <p id="note">Ribbons are symmetric, showing how much two traditions share, not who influenced whom.</p>
 <div id="tooltip"></div>
@@ -158,108 +179,233 @@ mythologies.forEach(m => {
   matrix[idx[m]][idx[m]] = uniqueCount[m];
 });
 
-// ---------- layout: chord circle centred (the script cards sit beside the chart in the article) ----------
-const width = 800, height = 800;
-const cx = width / 2, cy = height / 2;
-const outerRadius = 200, innerRadius = 185;
-
+// ---------- story states and layout ----------
+// The article calls chordState(name, part) as the reader scrolls (js/chart3.js);
+// every state is complete in itself, so scrolling back plays it in reverse.
+//   hidden     before the chart: nothing drawn
+//   intro      the arcs draw in, then the ribbons grow from them; the note fades in
+//   pairs      "gh": the Greek–Hindu ribbon with its count; "jn": the Japanese–Norse one
+//   originals  only the Greek and Hindu self-loops, with their shares unique
+//   living     everything at 0.4 but the Japanese arc, which gets a dotted outer edge
+//   explore    everything back; hover an arc to isolate it, click a ribbon for its pairs
+// Standalone (not embedded) the chart opens straight in explore.
+const embedded = document.documentElement.classList.contains('embedded');
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const DUR = reduced ? 0 : 700;
 const svg = d3.select('#canvas');
-const g = svg.append('g').attr('transform', `translate(${cx},${cy})`);
-
 const chord = d3.chord().padAngle(0.06).sortSubgroups(d3.descending)(matrix);
-const arcGen = d3.arc().innerRadius(innerRadius).outerRadius(outerRadius);
-const ribbonGen = d3.ribbon().radius(innerRadius);
+const name = (i) => mythologies[i];
+const pairKey = (a, b) => [a, b].sort().join('|');
+const share = (m) => Math.round(100 * uniqueCount[m] / totalCount[m]) + '%';
+const isPair = (d, a, b) => d.source.index !== d.target.index && pairKey(name(d.source.index), name(d.target.index)) === pairKey(a, b);
+const isSelf = (d, m) => d.source.index === d.target.index && name(d.source.index) === m;
+// the two pairs the script names: the most and the fewest shared parallels (from the data)
+const crossPairs = Object.entries(pairDetail).sort((a, b) => b[1] - a[1]);
+const MOST = crossPairs[0][0].split('|'), FEWEST = crossPairs[crossPairs.length - 1][0].split('|');
+// the two biggest bestiaries, for the originals step (the script: Greek and Hindu)
+const BIG = mythologies.slice().sort((a, b) => totalCount[b] - totalCount[a] || mythologies.indexOf(a) - mythologies.indexOf(b)).slice(0, 2);
+const LIVING = 'Japanese';
 
-const groupSel = g.append('g').selectAll('g')
-  .data(chord.groups)
-  .join('g');
-
-groupSel.append('path')
-  .attr('class', 'group-arc')
-  .attr('d', arcGen)
-  .attr('fill', d => mythColor[mythologies[d.index]])
-  .attr('opacity', 0.92);
-
-const ribbonSel = g.append('g')
-  .attr('fill-opacity', 0.68)
-  .selectAll('path')
-  .data(chord)
-  .join('path')
-  .attr('class', 'ribbon')
-  .attr('d', ribbonGen)
-  .attr('fill', d => {
-    // self-ribbons (unique pool) get a muted grey so they read as "not a real parallel"
-    if (d.source.index === d.target.index) return '#cbc2b0';
-    const a = mythColor[mythologies[d.source.index]];
-    const b = mythColor[mythologies[d.target.index]];
-    return d.source.value >= d.target.value ? a : b;
-  });
-
-// group labels, positioned along the arc's outer edge
-groupSel.append('text')
-  .each(d => { d.angle = (d.startAngle + d.endAngle) / 2; })
-  .attr('class', 'group-label')
-  .attr('dy', '0.32em')
-  .attr('transform', d => `
-    rotate(${(d.angle * 180 / Math.PI - 90)})
-    translate(${outerRadius + 14})
-    ${d.angle > Math.PI ? 'rotate(180)' : ''}
-  `)
-  .attr('text-anchor', d => d.angle > Math.PI ? 'end' : 'start')
-  .text(d => mythologies[d.index]);
-
-groupSel.append('text')
-  .attr('class', 'group-sub')
-  .attr('dy', '1.6em')
-  .attr('transform', d => `
-    rotate(${(d.angle * 180 / Math.PI - 90)})
-    translate(${outerRadius + 14})
-    ${d.angle > Math.PI ? 'rotate(180)' : ''}
-  `)
-  .attr('text-anchor', d => d.angle > Math.PI ? 'end' : 'start')
-  .text(d => `${totalCount[mythologies[d.index]]} creatures \u00b7 ${uniqueCount[mythologies[d.index]]} unique`);
-
-// ---------- hover interactivity ----------
+let state = embedded ? 'hidden' : 'explore', part = 'gh', drawn = false;
+let R, rIn, k;
+const root = svg.append('g');
+const defs = svg.append('defs');
 const tooltip = document.getElementById('tooltip');
+const pairsBox = document.getElementById('pairs');
+let arcSel, ribbonSel, ribbonMask, labelSel, popSel, edgeSel;
 
-groupSel.select('path')
-  .on('mouseenter', function(event, d) {
-    const m = mythologies[d.index];
-    ribbonSel.classed('dim', r => r.source.index !== d.index && r.target.index !== d.index);
-    tooltip.innerHTML = `
-      <div class="tt-title">${m}</div>
-      <div class="tt-desc">${totalCount[m]} creatures in this dataset<br>
-      ${uniqueCount[m]} have no cross-mythology parallel (${Math.round(100*uniqueCount[m]/totalCount[m])}% unique)</div>
-    `;
-    tooltip.style.display = 'block';
-  })
-  .on('mousemove', positionTooltip)
-  .on('mouseleave', () => { ribbonSel.classed('dim', false); tooltip.style.display = 'none'; });
+function layout() {
+  const W = innerWidth, H = innerHeight, narrow = W < 560;
+  // diameter: min(80% of the frame's height, 60% of the page's width), leaving room for the labels
+  const pageW = (window.parent && window.parent !== window) ? window.parent.innerWidth : W;
+  const D = Math.max(160, Math.min(H * (narrow ? 0.62 : 0.8), pageW * 0.6, W - (narrow ? 150 : 90)));
+  R = D / 2; rIn = R * 0.93;
+  k = Math.max(0.75, Math.min(1.35, R / 220));
+  const cx = W / 2, cy = embedded ? (narrow ? H * 0.42 : Math.min(H * 0.44, H - R - 130)) : Math.max(R + 120, H / 2);   // room under the circle for the key and the note
+  svg.attr('viewBox', `0 0 ${W} ${H}`);
+  root.attr('transform', `translate(${cx},${cy})`);
+  const key = document.getElementById('key'), note = document.getElementById('note');
+  key.style.fontSize = 14 * k + 'px';
+  note.style.fontSize = 15 * k + 'px';
+  key.style.top = cy + R + 24 * k + 'px';
+  note.style.top = cy + R + 24 * k + key.offsetHeight + 8 * k + 'px';
+  return { cx, cy };
+}
 
-ribbonSel
-  .on('mouseenter', function(event, d) {
-    ribbonSel.classed('dim', r => r !== d);
-    const sm = mythologies[d.source.index], tm = mythologies[d.target.index];
-    let html;
-    if (sm === tm) {
-      html = `<div class="tt-title">${sm} &mdash; unique</div>
-        <div class="tt-desc">${uniqueCount[sm]} creatures with no equivalent in the other three mythologies.</div>`;
-    } else {
-      const key = [sm, tm].sort().join('|');
-      html = `<div class="tt-title">${sm} \u2194 ${tm}</div>
-        <div class="tt-desc">${pairDetail[key] || 0} parallel creature pair${(pairDetail[key]||0)===1?'':'s'} connect these traditions
-        (weighted strength: ${Math.round(matrix[idx[sm]][idx[tm]]*10)/10}).</div>`;
+function build() {
+  layout();
+  root.selectAll('*').remove();
+  defs.selectAll('*').remove();
+  const arcGen = d3.arc().innerRadius(rIn).outerRadius(R);
+  const ribbonGen = d3.ribbon().radius(rIn - 1);
+
+  // ribbons first, under the arcs, revealed by a mask that grows inward from the arcs
+  const mask = defs.append('mask').attr('id', 'grow').attr('maskUnits', 'userSpaceOnUse')
+    .attr('x', -R * 2).attr('y', -R * 2).attr('width', R * 4).attr('height', R * 4);
+  mask.append('circle').attr('r', rIn + 2).attr('fill', '#fff');
+  ribbonMask = mask.append('circle').attr('r', drawn ? 0 : rIn + 2).attr('fill', '#000');
+  ribbonSel = root.append('g').attr('mask', 'url(#grow)').attr('fill-opacity', 0.68)
+    .selectAll('path').data(chord).join('path')
+    .attr('class', 'ribbon').attr('d', ribbonGen)
+    .attr('fill', (d) => (d.source.index === d.target.index ? '#cbc2b0'
+      : mythColor[name(d.source.value >= d.target.value ? d.source.index : d.target.index)]));
+
+  arcSel = root.append('g').selectAll('path').data(chord.groups).join('path')
+    .attr('class', 'group-arc').attr('fill', (d) => mythColor[name(d.index)])
+    .each(function (d) { this._arcGen = arcGen; })
+    .attr('d', (d) => arcGen(drawn ? d : { ...d, endAngle: d.startAngle }));
+
+  // labels: horizontal, outside each arc's middle; the name, then its counts on two short lines
+  labelSel = root.append('g').selectAll('g').data(chord.groups).join('g').style('opacity', drawn ? 1 : 0)
+    .each(function (d) {
+      const a = (d.startAngle + d.endAngle) / 2, sx = Math.sin(a), cy = -Math.cos(a);
+      const r = R + 16 * k, x = sx * r, y = cy * r;
+      const anchor = sx > 0.2 ? 'start' : sx < -0.2 ? 'end' : 'middle';
+      const lines = [[name(d.index), 'group-label', 17], [totalCount[name(d.index)] + ' creatures', 'group-sub', 15], [uniqueCount[name(d.index)] + ' unique', 'group-sub', 15]];
+      const lh = 19 * k, top = cy > 0.35 ? 0 : cy < -0.35 ? -lh * 2.2 : -lh;
+      const g = d3.select(this);
+      lines.forEach(([t, cls, fs], i) => g.append('text').attr('class', cls).attr('x', x).attr('y', y + top + i * lh)
+        .attr('dy', '0.35em').attr('text-anchor', anchor).attr('font-size', fs * k).text(t));
+    });
+
+  // the dotted outer edge of the living tradition's arc
+  const jg = chord.groups.find((d) => name(d.index) === LIVING);
+  edgeSel = root.append('path').attr('class', 'edge').datum(jg)
+    .attr('stroke-width', 3 * k).attr('stroke-dasharray', `0 ${9 * k}`)
+    .attr('d', edgePath(jg, jg.startAngle)).style('opacity', 0);
+
+  // numbers that pop out: the two pairs' counts on their ribbons, the two shares unique beside their arcs
+  const mid = (i) => { const gr = chord.groups[i]; const a = (gr.startAngle + gr.endAngle) / 2; return [Math.sin(a) * rIn, -Math.cos(a) * rIn]; };
+  const pops = [];
+  [['gh', MOST], ['jn', FEWEST]].forEach(([id, [a, b]]) => {
+    const r = chord.find((d) => isPair(d, a, b));
+    const sa = (r.source.startAngle + r.source.endAngle) / 2, ta = (r.target.startAngle + r.target.endAngle) / 2;
+    const p0 = [Math.sin(sa) * rIn, -Math.cos(sa) * rIn], p1 = [Math.sin(ta) * rIn, -Math.cos(ta) * rIn];
+    pops.push({ id, text: String(pairDetail[pairKey(a, b)]), x: (p0[0] + p1[0]) / 4, y: (p0[1] + p1[1]) / 4 });   // the ribbon's middle
+  });
+  BIG.forEach((m) => { const [x, y] = mid(idx[m]); pops.push({ id: 'self-' + m, text: share(m), x: x * 0.74, y: y * 0.74 }); });
+  popSel = root.append('g').selectAll('g').data(pops).join('g').attr('class', 'pop')
+    .attr('transform', (d) => `translate(${d.x},${d.y}) scale(0.8)`).style('opacity', 0)
+    .each(function (d) {
+      const g = d3.select(this), fs = 22 * k, w = (d.text.length * 0.6 + 1.2) * fs, h = fs * 1.5;
+      g.append('rect').attr('x', -w / 2).attr('y', -h / 2).attr('width', w).attr('height', h).attr('rx', h / 2);
+      g.append('text').attr('font-size', fs).text(d.text);
+    });
+
+  // the key and the note sit under the circle and under the lowest label
+  const { cy } = layout();
+  const low = Math.max(R, ...labelSel.nodes().map((n) => { const b = n.getBBox(); return b.y + b.height; }));
+  const keyEl = document.getElementById('key');
+  keyEl.style.top = cy + low + 14 * k + 'px';
+  document.getElementById('note').style.top = cy + low + 14 * k + keyEl.offsetHeight + 8 * k + 'px';
+
+  wire();
+  apply(true);
+}
+
+function edgePath(d, end) {
+  const r = R + 7 * k, p = d3.path();
+  p.arc(0, 0, r, d.startAngle - Math.PI / 2, end - Math.PI / 2);
+  return p.toString();
+}
+
+// ---------- the states ----------
+function view() {
+  const ALL = { ribbon: () => 1, arc: () => 1, hi: () => false, pops: [], edge: false };
+  switch (state) {
+    case 'pairs': {
+      const [a, b] = part === 'jn' ? FEWEST : MOST;
+      return { ...ALL, ribbon: (d) => (isPair(d, a, b) ? 1 : 0.1), hi: (d) => isPair(d, a, b), pops: [part] };
     }
-    tooltip.innerHTML = html;
-    tooltip.style.display = 'block';
-  })
-  .on('mousemove', positionTooltip)
-  .on('mouseleave', () => { ribbonSel.classed('dim', false); tooltip.style.display = 'none'; });
+    case 'originals':
+      return { ...ALL, ribbon: (d) => (BIG.some((m) => isSelf(d, m)) ? 1 : 0.1), hi: (d) => BIG.some((m) => isSelf(d, m)), pops: BIG.map((m) => 'self-' + m) };
+    case 'living':
+      return { ...ALL, ribbon: () => 0.4, arc: (d) => (name(d.index) === LIVING ? 1 : 0.4), edge: true };
+    default:
+      return ALL;
+  }
+}
+function apply(now) {
+  const T = (sel, n, delay = 0) => (now || !DUR ? sel : sel.transition(n).delay(delay).duration(DUR).ease(d3.easeCubicInOut));
+  document.body.classList.toggle('explore', state === 'explore');
+  document.body.classList.toggle('shown', state !== 'hidden');
+  // arcs sweep from their start angle to their end (or back)
+  const sweep = (open) => {
+    if (now || !DUR) { arcSel.attr('d', function (d) { return this._arcGen(open ? d : { ...d, endAngle: d.startAngle }); }); return; }
+    arcSel.transition('draw').duration(DUR).ease(d3.easeCubicInOut).attrTween('d', function (d) {
+      const g = this._arcGen, i = open ? d3.interpolate(d.startAngle, d.endAngle) : d3.interpolate(d.endAngle, d.startAngle);
+      return (t) => g({ ...d, endAngle: i(t) });
+    });
+  };
+  if (state === 'hidden' && drawn) {             // back above the chart: undraw
+    drawn = false;
+    sweep(false);
+    T(ribbonMask, 'grow').attr('r', rIn + 2);
+    T(labelSel, 'labels').style('opacity', 0);
+  } else if (state !== 'hidden' && !drawn) {     // arcs draw in, then the ribbons grow from them
+    drawn = true;
+    sweep(true);
+    T(labelSel, 'labels', DUR * 0.5).style('opacity', 1);
+    (now || !DUR ? ribbonMask : ribbonMask.transition('grow').delay(DUR).duration(DUR * 1.3).ease(d3.easeCubicOut)).attr('r', 0);
+  }
+  const v = view();
+  ribbonSel.classed('dim', false);
+  T(ribbonSel, 'fade').style('opacity', (d) => v.ribbon(d)).attr('fill-opacity', (d) => (v.hi(d) ? 0.95 : 0.68)).attr('stroke-width', (d) => (v.hi(d) ? 1.2 : 0));
+  T(arcSel, 'fade').style('opacity', (d) => v.arc(d));
+  T(popSel, 'pop').style('opacity', (d) => (v.pops.includes(d.id) ? 1 : 0))
+    .attr('transform', (d) => `translate(${d.x},${d.y}) scale(${v.pops.includes(d.id) ? 1 : 0.8})`);
+  const jg = edgeSel.datum();
+  if (v.edge && (now || !DUR)) edgeSel.style('opacity', 1).attr('d', edgePath(jg, jg.endAngle));
+  else if (v.edge) edgeSel.style('opacity', 1).transition('edge').duration(DUR).ease(d3.easeCubicInOut)
+    .attrTween('d', () => { const i = d3.interpolate(jg.startAngle, jg.endAngle); return (t) => edgePath(jg, i(t)); });   // the dotted edge draws in
+  else T(edgeSel, 'edge').style('opacity', 0);
+  if (state !== 'explore') { pairsBox.classList.remove('open'); tooltip.style.display = 'none'; }
+}
+window.chordState = (s, p) => {
+  if (s === state && (p || 'gh') === part) return;
+  state = s; part = p || 'gh';
+  apply(false);
+};
 
+// ---------- free explore: hover an arc to isolate it, click a ribbon for its pairs ----------
+function wire() {
+  arcSel
+    .on('mouseenter', function (event, d) {
+      if (state !== 'explore') return;
+      const m = name(d.index);
+      ribbonSel.classed('dim', (r) => r.source.index !== d.index && r.target.index !== d.index);
+      tooltip.innerHTML = `<div class="tt-title">${m}</div><div class="tt-desc">${totalCount[m]} creatures in this dataset<br>${uniqueCount[m]} have no cross-mythology parallel (${share(m)} unique)</div>`;
+      tooltip.style.display = 'block';
+    })
+    .on('mousemove', positionTooltip)
+    .on('mouseleave', () => { ribbonSel.classed('dim', false); tooltip.style.display = 'none'; });
+  ribbonSel.on('click', (event, d) => {
+    if (state !== 'explore') return;
+    const sm = name(d.source.index), tm = name(d.target.index);
+    let title, sub, items;
+    if (sm === tm) {
+      title = sm + ': no double';
+      items = DATA.nodes.filter((n) => n.mythology === sm && !hasCrossLink.has(n.name)).map((n) => n.name);
+      sub = items.length + ' creatures with no equivalent in the other three traditions';
+    } else {
+      title = sm + ' – ' + tm;
+      items = DATA.links.filter((l) => pairKey(mythOf[l.source], mythOf[l.target]) === pairKey(sm, tm))
+        .map((l) => (mythOf[l.source] === sm ? [l.source, l.target] : [l.target, l.source]))
+        .map(([a, b]) => `${a} and ${b}`);
+      sub = items.length + ' parallel pair' + (items.length === 1 ? '' : 's');
+    }
+    pairsBox.innerHTML = `<button type="button" aria-label="Close">×</button><h2></h2><p class="sub"></p><ul></ul>`;
+    pairsBox.querySelector('h2').textContent = title;
+    pairsBox.querySelector('.sub').textContent = sub;
+    const ul = pairsBox.querySelector('ul');
+    items.forEach((t) => { const li = document.createElement('li'); li.textContent = t; ul.appendChild(li); });
+    pairsBox.querySelector('button').addEventListener('click', () => pairsBox.classList.remove('open'));
+    pairsBox.classList.add('open');
+  });
+}
 function positionTooltip(event) {
   const pad = 16;
-  let left = event.clientX + pad;
-  let top = event.clientY + pad;
+  let left = event.clientX + pad, top = event.clientY + pad;
   if (left + tooltip.offsetWidth > window.innerWidth) left = event.clientX - tooltip.offsetWidth - pad;
   if (top + tooltip.offsetHeight > window.innerHeight) top = Math.max(pad, event.clientY - tooltip.offsetHeight - pad);
   tooltip.style.left = left + 'px';
@@ -274,6 +420,12 @@ mythologies.forEach(m => {
   item.innerHTML = `<span class="swatch" style="background:${mythColor[m]}"></span>${m}`;
   key.appendChild(item);
 });
+
+document.fonts.ready.then(build);
+build();
+addEventListener('resize', () => { clearTimeout(window._rz); window._rz = setTimeout(build, 120); });
+window.chordReady = true;
+dispatchEvent(new Event('chordready'));
 </script>
 
 </body>

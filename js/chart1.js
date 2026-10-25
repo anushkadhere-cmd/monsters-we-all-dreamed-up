@@ -1,9 +1,12 @@
 /* =========================================================
    Chart 1, "Every monster has a job".
 
-   - The guess (demo §2): "Which culture's monsters are most likely to
-     protect you?" The reader picks one; then the bars grow to each
-     culture's share of protectors and the answer is marked.
+   - The guess (demo §2, restyled as in Figma): "Which culture's monsters
+     are most likely to protect you?" Four cream cards, as in the bestiary
+     picker. The reader picks one; then the bars grow to each culture's
+     share of protectors and the answer is marked.
+   - SB5: the pinned chart starts blank; when it is centred on screen its
+     axes draw in and the circles pop in (c1Reveal in charts/index.html).
    - The pinned quadrant plot (demo §3): the script's paragraph is one
      card; the next four (empty) steps each fade in one culture's pin
      on a transparent layer over the chart. Pins ring that culture's
@@ -54,7 +57,10 @@
       b.style.setProperty("--c", "var(--c-" + o.k.toLowerCase() + ")");
       b.style.setProperty("--w", (100 * o.v) / max + "%");
       const tag = el("span", "opt-tag");
-      b.append(el("span", "bar"), el("span", "opt-name", o.k), el("span", "opt-val", o.v + "%"), tag);
+      const icon = el("img", "opt-icon");                  // the bestiary picker's icon for this culture
+      icon.src = "assets/bestiary/" + o.k.toLowerCase() + ".png";
+      icon.alt = "";
+      b.append(el("span", "bar"), icon, el("span", "opt-name", o.k), el("span", "opt-val", o.v + "%"), tag);
       if (o === best) b.classList.add("answer");
       b.addEventListener("click", () => {
         if (box.classList.contains("revealed")) return;
@@ -104,6 +110,7 @@
     const dots = doc && [...doc.querySelectorAll("circle.dot")];
     if (!dots || !dots.length) return false;
     const byName = new Map(dots.map((d) => [d.querySelector("title").textContent.split(" — ")[0], d]));
+    const d0 = dots[0];
     const W = +frame.dataset.designW, H = +frame.dataset.designH;
     const NS = "http://www.w3.org/2000/svg";
     layer.textContent = "";
@@ -114,18 +121,39 @@
       g.style.setProperty("--c", "var(--c-" + p.k.toLowerCase() + ")");
       const svg = document.createElementNS(NS, "svg");
       svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+      // rings never cross: a mask hides every ring inside any other ring's circle,
+      // so only the outside edge of a group of rings is drawn
+      const maskId = "c1-mask-" + p.k;
+      const mask = document.createElementNS(NS, "mask");
+      mask.setAttribute("id", maskId);
+      mask.setAttribute("maskUnits", "userSpaceOnUse");
+      const all = document.createElementNS(NS, "rect");
+      Object.entries({ x: 0, y: 0, width: W, height: H, fill: "#fff" }).forEach(([k, v]) => all.setAttribute(k, v));
+      mask.appendChild(all);
+      const defs = document.createElementNS(NS, "defs");
+      defs.appendChild(mask);
+      const rings = document.createElementNS(NS, "g");
+      rings.setAttribute("mask", "url(#" + maskId + ")");
+      svg.append(defs, rings);
       let minY = Infinity, sx = 0, n = 0;
+      // from the circles' own geometry (they may still be hidden, scaled to 0, before the reveal);
+      // the iframe is unscrolled and the plot is drawn 1:1, so client px = design px
+      const plot = d0.ownerSVGElement.getBoundingClientRect();
       p.names.forEach((name) => {
         const d = byName.get(name);
         if (!d) return;
-        const r = d.getBoundingClientRect();          // the iframe is unscrolled: client px = design px
-        const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+        const rr = +d.getAttribute("r");
+        const cx = plot.left + +d.getAttribute("cx"), cy = plot.top + +d.getAttribute("cy");
+        const r = { top: cy - rr };
         const ring = document.createElementNS(NS, "circle");
         ring.setAttribute("cx", cx);
         ring.setAttribute("cy", cy);
-        ring.setAttribute("r", r.width / 2 + 5);
+        ring.setAttribute("r", rr + 5);
         ring.setAttribute("class", "c1-ring");
-        svg.appendChild(ring);
+        rings.appendChild(ring);
+        const hole = document.createElementNS(NS, "circle");
+        Object.entries({ cx, cy, r: rr + 5, fill: "#000" }).forEach(([k, v]) => hole.setAttribute(k, v));
+        mask.appendChild(hole);
         minY = Math.min(minY, r.top);
         sx += cx;
         n++;
@@ -143,8 +171,23 @@
     return true;
   };
   const tryBuild = () => { if (!build()) setTimeout(tryBuild, 200); };
-  iframe.addEventListener("load", tryBuild);
+  iframe.addEventListener("load", () => { tryBuild(); shown = null; reveal(); });
   tryBuild();
+
+  // SB5: the chart waits on a blank screen; once it is pinned (centred on screen)
+  // its axes draw in and the circles pop in. Scrolling back above blanks it again.
+  const sticky = sec.querySelector(".sticky");
+  let shown = null;
+  function reveal() {
+    const on = sticky.getBoundingClientRect().top <= 2;
+    if (on === shown) return;
+    const w = iframe.contentWindow;
+    if (!w || !w.c1Reveal) return;
+    shown = on;
+    w.c1Reveal(on);
+  }
+  let queued = false;
+  addEventListener("scroll", () => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; reveal(); }); } }, { passive: true });
 
   // the step crossing the middle of the screen picks the pin (none on the paragraph)
   const steps = [...sec.querySelectorAll(".step[data-pin]")];

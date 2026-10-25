@@ -59,13 +59,14 @@
     if (!doc || !doc.documentElement) return;
     let px = 0;
     const card = frame.closest(".scrolly")?.querySelector(".card");
-    if (desktop.matches && card) {
+    if (desktop.matches && card && frame.dataset.centred !== "1") {   // centred: the graph uses the whole view
       const gap = parseFloat(getComputedStyle(frame.closest(".article")).getPropertyValue("--cards-gap")) *
                   parseFloat(getComputedStyle(document.documentElement).fontSize) || 48;
       px = Math.max(0, card.getBoundingClientRect().right + gap - frame.getBoundingClientRect().left);
     }
     doc.documentElement.style.setProperty("--inset-left", px + "px");
   };
+  window.updateChartInset = () => document.querySelectorAll(".chart-frame.is-bleed").forEach(inset);
   document.querySelectorAll(".chart-frame.is-bleed").forEach((frame) => {
     const iframe = frame.querySelector("iframe");
     iframe.addEventListener("load", () => inset(frame));
@@ -146,4 +147,46 @@
     // amount of a window [start, start+len] reached at t, eased
     win: (t, start, len) => ease(clamp01((t - start) / len)),
   };
+})();
+
+/* =========================================================
+   The parchment moves with the story, not with the scrollbar.
+   The paper sheet (#paper, css/cover.css) slides up by the distance the
+   page's content has actually moved: scrolling through a pinned scene
+   (a sticky stage or chart) doesn't count, so while the visuals stand
+   still the paper stands still too.
+   ========================================================= */
+(() => {
+  "use strict";
+  const sheet = document.querySelector("#paper > div");
+  if (!sheet) return;
+  let stickies = [];
+  // the sheet only has to be tall enough; the pinned stretches are read fresh on every scroll
+  const measure = () => {
+    stickies = [...document.querySelectorAll(".op-stage, .bd-stage, .scrolly > .sticky")];
+    sheet.style.height = document.documentElement.scrollHeight + innerHeight + "px";
+    move();
+  };
+  // every pinned stretch: from when its sticky part reaches the top to when it lets go;
+  // scrolling inside one doesn't move the paper
+  const move = () => {
+    const y = scrollY;
+    let held = 0;
+    for (const st of stickies) {
+      const box = st.parentElement;
+      const len = box.offsetHeight - st.offsetHeight;
+      if (len <= 0) continue;
+      const start = box.getBoundingClientRect().top + y;
+      held += Math.min(Math.max(y - start, 0), len);
+    }
+    sheet.style.transform = `translate3d(0, ${-(y - held)}px, 0)`;
+  };
+  addEventListener("scroll", move, { passive: true });
+  addEventListener("resize", measure);
+  let queued = false;
+  const later = () => { if (!queued) { queued = true; setTimeout(() => { queued = false; measure(); }, 60); } };
+  new ResizeObserver(later).observe(document.body);
+  addEventListener("load", measure);
+  if (document.fonts) document.fonts.ready.then(measure);
+  measure();
 })();

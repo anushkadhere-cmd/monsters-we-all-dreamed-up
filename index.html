@@ -4,15 +4,26 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>The Monsters We All Dreamed Up</title>
+  <!-- share preview (link cards on social apps and messengers); these two must be full addresses -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="The Monsters We All Dreamed Up">
+  <meta property="og:description" content="Four mythologies, ninety-six monsters, one suspiciously familiar bestiary.">
+  <meta property="og:url" content="https://anushkad-cpu.github.io/monsters-site/">
+  <meta property="og:image" content="https://anushkad-cpu.github.io/monsters-site/assets/share.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="The cover: a Greek landscape with a hydra, a griffin, Empousa, Ladon and two hounds around a black rock lettered with the title.">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="description" content="Four mythologies, ninety-six monsters, one suspiciously familiar bestiary.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hubballi&display=swap">
-  <link rel="stylesheet" href="css/tokens.css?v=2026-10-24w">
-  <link rel="stylesheet" href="css/cover.css?v=2026-10-24w">
-  <link rel="stylesheet" href="css/article.css?v=2026-10-24w">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Harmattan&family=Hubballi&display=swap">
+  <link rel="stylesheet" href="css/tokens.css?v=2026-10-27t">
+  <link rel="stylesheet" href="css/cover.css?v=2026-10-27t">
+  <link rel="stylesheet" href="css/article.css?v=2026-10-27t">
 </head>
 <body>
+  <div id="paper" aria-hidden="true"><div></div></div>
 
   <!-- ================= COVER: switch the lore ================= -->
   <header class="cover" id="cover">
@@ -29,7 +40,6 @@
         <button type="button" class="cover-switch" id="cover-switch" aria-pressed="false"><span class="cover-switch-label">Switch all</span></button>
         <p class="cover-help" id="cover-help">Hover a creature to meet its twin from another culture.</p>
       </div>
-      <p class="cover-byline">By Anushka Dhere</p>
 
       <!-- Scroll cue: a mouse whose dot runs down the dotted line to the arrow -->
       <a class="cover-scroll" id="cover-scroll" href="#intro" aria-label="Scroll down">
@@ -46,7 +56,9 @@
 
     <div class="cover-text" id="intro">
       <h1 class="visually-hidden">The Monsters We All Dreamed Up</h1>
-      <p class="cover-dek">Four mythologies, <span class="nowrap">ninety-six</span> monsters, one<br class="dek-break"> suspiciously familiar bestiary.</p>
+      <p class="cover-credit">By Anushka Dhere<br>Illustrated by Anushka Dhere</p>
+      <p class="cover-dek">Four mythologies, <span class="nowrap">ninety-six</span> monsters,<br class="dek-break"> one suspiciously familiar bestiary.</p>
+      <div class="cover-book" aria-hidden="true"><img src="assets/book.webp" alt="" width="640" height="396"><span class="bk-star" style="left:-8%; top:28%; --s:20px; --d:0s"></span><span class="bk-star" style="left:3%; top:4%; --s:14px; --d:0.5s"></span><span class="bk-star" style="left:22%; top:-10%; --s:11px; --d:1.1s"></span><span class="bk-star" style="left:50%; top:-14%; --s:13px; --d:0.3s"></span><span class="bk-star" style="left:78%; top:-8%; --s:12px; --d:0.9s"></span><span class="bk-star" style="left:97%; top:10%; --s:18px; --d:0.2s"></span><span class="bk-star" style="left:108%; top:48%; --s:13px; --d:0.7s"></span><span class="bk-star" style="left:94%; top:90%; --s:14px; --d:1.3s"></span><span class="bk-star" style="left:64%; top:106%; --s:10px; --d:0.4s"></span><span class="bk-star" style="left:30%; top:104%; --s:11px; --d:1.0s"></span><span class="bk-star" style="left:6%; top:86%; --s:13px; --d:0.6s"></span><span class="bk-star" style="left:-12%; top:62%; --s:10px; --d:1.4s"></span><span class="bk-dust" style="left:-4%; top:50%; --d:1.0s"></span><span class="bk-dust" style="left:12%; top:20%; --d:0s"></span><span class="bk-dust" style="left:40%; top:4%; --d:1.6s"></span><span class="bk-dust" style="left:70%; top:2%; --d:0.6s"></span><span class="bk-dust" style="left:92%; top:30%; --d:2.0s"></span><span class="bk-dust" style="left:102%; top:70%; --d:1.2s"></span><span class="bk-dust" style="left:80%; top:96%; --d:0.3s"></span><span class="bk-dust" style="left:18%; top:96%; --d:1.8s"></span><span class="bk-dust" style="left:55%; top:100%; --d:0.9s"></span></div>
     </div>
     <p class="visually-hidden" id="cover-live" aria-live="polite"></p>
   </header>
@@ -54,59 +66,130 @@
   <!-- ================= ARTICLE (next steps) ================= -->
   <main class="article" id="article">
     <section class="col pick" id="pick" aria-labelledby="pick-q"><h2 id="pick-q">Which bestiary did you grow up with?</h2><p class="pick-intro">Pick the stories you know best, and we'll show you where your<br class="pick-break"> monsters turn up.</p><div class="pick-buttons" id="pick-buttons" role="group" aria-labelledby="pick-q"></div></section>
-    <section class="scrolly opening" id="opening" aria-label="Opening">
-      <div class="stage" data-step="0" aria-hidden="true">
-        <svg class="op-line" viewBox="0 0 1000 1000" preserveAspectRatio="none">
-          <defs><mask id="op-line-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="1000"><path class="op-line-draw" pathLength="1" d="M 270 330 C 380 140, 620 140, 730 330"/></mask></defs>
-          <path class="op-line-dots" d="M 270 330 C 380 140, 620 140, 730 330" mask="url(#op-line-mask)"/>
-        </svg>
-        <img class="op-img op-orochi" src="assets/cover/orochi.webp" alt="">
-        <img class="op-img op-kaliya" src="assets/guess-the-route/kaliya.png" alt="">
-        <span class="op-tag" style="--i:0; left:31%; top:24%">a river</span>
-        <span class="op-tag" style="--i:1; left:50%; top:17%">too many heads</span>
-        <span class="op-tag" style="--i:2; left:69%; top:24%">a clever hero</span>
-        <img class="op-img op-sil" data-n="1" src="assets/3-silhouettes/hound.png" alt="">
-        <img class="op-img op-sil" data-n="2" src="assets/3-silhouettes/world-serpent.png" alt="">
-        <img class="op-img op-sil" data-n="3" src="assets/3-silhouettes/veiled-woman.png" alt="">
-        <span class="op-label" data-word="travel">travel</span>
-        <span class="op-label" data-word="imagine">imagine</span>
-      </div>
-      <div class="steps"><div class="step" data-step="1"><p>In Izumo, in western Japan, an eight-headed serpent eats one daughter a year. When the storm god Susanoo comes to stop it, he doesn't fight it head-on. He sets out eight vats of sake, waits until every head is drunk, and cuts the serpent to pieces.</p></div><div class="step" data-step="2"><p>Thousands of kilometres away, on India's Yamuna river, a many-headed serpent named Kaliya is poisoning the water. A boy god, Krishna, dives in and dances on its heads until it gives up and leaves.</p></div><div class="step" data-step="3"><p>Nothing in the historical record links these two stories. Yet both have a river, a serpent with too many heads, and a hero who wins by being cleverer rather than stronger.</p></div><div class="step" data-step="4"><p>Once you notice it, you can't stop seeing it. A dog guards the door to the dead in Greece, in Scandinavia and in India. A serpent grows big enough to wrap around the whole world. A woman is far too beautiful, and there is always something under the hem.</p></div><div class="step" data-step="5"><p>So which is it? Did these monsters <span class="mark" data-word="travel">travel<svg viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M1 6 C 20 2, 40 9, 60 5 S 88 3, 99 6"/></svg></span>, carried along by traders, armies and monks? Or did people who never met look at the same dark river and <span class="mark" data-word="imagine">imagine<svg viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M1 6 C 20 2, 40 9, 60 5 S 88 3, 99 6"/></svg></span> the same thing?</p></div><div class="step" data-step="6"><p>To find out, I built a bestiary.</p></div></div>
-    </section>
-    <div class="col"><h2>Building a bestiary</h2></div>
-    <section class="scrolly build" id="build" aria-label="Building a bestiary">
-      <div class="stage" data-step="0" data-family="">
-        <div class="bd-counter">
-          <div class="bd-count"><span class="bd-num">0</span><span class="bd-unit">creatures</span></div>
-          <div class="bd-piles"></div>
+    <section class="opening" id="opening" aria-label="Opening">
+      <!-- SB1 "Serpents": pinned; the three paragraphs type in one after another over the water -->
+      <div class="op-pin op-serp" data-step="0">
+        <div class="op-stage">
+          <div class="op-art">
+            <img class="op-cloud" src="assets/opening/cloud.svg" alt="">
+            <div class="op-above"><!-- clips the serpents at the waterline so they can rise out of it -->
+              <img class="op-orochi" src="assets/cover/orochi.webp" alt="">
+              <img class="op-kaliya" src="assets/opening/kaliya.webp" alt="">
+            </div>
+            <svg class="op-line" viewBox="0 0 1280 829" aria-hidden="true">
+              <defs><mask id="op-line-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1280" height="829"><path class="op-line-draw" pathLength="1" d="M 470 262 C 520 70, 760 60, 797 246"/></mask></defs>
+              <path class="op-line-dots" d="M 470 262 C 520 70, 760 60, 797 246" mask="url(#op-line-mask)"/>
+            </svg>
+            <span class="op-tag" aria-hidden="true" style="--i:0; --x:497; --y:158">a river</span>
+            <span class="op-tag" aria-hidden="true" style="--i:1; --x:633; --y:78">too many heads</span>
+            <span class="op-tag" aria-hidden="true" style="--i:2; --x:769; --y:158">a clever hero</span>
+            <div class="op-water" aria-hidden="true"><svg class="op-wave" viewBox="0 0 2560 24" preserveAspectRatio="none"><path d="M0 12 Q 80 0 160 12 T 320 12 T 480 12 T 640 12 T 800 12 T 960 12 T 1120 12 T 1280 12 T 1440 12 T 1600 12 T 1760 12 T 1920 12 T 2080 12 T 2240 12 T 2400 12 T 2560 12 V 24 H 0 Z"/></svg></div>
+          </div>
+          <div class="op-texts">
+            <p class="op-type" data-n="1">In Izumo, in <span class="kw">western Japan</span>, an <span class="kw">eight-headed serpent</span> eats one daughter a year. When the <span class="kw">storm god Susanoo</span> comes to stop it, he doesn't fight it head-on. He sets out eight vats of sake, waits until every head is drunk, and cuts the serpent to pieces.</p>
+            <p class="op-type" data-n="2">Thousands of kilometres away, on <span class="kw">India's Yamuna river</span>, <span class="kw">a many-headed serpent</span> named Kaliya is poisoning the water. <span class="kw">A boy god, Krishna</span>, dives in and dances on its heads until it gives up and leaves.</p>
+            <p class="op-type" data-n="3">Nothing in the historical record links these two stories. Yet both have a river, a serpent with too many heads, and a hero who wins by being cleverer rather than stronger.</p>
+          </div>
         </div>
-        <div class="bd-cards" role="group" aria-label="The six families. Hover, tap or press Enter on a card to turn it over."></div>
       </div>
-      <div class="steps"><div class="step" data-step="1"><p>The bestiary holds 96 creatures from four traditions: 28 Greek, 28 Hindu, 24 Japanese and 16 Norse. Each was checked against its source text and described the same way: its body, its number of heads, its job in the story, the god or hero it's tied to, and how famous it still is.</p></div><div class="step" data-step="2"><p>The bar for entry was simple. A monster needed a real shape and a real part to play. Named horses, background hounds, nameless nature spirits and one-off cameos were turned away at the door.</p></div><div class="step" data-step="3"><p>Strip away the names and the costumes, and almost every creature falls into one of six families.</p></div><div class="step" data-step="4"><p>Serpents and dragons are the oldest fear in the book. All four traditions have them, Greece most of all, with six. One is big enough to circle the world; another holds it up.</p></div><div class="step" data-step="5"><p>Many-headed beasts mean more heads, more problems: the seven-headed Hydra, eight-headed Orochi, ten-headed Ravana.</p></div><div class="step" data-step="6"><p>Shapeshifters teach you never to trust a helpful stranger. The fox Kitsune, the mountain hag Yamauba and the rakshasi Hidimbā all wear borrowed faces. In this bestiary they only live in Japan and India.</p></div><div class="step" data-step="7"><p>Human hybrids are half person, half warning: the Minotaur, the centaurs, the crow-winged Tengu. Greece has 15 hybrids. The Norse have exactly one, Odin's eight-legged horse Sleipnir.</p></div><div class="step" data-step="8"><p>Wolves and hounds are loyal to the dead and hungry for the sun. Cerberus guards a gate, Fenrir waits to swallow a god, and Sköll and Hati chase the sun and moon across the sky.</p></div><div class="step" data-step="9"><p>Beautiful, lethal women ask you to look closer. There's always a tail, a second mouth or a spider underneath. Japan has seven of them, more than anyone else.</p></div></div>
+
+      <!-- Paragraph 4 opens with this line; its three sentences sit in the boxes below -->
+      <p class="op-line-dh op-notice">Once you notice it, you can't stop seeing it.</p>
+
+      <!-- SB2 "Silhouettes": pinned; each creature appears and its box slides in from the right -->
+      <div class="op-pin op-sils" data-step="0">
+        <div class="op-stage">
+          <div class="op-art">
+            <div class="op-band" aria-hidden="true"></div>
+            <span class="op-glow" data-n="1" aria-hidden="true"></span>
+            <span class="op-glow" data-n="2" aria-hidden="true"></span>
+            <span class="op-glow" data-n="3" aria-hidden="true"></span>
+            <img class="op-sil" data-n="1" src="assets/opening/hound.webp" alt="">
+            <img class="op-sil" data-n="2" src="assets/opening/world-serpent.webp" alt="">
+            <img class="op-sil" data-n="3" src="assets/opening/veiled-woman.webp" alt="">
+            <p class="op-box" data-n="1">A dog guards the door to the dead in Greece, in Scandinavia and in India.</p>
+            <p class="op-box" data-n="2">A serpent grows big enough to wrap around the whole world.</p>
+            <p class="op-box" data-n="3">A woman is far too beautiful, and there is always something under the hem.</p>
+            <p class="op-type op-which" data-n="4">So which is it? Did these monsters <span class="kw kw-red" data-word="travel">travel</span>, carried along by traders, armies and monks? Or did people who never met look at the same dark river and <span class="kw kw-red" data-word="imagine">imagine</span> the same thing?</p>
+            <span class="op-label" data-word="travel" aria-hidden="true">Travel</span>
+            <span class="op-label" data-word="imagine" aria-hidden="true">Imagine</span>
+          </div>
+        </div>
+      </div>
+
+      <p class="op-line-dh op-findout">To find out, I built a bestiary.</p>
+      <img class="op-break" src="assets/opening/page-break.webp" alt="" width="159" height="47">
     </section>
-    <div class="col"><h2>Every monster has a job</h2></div>
-    <div class="col"><div class="guess" id="guess-protect" aria-labelledby="guess-protect-q"></div></div>
-    <div class="col"><h2 class="chart-title">What creatures show up, and in what?</h2></div>
-    <div class="scrolly scrolly-chart" id="chart1"><div class="sticky"><div class="chart-frame" data-chart data-design-w="980" data-design-h="820"><iframe src="charts/index.html?embed" scrolling="no" title="Chart 1: What creatures show up, and in what? (quadrant plot)" loading="lazy"></iframe><div class="c1-pins" aria-hidden="true"></div></div></div><div class="steps"><div class="step step-spacer"></div><div class="step" data-pin=""><div class="card"><p>A monster is never in a story just to look frightening. It's there to do something: guard a gate, end the world, block a hero's path. So before asking which monsters look alike, it's worth asking what each culture puts them to work on.</p></div></div><div class="step c1-pinstep" data-pin="Hindu"></div><div class="step c1-pinstep" data-pin="Norse"></div><div class="step c1-pinstep" data-pin="Greek"></div><div class="step c1-pinstep" data-pin="Japanese"></div></div></div>
-    <div class="col"><h2>Same beast, different lore</h2></div>
-    <div class="col prose"><p>Now for the resemblances. Every creature in the bestiary was matched against the others: some are near-twins, some only share a family likeness, and some have no double at all.</p></div>
-    <div class="col"><div class="guess" id="guess-lookalike" aria-labelledby="guess-lookalike-q"></div></div>
-    <div class="col chart-head"><h2 class="chart-title">How similar are they really?</h2><p class="chart-dek">Each creature is pulled toward the others it most closely parallels — near-identical parallels pull tight, loose thematic echoes stay loose, and creatures with no real equivalent drift to the edges on their own. Drag any dot to explore; hover for details.</p></div>
-    <div class="scrolly scrolly-chart" id="chart2" data-scrolly><div class="sticky"><div class="chart-frame is-bleed" data-chart><iframe src="charts/graph2_network.html?embed&v=2026-10-24w" scrolling="no" title="Chart 2: How similar are they really? (network)" loading="lazy"></iframe><span class="ph-step" aria-hidden="true"></span></div></div><div class="steps"><div class="step step-spacer" data-step="" data-state="intro"></div><div class="step" data-step="[CHART 2 STEP: The serpent knot]" data-state="serpent"><div class="card"><p>The tightest knot in the web is a story told in every one of these cultures: a giant serpent, and the storm god who kills it. Apollo kills Python. Zeus buries Typhon under a volcano. Indra frees the world's rivers from Vritra. Susanoo gets Orochi drunk. Thor and Jörmungandr will kill each other at the end of the world.</p></div></div><div class="step" data-step="[CHART 2 STEP: Same body, opposite job]" data-state="opposite"><div class="card"><p>But a line only measures shape, not purpose. Shesha and Jörmungandr are near-twins on this chart: both serpents so vast that their bodies are part of the world itself. Yet Shesha holds creation up, while Jörmungandr is waiting to drag it down. The quadrant plot already put them on opposite sides.</p></div></div><div class="step" data-step="" data-state="women1"><div class="card"><p>Then comes the surprise. The most connected creatures in the whole bestiary aren't serpents at all. They're Medusa, Lamia and the yakshini, each tied to ten others.</p></div></div><div class="step" data-step="[CHART 2 STEP: The beautiful, lethal woman]" data-state="women2"><div class="card"><p>She's beautiful, and she'll kill you. Medusa turns you to stone. Huldra hides a cow's tail under her dress. Jorōgumo, the "binding bride spider", wraps you in silk. Yuki-onna freezes you in your sleep. Every one of the four traditions has her, and each dresses her in its own landscape: snow in Japan, forest in Scandinavia, water and trees in India. She, not the serpent, is the most universal monster here.</p></div></div><div class="step" data-step="[CHART 2 STEP: The loners]" data-state="loners"><div class="card"><p>And some monsters belong to one people only. 24 creatures have no double anywhere: the Sphinx with her riddle, the Valkyries choosing the dead, Hanuman leaping to Lanka, Amabie rising from the sea to warn of plague.</p></div></div><div class="step step-spacer" data-step="[CHART 2: Free explore]" data-state="explore"></div></div></div>
-    <div class="col"><h2>Who shares, and who stands alone</h2></div>
-    <div class="col prose"><p>Zoom out from single monsters to whole traditions, and a map of friendships appears.</p></div>
-    <div class="col"><div class="ph"><span class="ph-name">[Guess before Chart 3]</span></div></div>
-    <div class="col chart-head"><h2 class="chart-title">Which mythology has the most shared vs. unique creatures?</h2><p class="chart-dek">Ribbon thickness = strength of parallels between two mythologies (weighted by how close the match is). The band that curls back into a mythology's own arc represents creatures with no real equivalent elsewhere — genuinely unique to that tradition.</p></div>
-    <div class="scrolly scrolly-chart" data-scrolly><div class="sticky"><div class="chart-frame" data-chart data-design-w="840" data-design-h="870"><iframe src="charts/chord.html?embed" scrolling="no" title="Chart 3: Which mythology has the most shared vs. unique creatures? (chord diagram)" loading="lazy"></iframe><span class="ph-step" aria-hidden="true"></span></div></div><div class="steps"><div class="step step-spacer" data-step=""></div><div class="step" data-step="[CHART 3 STEP: Strongest and weakest]"><div class="card"><p>Greece and India share the most: 25 parallels between them. Japan and Scandinavia barely speak, with just 9.</p></div></div><div class="step" data-step="[CHART 3 STEP: The originals]"><div class="card"><p>The bands that curl back home are the true originals, and here the two biggest bestiaries part ways. 39% of Greek monsters have no double in any other tradition, the most of the four. In the Hindu tradition, only 21% don't. Greece invented the most monsters of its own; India's echo furthest.</p></div></div><div class="step" data-step="[CHART 3 STEP: A living tradition]"><div class="card"><p>One caveat belongs here. Japan's yōkai come from a folklore that is still growing, while the other three draw on old, closed canons. Japan's arc is a snapshot of a living tradition, not a finished one.</p></div></div><div class="step step-spacer" data-step="[CHART 3: Free explore]"></div></div></div>
-    <div class="col"><div class="ph"><span class="ph-name">[Dream up a monster]</span></div></div>
-    <div class="col"><h2>Borrowed, inherited or imagined?</h2></div>
+    <div class="col bd-head"><h2 class="bd-title" id="build-h">Building a bestiary</h2></div>
+    <section class="bd" id="build" aria-labelledby="build-h">
+      <!-- SB3 "Counter": balls fall onto the bar, bounce and drop into their culture's container while the count runs to 96 -->
+      <div class="bd-pin bd-sort" data-step="0">
+        <div class="bd-stage">
+          <div class="bd-art">
+            <span class="bd-bar" aria-hidden="true"></span>
+            <p class="bd-counter" aria-hidden="true"><span class="bd-num">0</span><span class="bd-unit">creatures</span></p>
+            <div class="bd-jars"></div>
+            <div class="bd-balls" aria-hidden="true"></div>
+            <div class="bd-p1">
+              <p class="bd-text">The bestiary holds 96 creatures from four traditions: 28 Greek, 28 Hindu, 24 Japanese and 16 Norse. Each was checked against its source text and described the same way:</p>
+              <ul class="bd-chips">
+                <li style="--i:0"><span class="cap">its body</span><span class="visually-hidden">,</span></li>
+                <li style="--i:1"><span class="cap">its number of heads</span><span class="visually-hidden">,</span></li>
+                <li style="--i:2"><span class="cap">its job in the story</span><span class="visually-hidden">,</span></li>
+                <li style="--i:3"><span class="cap">the god or hero it's tied to</span><span class="visually-hidden">,</span></li>
+                <li style="--i:4"><span class="visually-hidden">and </span><span class="cap">how famous it still is</span><span class="visually-hidden">.</span></li>
+              </ul>
+            </div>
+            <p class="bd-text bd-p2">The bar for entry was simple. A monster needed <span class="bd-u">a real shape</span> and a <span class="bd-u">real part to play</span>. Named horses, background hounds, nameless nature spirits and one-off cameos were turned away at the door.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- SB4 "Cards": the six cards gather into one pile; each family's text box rises past it and its card comes to the top -->
+      <div class="bd-pin bd-deck" data-step="0">
+        <div class="bd-stage">
+          <div class="bd-art">
+            <p class="bd-strip">Strip away the names and the costumes, and almost every creature falls into one of six families.</p>
+            <div class="bd-cards" role="group" aria-label="The six families. Hover, tap or press Enter on the top card to turn it over."></div>
+            <span class="bd-wash" aria-hidden="true"></span>
+            <p class="bd-box" data-n="0">Serpents and dragons are the oldest fear in the book. All four traditions have them, Greece most of all, with six. One is big enough to circle the world; another holds it up.</p>
+            <p class="bd-box" data-n="1">Many-headed beasts mean more heads, more problems: the seven-headed Hydra, eight-headed Orochi, ten-headed Ravana.</p>
+            <p class="bd-box" data-n="2">Shapeshifters teach you never to trust a helpful stranger. The fox Kitsune, the mountain hag Yamauba and the rakshasi Hidimbā all wear borrowed faces. In this bestiary they only live in Japan and India.</p>
+            <p class="bd-box" data-n="3">Human hybrids are half person, half warning: the Minotaur, the centaurs, the crow-winged Tengu. Greece has 15 hybrids. The Norse have exactly one, Odin's eight-legged horse Sleipnir.</p>
+            <p class="bd-box" data-n="4">Wolves and hounds are loyal to the dead and hungry for the sun. Cerberus guards a gate, Fenrir waits to swallow a god, and Sköll and Hati chase the sun and moon across the sky.</p>
+            <p class="bd-box" data-n="5">Beautiful, lethal women ask you to look closer. There's always a tail, a second mouth or a spider underneath. Japan has seven of them, more than anyone else.</p>
+          </div>
+        </div>
+      </div>
+      <img class="op-break" src="assets/opening/page-break.webp" alt="" width="159" height="47">
+    </section>
+    <div class="col sec-head" id="job-h"><h2 class="sec-title">Every monster has a job</h2></div>
+    <div class="guess-wrap" id="job-guess"><div class="guess guess-protect" id="guess-protect" aria-labelledby="guess-protect-q"></div></div>
+    <div class="scrolly scrolly-chart" id="chart1"><div class="sticky"><div class="c1-head"><h2 class="chart-title">What creatures show up and where?</h2></div><div class="chart-frame" data-chart data-design-w="980" data-design-h="820"><iframe src="charts/index.html?embed&amp;v=2026-10-27t" scrolling="no" title="Chart 1: What creatures show up and where? (quadrant plot)" loading="lazy"></iframe><div class="c1-pins" aria-hidden="true"></div></div></div><div class="steps"><div class="step step-spacer"></div><div class="step" data-pin=""><div class="card"><p>A monster is never in a story just to look frightening. It's there to do something: guard a gate, end the world, block a hero's path. So before asking which monsters look alike, it's worth asking what each culture puts them to work on.</p></div></div><div class="step c1-pinstep" data-pin="Hindu"></div><div class="step c1-pinstep" data-pin="Norse"></div><div class="step c1-pinstep" data-pin="Greek"></div><div class="step c1-pinstep" data-pin="Japanese"></div></div></div>
+    <img class="op-break" src="assets/opening/page-break.webp" alt="" width="159" height="47">
+    <div class="col sec-head" id="lore-h"><h2 class="sec-title">Same beast, different lore</h2></div>
+    <div class="col prose" id="lore-p"><p>Now for the resemblances. Every creature in the bestiary was matched against the others: some are near-twins, some only share a family likeness, and some have no double at all.</p></div>
+    <div class="guess-wrap" id="lore-guess"><div class="guess guess-look" id="guess-lookalike" aria-labelledby="guess-lookalike-q"></div></div>
+    <img class="op-break" src="assets/opening/page-break.webp" alt="" width="159" height="47">
+    <div class="col chart-head" id="c2-head"><h2 class="chart-title">How similar are they really?</h2><p class="chart-dek">Each creature is pulled toward the others it most closely parallels — near-identical parallels pull tight, loose thematic echoes stay loose, and creatures with no real equivalent drift to the edges on their own. Drag any dot to explore; hover for details.</p></div>
+    <div class="scrolly scrolly-chart" id="chart2" data-scrolly><div class="sticky"><div class="chart-frame is-bleed" data-chart><iframe src="charts/graph2_network.html?embed&v=2026-10-27t" scrolling="no" title="Chart 2: How similar are they really? (network)" loading="lazy"></iframe><span class="ph-step" aria-hidden="true"></span></div></div><div class="steps"><div class="step step-spacer" data-step="" data-state="intro"></div><div class="step" data-step="[CHART 2 STEP: The serpent knot]" data-state="serpent"><div class="card"><p>The tightest knot in the web is a story told in every one of these cultures: a giant serpent, and the storm god who kills it. Apollo kills Python. Zeus buries Typhon under a volcano. Indra frees the world's rivers from Vritra. Susanoo gets Orochi drunk. Thor and Jörmungandr will kill each other at the end of the world.</p></div></div><div class="step" data-step="[CHART 2 STEP: Same body, opposite job]" data-state="opposite"><div class="card"><p>But a line only measures shape, not purpose. Shesha and Jörmungandr are near-twins on this chart: both serpents so vast that their bodies are part of the world itself. Yet Shesha holds creation up, while Jörmungandr is waiting to drag it down. The quadrant plot already put them on opposite sides.</p></div></div><div class="step" data-step="" data-state="women1"><div class="card"><p>Then comes the surprise. The most connected creatures in the whole bestiary aren't serpents at all. They're Medusa, Lamia and the yakshini, each tied to ten others.</p></div></div><div class="step" data-step="[CHART 2 STEP: The beautiful, lethal woman]" data-state="women2"><div class="card-wrap"><p class="card-lead">She's beautiful, and she'll kill you.</p><div class="card"><p>Medusa turns you to stone. Huldra hides a cow's tail under her dress. Jorōgumo, the "binding bride spider", wraps you in silk. Yuki-onna freezes you in your sleep. Every one of the four traditions has her, and each dresses her in its own landscape: snow in Japan, forest in Scandinavia, water and trees in India. She, not the serpent, is the most universal monster here.</p></div></div></div><div class="step" data-step="[CHART 2 STEP: The loners]" data-state="loners"><div class="card"><p>And some monsters belong to one people only. 24 creatures have no double anywhere: the Sphinx with her riddle, the Valkyries choosing the dead, Hanuman leaping to Lanka, Amabie rising from the sea to warn of plague.</p></div></div><div class="step step-spacer" data-step="[CHART 2: Free explore]" data-state="explore"></div></div></div>
+    <img class="op-break" src="assets/opening/page-break.webp" alt="" width="159" height="47">
+    <div class="col sec-head"><h2 class="sec-title">Who shares, and who stands alone</h2></div>
+    <div class="guess-wrap" id="share-guess"><div class="guess guess-pair" id="guess-pair" aria-labelledby="guess-pair-q"></div></div>
+    <img class="op-break" src="assets/opening/page-break.webp" alt="" width="159" height="47">
+    <div class="col chart-head" id="c3-head"><h2 class="chart-title">Which mythology has the most shared vs. unique creatures?</h2><p class="chart-dek">Ribbon thickness = strength of parallels between two mythologies (weighted by how close the match is). The band that curls back into a mythology's own arc represents creatures with no real equivalent elsewhere — genuinely unique to that tradition.</p></div>
+    <div class="scrolly scrolly-chart" id="chart3" data-scrolly><div class="sticky"><div class="chart-frame" data-chart><iframe src="charts/chord.html?embed&amp;v=2026-10-27t" scrolling="no" title="Chart 3: Which mythology has the most shared vs. unique creatures? (chord diagram)" loading="lazy"></iframe><span class="ph-step" aria-hidden="true"></span></div></div><div class="steps"><div class="step step-spacer" data-state="hidden"></div><div class="step" data-state="intro"><div class="card"><p>Zoom out from single monsters to whole traditions, and a map of friendships appears.</p></div></div><div class="step c3-pairs" data-state="pairs"><div class="card"><p>Greece and India share the most: 25 parallels between them. Japan and Scandinavia barely speak, with just 9.</p></div></div><div class="step" data-state="originals"><div class="card"><p>The bands that curl back home are the true originals, and here the two biggest bestiaries part ways. 39% of Greek monsters have no double in any other tradition, the most of the four. In the Hindu tradition, only 21% don't. Greece invented the most monsters of its own; India's echo furthest.</p></div></div><div class="step" data-state="living"><div class="card"><p>One caveat belongs here. Japan's yōkai come from a folklore that is still growing, while the other three draw on old, closed canons. Japan's arc is a snapshot of a living tradition, not a finished one.</p></div></div><div class="step step-spacer" data-state="explore"></div></div></div>
+    <div class="guess-wrap" id="dream-wrap"><section class="guess dream" id="dream" aria-labelledby="dream-q"></section></div>
+    <img class="op-break" src="assets/opening/page-break.webp" alt="" width="159" height="47">
+    <div class="col sec-head"><h2 class="sec-title">Borrowed, inherited or imagined?</h2></div>
     <div class="col prose"><p>The sharing is real. But how did it happen? There are really three ways two cultures end up with the same monster. It travelled, carried along a trade route, a conquest or a religion. It was inherited from a common ancestor, long before either culture existed. Or it was imagined twice, by people who never met but feared the same things.</p><p>Before reading on, try it yourself.</p></div>
-    <div class="col"><div class="ph"><span class="ph-name">[Guess the route · game]</span></div></div>
+    <div class="guess-wrap" id="route-wrap"><section class="guess route" id="route" aria-labelledby="route-q"></section></div>
     <div class="col prose"><p>Garuda and Karura are the clearest case of a monster on the move. When Buddhism carried Garuda from India to Japan, he arrived almost unchanged: the same eagle body, the same hatred of serpents. In Japan he became Karura, one of the guardians of the goddess Kannon.</p><p>The hounds of the dead are older still. Greece, Scandinavia and India all descend from the same ancient Indo-European family. A 19th-century theory traced Cerberus's name to one of Yama's dogs. Most linguists now reject it, but the idea itself may have been inherited: the hound could have been guarding the dead before any of these cultures existed. It's telling who's missing: Japan, outside that family, has no hellhound at all.</p><p>But those are the exceptions. One documented borrowing and one possible inheritance, out of 91 parallels between cultures. Almost everything else was imagined, independently, again and again. Rivers flood, snakes bite, beautiful strangers lie, and the dead need watching. People everywhere told themselves the same stories about it.</p></div>
-    <div class="col"><h2>The last page</h2></div>
+    <img class="op-break" src="assets/opening/page-break.webp" alt="" width="159" height="47">
+    <div class="col sec-head"><h2 class="sec-title">The last page</h2></div>
     <div class="col prose"><p>Every culture built a bestiary. Most built the same one, then gave each monster a different job.</p><p>The data can show that the parallels exist. Except for a couple of cases, it can't prove why.</p><p>The rest of the bestiary is below. Go and meet them.</p></div>
-    <div class="col"><div class="ph"><span class="ph-name">[The full bestiary]</span></div></div>
-    <div class="col prose about"><h3>About this bestiary</h3><p>This is a look at four traditions, not a survey of world mythology. Hundreds of other cultures have their own monsters, and many of them would change this picture. Within these four, the 96 creatures were chosen for having a defined form and a central role in a story, so plenty of minor beings are left out.</p><p>The matches between creatures, their roles and their fame scores are my own judgements, based on primary texts and reference sources such as Theoi.com, the Sacred Texts Archive, the Kojiki and the Poetic Edda. Japanese yōkai come from a folklore that is still growing, so that tradition can never be counted as complete.</p></div>
+    <section class="gallery" id="gallery" aria-label="The full bestiary"></section>
+    <div class="col prose about"><h3 class="sec-title">About this bestiary</h3><p>This is a look at four traditions, not a survey of world mythology. Hundreds of other cultures have their own monsters, and many of them would change this picture. Within these four, the 96 creatures were chosen for having a defined form and a central role in a story, so plenty of minor beings are left out.</p><p>The matches between creatures, their roles and their fame scores are my own judgements, based on primary texts and reference sources such as Theoi.com, the Sacred Texts Archive, the Kojiki and the Poetic Edda. Japanese yōkai come from a folklore that is still growing, so that tradition can never be counted as complete.</p></div>
   </main>
 
   <!-- "Your bestiary" tag, fixed in a corner once a tradition is picked (js/bestiary.js) -->
@@ -117,13 +200,17 @@
     <button type="button" id="bestiary-tag-change">change</button>
   </div>
 
-  <script src="js/cover.js?v=2026-10-24w" defer></script>
-  <script src="js/bestiary.js?v=2026-10-24w" defer></script>
-  <script src="js/article.js?v=2026-10-24w" defer></script>
-  <script src="charts/creatures_data.js?v=2026-10-24w" defer></script>
-  <script src="js/build.js?v=2026-10-24w" defer></script>
-  <script src="js/chart2.js?v=2026-10-24w" defer></script>
-  <script src="js/chart1.js?v=2026-10-24w" defer></script>
-  <script src="js/opening.js?v=2026-10-24w" defer></script>
+  <script src="js/cover.js?v=2026-10-27t" defer></script>
+  <script src="js/bestiary.js?v=2026-10-27t" defer></script>
+  <script src="js/article.js?v=2026-10-27t" defer></script>
+  <script src="charts/creatures_data.js?v=2026-10-27t" defer></script>
+  <script src="js/build.js?v=2026-10-27t" defer></script>
+  <script src="js/chart2.js?v=2026-10-27t" defer></script>
+  <script src="js/chart3.js?v=2026-10-27t" defer></script>
+  <script src="js/dream.js?v=2026-10-27t" defer></script>
+  <script src="js/route.js?v=2026-10-27t" defer></script>
+  <script src="js/gallery.js?v=2026-10-27t" defer></script>
+  <script src="js/chart1.js?v=2026-10-27t" defer></script>
+  <script src="js/opening.js?v=2026-10-27t" defer></script>
 </body>
 </html>

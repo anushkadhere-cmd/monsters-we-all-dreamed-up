@@ -12,16 +12,41 @@
   --ink: #1e1c19;          /* text, linework, outlines (like the cover's ink lines) */
   --ink-soft: #6b6458;     /* secondary text and faint rules */
   --paper: #f3eee3;        /* the page; charts sit straight on it */
+
+  /* Parchment, built in CSS (no image file), after an old-paper reference:
+     a paler centre with warm grey-brown edges, soft low-contrast mottling,
+     thin hair-like fibres, sparse dark specks and a few faint tea stains.
+     - the overlay is fixed to the screen (body::before in css/cover.css):
+       fine grain and the darker edges;
+     - the paper itself scrolls with the page (body's background): mottling,
+       fibres, specks and stains over the paper colour, each on a tile of a
+       different size so no repeat lines up.
+     --parchment is both, for the few opaque areas that must hide what scrolls
+     under them (the pinned charts on phones). */
+  --parchment-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.07'/%3E%3C/svg%3E");
+  --parchment-mottle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='900'%3E%3Cfilter id='d' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.008' numOctaves='4' seed='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.48  0 0 0 0 0.40  0 0 0 0 0.29  2.2 0 0 0 -0.95'/%3E%3CfeGaussianBlur stdDeviation='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23d)' opacity='0.20'/%3E%3Cfilter id='l' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012' numOctaves='3' seed='9' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 0.97  -2.4 0 0 0 1.25'/%3E%3CfeGaussianBlur stdDeviation='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23l)' opacity='0.30'/%3E%3C/svg%3E");
+  --parchment-fibres: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='620' height='620'%3E%3Cfilter id='a' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.018' numOctaves='2' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.42  0 0 0 0 0.35  0 0 0 0 0.25  -34 0 0 0 1.5'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23a)' opacity='0.06'/%3E%3Cfilter id='b' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.026' numOctaves='1' seed='13' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.42  0 0 0 0 0.35  0 0 0 0 0.25  -40 0 0 0 1.5'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23b)' opacity='0.045'/%3E%3C/svg%3E");
+  --parchment-specks: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='760' height='760'%3E%3Cfilter id='s' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='1' seed='17' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.30  0 0 0 0 0.27  0 0 0 0 0.16  34 0 0 0 -25.6'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23s)' opacity='0.55'/%3E%3C/svg%3E");
+  --parchment-stains: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='2200' height='2800'%3E%3Cfilter id='t' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0022' numOctaves='3' seed='23' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.56  0 0 0 0 0.45  0 0 0 0 0.28  4 0 0 0 -2.35'/%3E%3CfeGaussianBlur stdDeviation='8'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23t)' opacity='0.11'/%3E%3Cfilter id='r' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0022' numOctaves='3' seed='23' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.45  0 0 0 0 0.35  0 0 0 0 0.22  9 0 0 0 -5.6'/%3E%3CfeGaussianBlur stdDeviation='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23r)' opacity='0.07'/%3E%3C/svg%3E");
+  --parchment-overlay:
+    radial-gradient(ellipse 80% 75% at 50% 46%, transparent 40%, rgb(120 96 62 / 0.08) 75%, rgb(105 80 48 / 0.16) 100%),
+    var(--parchment-grain) 0 0 / 220px 220px;
+  --parchment-page:
+    var(--parchment-specks) 0 0 / 760px 760px,
+    var(--parchment-fibres) 0 0 / 620px 620px,
+    var(--parchment-stains) 0 0 / 2200px 2800px,
+    var(--parchment-mottle) 0 0 / 900px 900px,
+    var(--paper);
+  --parchment: var(--parchment-overlay), var(--parchment-page);
   --accent: #b8462f;
 
-  /* The four cultures: flat, print-like tones taken from the cover art.
-     Checked for colour-blind readers: every pair stays clearly apart
-     under protanopia, deuteranopia and tritanopia. Used by the cover's
-     name tags and all three charts. */
-  --c-greek: #2c4f7c;      /* deep indigo (Empousa's dress) */
-  --c-hindu: #db8f30;      /* saffron (the Griffin's ochre) */
-  --c-japanese: #a3352a;   /* vermilion (the cover's accent red) */
-  --c-norse: #6aa384;      /* sage green (the hills) */
+  /* The four cultures, exactly as in the Figma file (Desktop - 1: the
+     counter's balls and the network legend). Used by the cover's name tags,
+     the article's interactions and all three charts. */
+  --c-greek: #1e5081;      /* deep indigo */
+  --c-hindu: #e88b00;      /* saffron */
+  --c-japanese: #b12921;   /* vermilion */
+  --c-norse: #56a682;      /* sage green */
 
   --font-heading: "Hubballi", Georgia, serif;           /* article headings and chart titles, in sentence case (as in Figma) */
   --font-display: "Disney Heroic", Georgia, serif;     /* decorative lettering: bestiary card labels, chart hover titles (assets/fonts/DisneyHeroic.ttf) */

@@ -3,12 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <title>Mythology Creatures — Quadrant Plot</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hubballi&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Harmattan&family=Hubballi&display=swap">
 <link rel="stylesheet" href="../css/tokens.css">
 <script>
   // In the article the title is a heading on the page, so the chart hides its own (?embed)
-  if (/[?&]embed\b/.test(location.search)) document.documentElement.classList.add('embedded');
+  // ...and waits on a blank screen until the article reveals it (c1Reveal, below)
+  if (/[?&]embed\b/.test(location.search)) document.documentElement.classList.add('embedded', 'c1-wait');
 </script>
+<style>html.embedded, .embedded body { background: transparent; }  /* the article's parchment shows through */</style>
 <style>.embedded h1 { display: none; }</style>
 <style>
   /* Restyled to match the article (css/tokens.css): paper background, ink
@@ -41,23 +43,47 @@
   #layout { display: flex; align-items: center; gap: 36px; }
   #plot-svg { display: block; overflow: visible; }
 
+  /* labels in the article's typeface (Harmattan), sized for the scale the article
+     draws the chart at (about 0.76): corners ~18px on screen, axes ~14px */
   .quadrant-label {
-    font-family: var(--font-body);
-    font-size: 14px;
-    letter-spacing: var(--caps-tracking);
+    font-family: "Harmattan", var(--font-body);
+    font-size: 24px;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     fill: var(--ink);
   }
   .axis-line { stroke: var(--ink); stroke-width: 1.2; }
+  /* the reveal (article only): the two axes draw in, then the circles pop in
+     from the middle outwards, then the labels and legend fade in */
+  .axis-line { stroke-dasharray: 1; stroke-dashoffset: 0; transition: stroke-dashoffset 1.2s cubic-bezier(.65,0,.35,1); }
+  .axis-line + .axis-line { transition-delay: .25s; }
+  .c1-wait .axis-line { stroke-dashoffset: 1; transition-duration: .3s; transition-delay: 0s; }
+  /* each circle: size 0 / opacity 0, then 130% / 50%, then 100% / 100% */
+  .dot { transform-box: fill-box; transform-origin: center; }
+  html:not(.c1-wait) .dot { animation: c1-pop .8s cubic-bezier(.33,0,.3,1) var(--d, 0s) both; }
+  @keyframes c1-pop {
+    0%   { transform: scale(0);   opacity: 0; }
+    60%  { transform: scale(1.3); opacity: .5; }
+    100% { transform: scale(1);   opacity: 1; }
+  }
+  .c1-wait .dot { transform: scale(0); opacity: 0; transition: transform .25s ease, opacity .25s ease; }   /* scrolled back above: gone again */
+  .quadrant-label, .axis-tick-label, .neutral-label, #side-legend { transition: opacity .7s ease 1.4s; }
+  .c1-wait :is(.quadrant-label, .axis-tick-label, .neutral-label, #side-legend) { opacity: 0; transition-delay: 0s; transition-duration: .2s; }
+  @media (prefers-reduced-motion: reduce) {
+    html:not(.c1-wait) .dot { animation: none; transition: opacity .6s ease var(--d, 0s); }
+    .dot, .c1-wait .dot { transform: none; }
+    .axis-line { stroke-dasharray: none; transition: opacity .6s ease; }
+    .c1-wait .axis-line { opacity: 0; }
+  }
   .axis-tick-label {
-    font-family: var(--font-body);
-    font-size: 11px;
-    letter-spacing: var(--caps-tracking);
+    font-family: "Harmattan", var(--font-body);
+    font-size: 18px;
+    letter-spacing: 0.04em;
     fill: var(--ink);
   }
   .neutral-label {
-    font-family: var(--font-body);
-    font-size: 11px;
+    font-family: "Harmattan", var(--font-body);
+    font-size: 17px;
     font-style: italic;
     fill: var(--ink-soft);
   }
@@ -76,16 +102,17 @@
     display: flex;
     flex-direction: column;
     gap: 34px;
-    width: 120px;
+    width: 170px;
+    font-family: "Harmattan", var(--font-body);
   }
   .legend-block { display: flex; flex-direction: column; gap: 12px; }
   .side-legend-title {
-    font-size: 12px;
-    letter-spacing: var(--caps-tracking);
+    font-size: 18px;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--ink);
   }
-  .culture-item, .size-item { display: flex; align-items: center; gap: 10px; font-size: 13px; letter-spacing: var(--caps-tracking); text-transform: uppercase; }
+  .culture-item, .size-item { display: flex; align-items: center; gap: 10px; font-size: 20px; letter-spacing: 0.04em; text-transform: uppercase; }
   .culture-swatch {
     width: 16px; height: 16px; border-radius: 50%;
     border: 1.2px solid var(--ink);
@@ -213,8 +240,8 @@ for (const q in quadrantCorner) {
   labelLayer.appendChild(label);
 }
 
-lineLayer.appendChild(el('line', { class: 'axis-line', x1: plotX0, y1: centerY, x2: plotX0 + plotW, y2: centerY }));
-lineLayer.appendChild(el('line', { class: 'axis-line', x1: centerX, y1: plotY0, x2: centerX, y2: plotY0 + plotH }));
+lineLayer.appendChild(el('line', { class: 'axis-line', pathLength: 1, x1: plotX0, y1: centerY, x2: plotX0 + plotW, y2: centerY }));
+lineLayer.appendChild(el('line', { class: 'axis-line', pathLength: 1, x1: centerX, y1: plotY0, x2: centerX, y2: plotY0 + plotH }));
 
 function axisLabel(x, y, text, anchor) {
   const label = el('text', { x, y, class: 'axis-tick-label', 'text-anchor': anchor });
@@ -222,14 +249,14 @@ function axisLabel(x, y, text, anchor) {
   labelLayer.appendChild(label);
 }
 
-axisLabel(plotX0 + 4, centerY - 8, 'PROTECTOR', 'start');
-axisLabel(plotX0 + plotW - 4, centerY - 8, 'PROTECTOR', 'end');
-axisLabel(centerX - 44, plotY0 + 12, 'DESTROYER', 'start');
-axisLabel(centerX - 44, plotY0 + plotH - 6, 'DESTROYER', 'start');
-axisLabel(centerX, centerY - 6, 'GUIDE', 'middle');
-axisLabel(centerX + 6, centerY + 20, 'TRICKSTER', 'start');
+axisLabel(plotX0 + 4, centerY + 22, 'PROTECTOR', 'start');
+axisLabel(plotX0 + plotW - 4, centerY + 22, 'PROTECTOR', 'end');
+axisLabel(centerX - 8, plotY0 + 14, 'DESTROYER', 'end');
+axisLabel(centerX - 8, plotY0 + plotH - 6, 'DESTROYER', 'end');
+axisLabel(centerX - 8, centerY - 8, 'GUIDE', 'end');
+axisLabel(centerX + 8, centerY + 22, 'TRICKSTER', 'start');
 
-const neutralTag = el('text', { x: centerX + 4, y: centerY - 14, class: 'neutral-label' });
+const neutralTag = el('text', { x: centerX + 8, y: centerY - 8, class: 'neutral-label' });
 neutralTag.textContent = 'neutral';
 labelLayer.appendChild(neutralTag);
 
@@ -250,11 +277,9 @@ CREATURES_DATA.forEach((c) => {
   const y = centerY + dy;
   const r = rMin + (c.popularity - 1) / 9 * (rMax - rMin);
 
-  const circle = el('circle', {
-    class: 'dot',
-    cx: x, cy: y, r,
-    fill: cultureColor(c.mythology)
-  });
+  const circle = el('circle', { class: 'dot', cx: x, cy: y, r, fill: cultureColor(c.mythology) });
+  // pop in from the middle outwards, after the axes have drawn
+  circle.style.setProperty('--d', (2.1 + Math.hypot(dx, dy) / maxR * 1.1).toFixed(2) + 's');   // after the words, middle first
 
   const title = el('title', {});
   title.textContent = `${c.name} — ${c.mythLabel} · ${c.type}`;
@@ -331,6 +356,9 @@ const sizeRow = document.getElementById('size-row');
   swatch.style.height = `${radius * 2}px`;
   sizeRow.appendChild(swatch);
 });
+
+// the article calls this when the pinned chart is centred on screen (true) or scrolled back above (false)
+window.c1Reveal = (on) => document.documentElement.classList.toggle('c1-wait', !on);
 </script>
 
 </body>

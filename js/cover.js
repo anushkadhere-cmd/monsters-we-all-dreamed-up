@@ -101,6 +101,7 @@
 
   async function loadPart(name, layout) {
     const entry = layout && layout.layers[name];
+    if (layout && !entry) return null;      // with a layout, a layer it doesn't list doesn't exist (no request, no 404)
     const src = entry ? DIR + entry.file : DIR + "full/" + name + ".png";
     const img = await loadImg(src);
     if (!img) { console.info("[cover] skipped (not found): " + src); return null; }
@@ -459,8 +460,8 @@
 
     placeHotspots();
     help.textContent = canHover.matches
-      ? "Hover a creature to meet its twin from another culture.\nClick to keep it."
-      : "Tap a creature to meet its twin from another culture. Swipe to look around.";
+      ? "Hover over a creature to meet its twin\nClick to lock it"
+      : "Tap a creature to meet its twin\nSwipe to look around";
     const h = creatures.find((c) => c.cfg.a.file === HINT_ON);
     if (h && hitMapsOk) {
       hint.textContent = canHover.matches ? "Hover over the creatures" : "Tap the creatures";
